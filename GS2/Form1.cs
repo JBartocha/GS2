@@ -15,12 +15,14 @@ namespace GS2
     {
         private Snake Snake;
         private Grid Grid;
+        private Point SnakeStartingHeadPosition = new Point(5, 5);
         private bool Pause = true;
         private bool GameOver = false;
         private int TickInMilliseconds = 500;
-        private Point HeadPosition = new Point(5,5);
+        private Point HeadPosition = new Point(5, 5);
         private string ForbiddenDirection = "Down";
         private int Moves = 0;
+        private int FoodsEaten = 0;
         private int CellSize = 40;
 
         public Graphics grap;
@@ -45,7 +47,12 @@ namespace GS2
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
 
             this.Grid = new Grid(11, 11, CellSize, grap);
-            this.Snake = new Snake(new Point(5, 5));
+            this.Snake = new Snake(new Point(SnakeStartingHeadPosition.X, SnakeStartingHeadPosition.Y));
+
+            if (Grid.AddFood() || Grid.AddFood())
+            {
+                SetGameOver();
+            }
 
             Snake.SnakeMoveEvent += Grid.OnSnakeMoveEvent;
             Grid.BlockCollisionEvent += Snake.OnGridCollisionEvent;
@@ -57,21 +64,14 @@ namespace GS2
         {
             if (args.IsCollision)
             {
-                Button_Pause.Text = "Unpause";
-                Pause = true;
-                //Grid.CrossSnakeHead(grap);
-                Panel_Main.Refresh();
-                GameOver = true;
-                MessageBox.Show("Game Over");
+                SetGameOver();
             }
             else
             {
                 if (args.BlockType == BlockTypes.FoodBlock)
                 {
-                    Moves++;
-                    Label_Moves.Text = "Moves: " + Moves;
                     Grid.AddFood();
-                    Label_Food_Eaten.Text = "Points: " + Moves;
+                    Label_Food_Eaten.Text = "Points: " + ++FoodsEaten;
                 }
             }
         }
@@ -85,32 +85,51 @@ namespace GS2
             {
                 i += TickInMilliseconds / 1000f;
                 Label_Timer.Text = ConvertToHHMMSS((int)i);
-                if (!Pause || GameOver)
+                if (!Pause)
                 {
                     // Precalculate collision for next move
                     Snake.Move();
-                    SetMoveCounter(++MoveCounter);
 
-                    // predelat
-                    if (false)
-                    //if (IsCollision(Snake.GetPlannedMovePoint()))
+                    if (!GameOver)
                     {
-                        Button_Pause.Text = "Unpause";
-                        Pause = true;
-                        //Grid.CrossSnakeHead(grap);
+                        Label_Moves.Text = "Moves: " + MoveCounter;
+                        Label_Moves.Text = "Moves: " + ++Moves;
+                        ForbiddenDirection = Snake.GetForbiddenMoveDirection();
+                        HeadPosition = Snake.GetSnakeHeadPosition();
                         Panel_Main.Refresh();
-                        GameOver = true;
-                        MessageBox.Show("Game Over");
-                        break;
                     }
-
-                    ForbiddenDirection = Snake.GetForbiddenMoveDirection();
-                    HeadPosition = Snake.GetSnakeHeadPosition();
-                    Panel_Main.Refresh();
                 }
             }
             //Panel_Main.Refresh();
             return true;
+        }
+
+        private void ResetGame()
+        {
+            //Snake = new Snake(new Point(SnakeStartingHeadPosition.X, SnakeStartingHeadPosition.Y));
+            //Grid = new Grid(11, 11, CellSize, grap);
+            FoodsEaten = 0;
+            Moves = 0;
+            Label_Food_Eaten.Text = "Points: " + FoodsEaten;
+            Label_Moves.Text = "Moves: " + Moves;
+            GameOver = false;
+            Pause = true;
+            Button_Pause.Text = "Start";
+            ForbiddenDirection = "Down";
+
+            InitializeGrid();
+
+            RunTimer();
+        }
+
+        private void SetGameOver()
+        {
+            Button_Pause.Text = "Unpause";
+            Pause = true;
+            //Grid.CrossSnakeHead(grap);
+            Panel_Main.Refresh();
+            GameOver = true;
+            MessageBox.Show("Game Over");
         }
 
         private string ConvertToHHMMSS(int seconds)
@@ -167,11 +186,6 @@ namespace GS2
             }
         }
 
-        private void SetMoveCounter(int count)
-        {
-            Label_Moves.Text = "Moves: " + count;
-        }
-
         private void Button_Pause_Click(object sender, EventArgs e)
         {
             if (Pause || Button_Pause.Text == "Start")
@@ -189,6 +203,11 @@ namespace GS2
         private void Panel_Main_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void Restart_Click(object sender, EventArgs e)
+        {
+            ResetGame();
         }
     }
 }

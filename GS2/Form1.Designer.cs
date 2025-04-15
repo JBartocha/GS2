@@ -35,6 +35,7 @@
             Label_Food_Eaten = new Label();
             Label_Moves = new Label();
             Label_Timer = new Label();
+            Restart = new Button();
             SuspendLayout();
             // 
             // Panel_Main
@@ -49,6 +50,7 @@
             // 
             // Button_Pause
             // 
+            Button_Pause.Font = new Font("Segoe UI", 28F);
             Button_Pause.Location = new Point(607, 470);
             Button_Pause.Name = "Button_Pause";
             Button_Pause.Size = new Size(184, 64);
@@ -106,11 +108,23 @@
             Label_Timer.TabIndex = 6;
             Label_Timer.Text = "Time : 00:00:00";
             // 
+            // Restart
+            // 
+            Restart.Font = new Font("Segoe UI", 28F);
+            Restart.Location = new Point(607, 402);
+            Restart.Name = "Restart";
+            Restart.Size = new Size(184, 64);
+            Restart.TabIndex = 7;
+            Restart.Text = "Restart";
+            Restart.UseVisualStyleBackColor = true;
+            Restart.Click += Restart_Click;
+            // 
             // Main_Form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(803, 546);
+            Controls.Add(Restart);
             Controls.Add(Label_Timer);
             Controls.Add(Label_Moves);
             Controls.Add(Label_Food_Eaten);
@@ -133,5 +147,6 @@
         private Label Label_Food_Eaten;
         private Label Label_Moves;
         private Label Label_Timer;
+        private Button Restart;
     }
 }

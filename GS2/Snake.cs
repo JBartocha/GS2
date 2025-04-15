@@ -122,15 +122,5 @@ namespace GS2
             SetForbiddenDirection();
             OnSnakeEvent();
         }
-
-        public List<Point> GetBody()
-        {
-            return this.SnakePoints.Points;
-        }
-
-        public Point GetHead()
-        {
-            return SnakePoints.Points[SnakePoints.Points.Count - 1];
-        }
     }
 }

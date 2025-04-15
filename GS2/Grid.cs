@@ -13,7 +13,7 @@ namespace GS2
     {
         public void DrawGrid();
         public void DrawBlock(IBlock block);
-        public void AddFood();
+        public bool AddFood();
 
 
     }
@@ -72,13 +72,14 @@ namespace GS2
         //EVENT sent from SNAKE
         public void OnSnakeMoveEvent(object sender, SnakePointsEvent e)
         {
-            Debug.WriteLine("OnSnakeMoveEvent triggered in Grid with point: " + e.Points.ElementAt(e.Points.Count - 1).X + "," + e.Points.ElementAt(e.Points.Count - 1).Y);
-            //FieldTypes OriginalBlock = GetBlockType(e.Points.ElementAt(e.Points.Count - 1).X, e.Points.ElementAt(e.Points.Count - 1).Y);
             Point PlannedMovePoint = e.Points.ElementAt(e.Points.Count - 1);
-            
-            if (IsCollisionOrOutOfBounds(PlannedMovePoint))
+            Debug.WriteLine("SnakeMoveEvent in Grid triggered with point: " + PlannedMovePoint.X + "," + PlannedMovePoint.Y);
+            if (IsCollisionOrOutOfBoundsOrSnakeBody(PlannedMovePoint))
             {
                 GridCollisionEvent.IsCollision = true;
+                // We do not care what type of block is in the cell
+                if (BlockCollisionEvent != null)
+                    BlockCollisionEvent(this, GridCollisionEvent);
                 return;
             }
             if (GetBlockType(PlannedMovePoint.X, PlannedMovePoint.Y) == BlockTypes.FoodBlock)
@@ -97,20 +98,44 @@ namespace GS2
             DrawSnake(e.Points);
         }
 
-        public void AddFood()
+        public bool AddFood()
         {
-            Random random = new Random();
-            int x = random.Next(0, Rows);
-            int y = random.Next(0, Columns);
-            while (GetBlockType(x, y) != BlockTypes.EmptyBlock)
+            if(GetEmptyCellsCount() == 0)
             {
-                x = random.Next(0, Rows);
-                y = random.Next(0, Columns);
+                return true; // No empty cells available
             }
-            DrawCell(x, y, BlockTypes.FoodBlock);
+            else
+            {
+                Random random = new Random();
+                int x = random.Next(0, Rows);
+                int y = random.Next(0, Columns);
+                while (GetBlockType(x, y) != BlockTypes.EmptyBlock)
+                {
+                    x = random.Next(0, Rows);
+                    y = random.Next(0, Columns);
+                }
+                DrawCell(x, y, BlockTypes.FoodBlock);
+                return false; // Food added successfully
+            }
         }
 
-        private bool IsCollisionOrOutOfBounds(Point PlannedMovePoint)
+        private int GetEmptyCellsCount()
+        {
+            int EmptyCellsCount = 0;
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    if (Cells[i, j].blockType == BlockTypes.EmptyBlock)
+                    {
+                        EmptyCellsCount++;
+                    }
+                }
+            }
+            return EmptyCellsCount;
+        }
+
+        private bool IsCollisionOrOutOfBoundsOrSnakeBody(Point PlannedMovePoint)
         {
             if (PlannedMovePoint.X < 0 || PlannedMovePoint.X >= Rows || PlannedMovePoint.Y < 0 || PlannedMovePoint.Y >= Columns)
             {
@@ -163,12 +188,10 @@ namespace GS2
             // Draw the grid lines
             for (int i = 0; i <= Rows ; i++)
             {
-                Debug.WriteLine("Drawing line at: " + i * BlockSize);
                 Graphics.DrawLine(Pens.Black, 0, i * BlockSize, Columns * BlockSize, i * BlockSize);
             }
             for (int j = 0; j <= Columns; j++)
             {
-                Debug.WriteLine("Drawing line at: " + j * BlockSize);
                 Graphics.DrawLine(Pens.Black, j * BlockSize, 0, j * BlockSize, Rows * BlockSize);
             }
         }
@@ -216,20 +239,4 @@ namespace GS2
 
     }
 
-    //public class Block : IBlock
-    //{
-    //    Point Position;
-    //    BlockTypes BlockType;
-
-
-    //    public Block(Point position, BlockTypes blockType = BlockTypes.EmptyBlock)
-    //    {
-    //        Position = position;
-    //        BlockType = blockType;
-
-    //    }
-
-    //    Point IBlock.Position { get => Position; set => Position = new Point(value.X, value.Y); }
-    //    BlockTypes IBlock.BlockType { get => BlockType; set => BlockType = value; }
-    //}
 }
