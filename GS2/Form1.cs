@@ -18,7 +18,11 @@ namespace GS2
         private Point SnakeStartingHeadPosition = new Point(5, 5);
         private bool Pause = true;
         private bool GameOver = false;
+        private int Level = 1;
+        private int FoodCount = 3; // Number of food items to spawn
+        private int LevelIncreaseInterval = 2; // Every 2 points
         private int TickInMilliseconds = 500;
+        private float difficultyIncrease = 0.1f; // 10% increase
         private Point HeadPosition = new Point(5, 5);
         private string ForbiddenDirection = "Down";
         private int Moves = 0;
@@ -49,9 +53,12 @@ namespace GS2
             this.Grid = new Grid(11, 11, CellSize, grap);
             this.Snake = new Snake(new Point(SnakeStartingHeadPosition.X, SnakeStartingHeadPosition.Y));
 
-            if (Grid.AddFood() || Grid.AddFood())
+            for(int i = 0; i < FoodCount; i++)
             {
-                SetGameOver();
+                if (Grid.AddFood())
+                {
+                    SetGameOver();
+                }
             }
 
             Snake.SnakeMoveEvent += Grid.OnSnakeMoveEvent;
@@ -72,6 +79,11 @@ namespace GS2
                 {
                     Grid.AddFood();
                     Label_Food_Eaten.Text = "Points: " + ++FoodsEaten;
+                    if (FoodsEaten % this.LevelIncreaseInterval == 0)
+                    {
+                        Label_Level.Text = "LEVEL: " + ++Level;
+                        IncreaseSpeed();
+                    }
                 }
             }
         }
@@ -83,6 +95,7 @@ namespace GS2
             int MoveCounter = 0;
             while (await timer.WaitForNextTickAsync())
             {
+                timer.Period = TimeSpan.FromMilliseconds(TickInMilliseconds);
                 i += TickInMilliseconds / 1000f;
                 Label_Timer.Text = ConvertToHHMMSS((int)i);
                 if (!Pause)
@@ -116,6 +129,8 @@ namespace GS2
             Pause = true;
             Button_Pause.Text = "Start";
             ForbiddenDirection = "Down";
+            TickInMilliseconds = 500;
+            Label_Speed.Text = "Speed: " + TickInMilliseconds + "ms";
 
             InitializeGrid();
 
@@ -130,6 +145,20 @@ namespace GS2
             Panel_Main.Refresh();
             GameOver = true;
             MessageBox.Show("Game Over");
+        }
+
+        private void IncreaseSpeed()
+        {
+            if (TickInMilliseconds > 100)
+            {
+                TickInMilliseconds -= (int)(TickInMilliseconds * difficultyIncrease);
+                Debug.WriteLine("Speed increased to: " + TickInMilliseconds);
+                Label_Speed.Text = "Speed: " + TickInMilliseconds + "ms";
+            }
+            else
+            {
+                TickInMilliseconds = 100;
+            }
         }
 
         private string ConvertToHHMMSS(int seconds)
@@ -190,12 +219,12 @@ namespace GS2
         {
             if (Pause || Button_Pause.Text == "Start")
             {
-                Button_Pause.Text = "Resume";
+                Button_Pause.Text = "Pause";
                 Pause = false;
             }
             else
             {
-                Button_Pause.Text = "Pause";
+                Button_Pause.Text = "Resume";
                 Pause = true;
             }
         }

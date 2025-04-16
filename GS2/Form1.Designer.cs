@@ -36,6 +36,8 @@
             Label_Moves = new Label();
             Label_Timer = new Label();
             Restart = new Button();
+            Label_Speed = new Label();
+            Label_Level = new Label();
             SuspendLayout();
             // 
             // Panel_Main
@@ -63,7 +65,7 @@
             // 
             Label_Movement_Direction.AutoSize = true;
             Label_Movement_Direction.Font = new Font("Segoe UI", 12F);
-            Label_Movement_Direction.Location = new Point(607, 12);
+            Label_Movement_Direction.Location = new Point(607, 9);
             Label_Movement_Direction.Name = "Label_Movement_Direction";
             Label_Movement_Direction.Size = new Size(47, 21);
             Label_Movement_Direction.TabIndex = 2;
@@ -72,7 +74,7 @@
             // Label_Mouse_Position
             // 
             Label_Mouse_Position.Font = new Font("Segoe UI", 12F);
-            Label_Mouse_Position.Location = new Point(607, 33);
+            Label_Mouse_Position.Location = new Point(607, 30);
             Label_Mouse_Position.Name = "Label_Mouse_Position";
             Label_Mouse_Position.Size = new Size(100, 23);
             Label_Mouse_Position.TabIndex = 3;
@@ -82,7 +84,7 @@
             // 
             Label_Food_Eaten.AutoSize = true;
             Label_Food_Eaten.Font = new Font("Segoe UI", 12F);
-            Label_Food_Eaten.Location = new Point(607, 56);
+            Label_Food_Eaten.Location = new Point(607, 53);
             Label_Food_Eaten.Name = "Label_Food_Eaten";
             Label_Food_Eaten.Size = new Size(110, 21);
             Label_Food_Eaten.TabIndex = 4;
@@ -92,7 +94,7 @@
             // 
             Label_Moves.AutoSize = true;
             Label_Moves.Font = new Font("Segoe UI", 12F);
-            Label_Moves.Location = new Point(607, 77);
+            Label_Moves.Location = new Point(607, 74);
             Label_Moves.Name = "Label_Moves";
             Label_Moves.Size = new Size(63, 21);
             Label_Moves.TabIndex = 5;
@@ -102,7 +104,7 @@
             // 
             Label_Timer.AutoSize = true;
             Label_Timer.Font = new Font("Segoe UI", 12F);
-            Label_Timer.Location = new Point(607, 98);
+            Label_Timer.Location = new Point(607, 95);
             Label_Timer.Name = "Label_Timer";
             Label_Timer.Size = new Size(115, 21);
             Label_Timer.TabIndex = 6;
@@ -119,11 +121,33 @@
             Restart.UseVisualStyleBackColor = true;
             Restart.Click += Restart_Click;
             // 
+            // Label_Speed
+            // 
+            Label_Speed.AutoSize = true;
+            Label_Speed.Font = new Font("Segoe UI", 12F);
+            Label_Speed.Location = new Point(607, 116);
+            Label_Speed.Name = "Label_Speed";
+            Label_Speed.Size = new Size(140, 21);
+            Label_Speed.TabIndex = 8;
+            Label_Speed.Text = "CurrentSpeed(ms):";
+            // 
+            // Label_Level
+            // 
+            Label_Level.AutoSize = true;
+            Label_Level.Font = new Font("Segoe UI", 24F);
+            Label_Level.Location = new Point(607, 354);
+            Label_Level.Name = "Label_Level";
+            Label_Level.Size = new Size(109, 45);
+            Label_Level.TabIndex = 9;
+            Label_Level.Text = "LEVEL:";
+            // 
             // Main_Form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(803, 546);
+            Controls.Add(Label_Level);
+            Controls.Add(Label_Speed);
             Controls.Add(Restart);
             Controls.Add(Label_Timer);
             Controls.Add(Label_Moves);
@@ -148,5 +172,7 @@
         private Label Label_Moves;
         private Label Label_Timer;
         private Button Restart;
+        private Label Label_Speed;
+        private Label Label_Level;
     }
 }
