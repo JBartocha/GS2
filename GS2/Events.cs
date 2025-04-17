@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.FileIO;
 
 namespace GS2
 {
-
     public class GridCollisionArgs : EventArgs
     {
         public BlockTypes BlockType { get; set; }
@@ -18,6 +16,11 @@ namespace GS2
             IsCollision = false;
             BlockType = BlockTypes.EmptyBlock;
         }
+    }
+
+    public class SnakePointsEvent : EventArgs
+    {
+        public List<Point> Points = [];
     }
 
 }

@@ -107,7 +107,7 @@
             // 
             Label_Timer.AutoSize = true;
             Label_Timer.Font = new Font("Segoe UI", 12F);
-            Label_Timer.Location = new Point(607, 95);
+            Label_Timer.Location = new Point(608, 308);
             Label_Timer.Name = "Label_Timer";
             Label_Timer.Size = new Size(115, 21);
             Label_Timer.TabIndex = 6;
@@ -128,17 +128,17 @@
             // 
             Label_Speed.AutoSize = true;
             Label_Speed.Font = new Font("Segoe UI", 12F);
-            Label_Speed.Location = new Point(607, 116);
+            Label_Speed.Location = new Point(607, 95);
             Label_Speed.Name = "Label_Speed";
-            Label_Speed.Size = new Size(140, 21);
+            Label_Speed.Size = new Size(91, 21);
             Label_Speed.TabIndex = 8;
-            Label_Speed.Text = "CurrentSpeed(ms):";
+            Label_Speed.Text = "Speed (ms):";
             // 
             // Label_Level
             // 
             Label_Level.AutoSize = true;
             Label_Level.Font = new Font("Segoe UI", 24F);
-            Label_Level.Location = new Point(608, 137);
+            Label_Level.Location = new Point(607, 116);
             Label_Level.Name = "Label_Level";
             Label_Level.Size = new Size(109, 45);
             Label_Level.TabIndex = 9;

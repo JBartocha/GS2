@@ -59,10 +59,11 @@ namespace GS2
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
             string FoodInterval = SS.LevelIncreaseInterval.ToString();
             ListBoxFoodInterval.SelectedIndex = ListBoxFoodInterval.Items.IndexOf(FoodInterval);
-            string SpeedPercent = (SS.LevelIncreaseInterval * 100).ToString();
+            string SpeedPercent = (SS.DifficultyIncrease * 100).ToString();
             ListBoxSpeedPercent.SelectedIndex = ListBoxSpeedPercent.Items.IndexOf(SpeedPercent);
             TrackBarCellSize.Value = SS.CellSize;
             TextBoxInitialSpeed.Text = SS.TickInMilliseconds.ToString();
+
         }
 
         private void Button_EXIT_Click(object sender, EventArgs e)
@@ -96,7 +97,14 @@ namespace GS2
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine(ListBoxSpeedPercent.SelectedItem);
+            SS.CellSize = TrackBarCellSize.Value;
+            SS.FoodCount = int.Parse(ListBoxFoodCount.SelectedItem.ToString());
+            SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
+            SS.LevelIncreaseInterval = int.Parse(ListBoxFoodInterval.SelectedItem.ToString());
+            SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
+
+            string json = JsonSerializer.Serialize(SS);
+            File.WriteAllText(Settings.JsonSaveFileName, json);
         }
 
     }

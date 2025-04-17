@@ -41,10 +41,11 @@ namespace GS2
         {
             InitializeComponent();
 
+            ResetGame();
+
             InitializeGrid();
 
             RunTimer();
-
         }
 
         private void InitializeGrid()
@@ -139,7 +140,7 @@ namespace GS2
             {
                 timer.Period = TimeSpan.FromMilliseconds(SS.TickInMilliseconds);
                 i += SS.TickInMilliseconds / 1000f;
-                Label_Timer.Text = ConvertToHHMMSS((int)i);
+                Label_Timer.Text = "Running Time: " + ConvertToHHMMSS((int)i);
                 if (!SS.Pause)
                 {
                     // Precalculate collision for next move
@@ -161,16 +162,18 @@ namespace GS2
 
         private void ResetGame()
         {
-            SS.FoodsEaten = 0;
-            SS.Moves = 0;
-            SS.Level = 1;
+            string json = File.ReadAllText(Settings.JsonSaveFileName);
+            var deserializedSettings = JsonSerializer.Deserialize<Settings>(json);
+            if (deserializedSettings != null) // TODO abundant
+            {
+                SS = deserializedSettings;
+            }
+            else
+                throw new Exception("Failed to deserialize settings after ResetGame().");
+
             Label_Food_Eaten.Text = "Points: " + SS.FoodsEaten;
             Label_Moves.Text = "Moves: " + SS.Moves;
-            SS.GameOver = false;
-            SS.Pause = true;
             Button_Pause.Text = "Start";
-            SS.ForbiddenDirection = "Down";
-            SS.TickInMilliseconds = 500;
             Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
             Label_Level.Text = "LEVEL: " + SS.Level;
 
