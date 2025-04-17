@@ -16,7 +16,7 @@ namespace GS2
         public Point GetSnakeHeadPosition();
     }
 
-    internal class Snake
+    internal class Snake : ISnake
     {
         private bool Growing = false;
 
@@ -35,7 +35,7 @@ namespace GS2
         }
 
         // EVENT from GRID
-        public void OnGridCollisionEvent(object sender, GridCollisionArgs e)
+        private void OnGridCollisionEvent(object sender, GridCollisionArgs e)
         {
             if (e.BlockType == BlockTypes.FoodBlock)
             {
@@ -104,7 +104,7 @@ namespace GS2
                     Movement.Y = 0;
                     break;
                 default:
-                    throw new ArgumentException("Invalid direction");
+                    throw new ArgumentException("Invalid direction for Movement in Snake.SetMovement class");
             }
         }
 
