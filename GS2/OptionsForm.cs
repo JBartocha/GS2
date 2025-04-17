@@ -97,6 +97,12 @@ namespace GS2
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
+            if(ListBoxFoodCount.SelectedIndex == -1 || ListBoxFoodInterval.SelectedIndex == -1 || ListBoxSpeedPercent.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a food count.");
+                return;
+            }
+
             SS.CellSize = TrackBarCellSize.Value;
             SS.FoodCount = int.Parse(ListBoxFoodCount.SelectedItem.ToString());
             SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
@@ -109,3 +115,4 @@ namespace GS2
 
     }
 }
+
