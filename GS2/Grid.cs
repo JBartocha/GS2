@@ -14,8 +14,7 @@ namespace GS2
         public void DrawGrid();
         public void DrawBlock(IBlock block);
         public bool AddFood();
-
-
+        public bool AddFood(int x, int y);
     }
 
     interface IBlock
@@ -96,6 +95,23 @@ namespace GS2
             GridCollisionEvent.BlockType = BlockTypes.EmptyBlock;
             RemoveSnakeCells(); // Clear the snake cells before drawing the new position
             DrawSnake(e.Points);
+        }
+
+        public bool AddFood(int x, int y)
+        {
+            if (GetEmptyCellsCount() == 0)
+            {
+                return true; // No empty cells available
+            }
+            else
+            {
+                if(GetBlockType(x, y) != BlockTypes.EmptyBlock)
+                {
+                    return true; // Cell is not empty
+                }
+                DrawCell(x, y, BlockTypes.FoodBlock);
+                return false; // Food added successfully
+            }
         }
 
         public bool AddFood()
