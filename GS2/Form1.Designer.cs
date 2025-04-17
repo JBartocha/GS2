@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             Panel_Main = new Panel();
             Button_Pause = new Button();
             Label_Movement_Direction = new Label();
@@ -38,6 +39,8 @@
             Restart = new Button();
             Label_Speed = new Label();
             Label_Level = new Label();
+            timer1 = new System.Windows.Forms.Timer(components);
+            Button_Options = new Button();
             SuspendLayout();
             // 
             // Panel_Main
@@ -135,17 +138,29 @@
             // 
             Label_Level.AutoSize = true;
             Label_Level.Font = new Font("Segoe UI", 24F);
-            Label_Level.Location = new Point(607, 354);
+            Label_Level.Location = new Point(608, 137);
             Label_Level.Name = "Label_Level";
             Label_Level.Size = new Size(109, 45);
             Label_Level.TabIndex = 9;
             Label_Level.Text = "LEVEL:";
+            // 
+            // Button_Options
+            // 
+            Button_Options.Font = new Font("Segoe UI", 24F);
+            Button_Options.Location = new Point(608, 332);
+            Button_Options.Name = "Button_Options";
+            Button_Options.Size = new Size(184, 64);
+            Button_Options.TabIndex = 10;
+            Button_Options.Text = "Options";
+            Button_Options.UseVisualStyleBackColor = true;
+            Button_Options.Click += Button_Options_Click;
             // 
             // Main_Form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(803, 546);
+            Controls.Add(Button_Options);
             Controls.Add(Label_Level);
             Controls.Add(Label_Speed);
             Controls.Add(Restart);
@@ -174,5 +189,7 @@
         private Button Restart;
         private Label Label_Speed;
         private Label Label_Level;
+        private System.Windows.Forms.Timer timer1;
+        private Button Button_Options;
     }
 }

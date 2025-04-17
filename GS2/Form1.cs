@@ -15,23 +15,6 @@ namespace GS2
 
     public partial class Main_Form : Form
     {
-        private class Settings
-        {
-            public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
-            public bool Pause { get; set; } = true;
-            public bool GameOver { get; set; } = false;
-            public int Level { get; set; } = 1;
-            public int FoodCount { get; set; } = 3;
-            public int LevelIncreaseInterval { get; set; } = 2;
-            public int TickInMilliseconds { get; set; } = 500;
-            public float DifficultyIncrease { get; set; } = 0.1f;
-            public Point HeadPosition { get; set; } = new Point(5, 5);
-            public string ForbiddenDirection { get; set; } = "Down";
-            public int Moves { get; set; } = 0;
-            public int FoodsEaten { get; set; } = 0;
-            public int CellSize { get; set; } = 40;
-        }
-
         private Snake? Snake;
         private Grid? Grid;
         //private Point SnakeStartingHeadPosition = new Point(5, 5);
@@ -48,7 +31,7 @@ namespace GS2
         //private int FoodsEaten = 0;
         //private int CellSize = 40;
 
-        Settings SS = new Settings();
+        private Settings SS = new Settings();
         public Graphics? grap;
         Bitmap? surface;
         private PeriodicTimer? timer;
@@ -61,6 +44,7 @@ namespace GS2
             InitializeGrid();
 
             RunTimer();
+
         }
 
         private void InitializeGrid()
@@ -69,13 +53,13 @@ namespace GS2
             grap = Graphics.FromImage(surface);
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
-            
+
             SerializeConfigSettings();
 
             this.Grid = new Grid(11, 11, SS.CellSize, grap);
             this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y));
 
-            for(int i = 0; i < SS.FoodCount; i++)
+            for (int i = 0; i < SS.FoodCount; i++)
             {
                 if (Grid.AddFood())
                 {
@@ -90,22 +74,19 @@ namespace GS2
 
         private void SerializeConfigSettings()
         {
-            if (TestFileExists("Settings.json")) 
+            if (TestFileExists(Settings.JsonSaveFileName))
             {
-                string json = File.ReadAllText("Settings.json");
+                string json = File.ReadAllText(Settings.JsonSaveFileName);
                 var deserializedSettings = JsonSerializer.Deserialize<Settings>(json);
                 if (deserializedSettings != null)
                 {
                     SS = deserializedSettings;
                 }
-                //Debug.WriteLine(json.ToString());
             }
             else
             {
                 string json = JsonSerializer.Serialize(SS);
-                File.WriteAllText("Settings.json", json);
-                //Debug.WriteLine(json.ToString());
-                //Debug.WriteLine("Settings file not found, using default settings.");
+                File.WriteAllText(Settings.JsonSaveFileName, json);
             }
         }
 
@@ -182,6 +163,7 @@ namespace GS2
         {
             SS.FoodsEaten = 0;
             SS.Moves = 0;
+            SS.Level = 1;
             Label_Food_Eaten.Text = "Points: " + SS.FoodsEaten;
             Label_Moves.Text = "Moves: " + SS.Moves;
             SS.GameOver = false;
@@ -190,6 +172,7 @@ namespace GS2
             SS.ForbiddenDirection = "Down";
             SS.TickInMilliseconds = 500;
             Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
+            Label_Level.Text = "LEVEL: " + SS.Level;
 
             InitializeGrid();
 
@@ -296,6 +279,15 @@ namespace GS2
         private void Restart_Click(object sender, EventArgs e)
         {
             ResetGame();
+        }
+
+        private void Button_Options_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            OptionsForm optionsForm = new OptionsForm();
+            optionsForm.ShowDialog();
+            this.Show();
+
         }
     }
 }
