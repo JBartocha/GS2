@@ -12,6 +12,7 @@ namespace GS2
         public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
         public bool Pause { get; set; } = true;
         public bool GameOver { get; set; } = false;
+        public bool UseMousePositionToMove { get; set; } = true;
         public int Level { get; set; } = 1;
         public int FoodCount { get; set; } = 3;
         public int LevelIncreaseInterval { get; set; } = 2;

@@ -11,8 +11,6 @@ namespace GS2
 {
     interface IGrid
     {
-        public void DrawGrid();
-        public void DrawBlock(IBlock block);
         public bool AddFood();
         public bool AddFood(int x, int y);
     }
@@ -23,7 +21,7 @@ namespace GS2
         BlockTypes BlockType { get; set; }
     }
 
-    internal class Grid
+    internal class Grid : IGrid
     {
         private struct Cell
         {
@@ -237,7 +235,7 @@ namespace GS2
             }
         }
 
-        public void CrossSnakeHead()
+        private void CrossSnakeHead()
         {
             for (int i = 0; i < Rows; i++)
             {

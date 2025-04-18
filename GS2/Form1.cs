@@ -214,47 +214,50 @@ namespace GS2
 
         private void PanelMain_MouseMove(object sender, MouseEventArgs e)
         {
-            Label_Mouse_Position.Text = $"X:{e.Location.X} Y:{e.Location.Y}";
-
-            Point Cursor = new Point(e.Location.X, e.Location.Y);
-
-            int deltaX = Cursor.X - ((SS.HeadPosition.X) * SS.CellSize + (SS.CellSize / 2));
-            int deltaY = Cursor.Y - ((SS.HeadPosition.Y) * SS.CellSize + (SS.CellSize / 2));
-            if (Math.Abs(deltaX) > Math.Abs(deltaY))
+            if(SS.UseMousePositionToMove)
             {
-                if (deltaX > 0)
+                Label_Mouse_Position.Text = $"X:{e.Location.X} Y:{e.Location.Y}";
+
+                Point Cursor = new Point(e.Location.X, e.Location.Y);
+
+                int deltaX = Cursor.X - ((SS.HeadPosition.X) * SS.CellSize + (SS.CellSize / 2));
+                int deltaY = Cursor.Y - ((SS.HeadPosition.Y) * SS.CellSize + (SS.CellSize / 2));
+                if (Math.Abs(deltaX) > Math.Abs(deltaY))
                 {
-                    if (SS.ForbiddenDirection != "Right")
+                    if (deltaX > 0)
                     {
-                        Snake.SetMovement("Right");
-                        Label_Movement_Direction.Text = "Right";
+                        if (SS.ForbiddenDirection != "Right")
+                        {
+                            Snake.SetMovement("Right");
+                            Label_Movement_Direction.Text = "Right";
+                        }
+                    }
+                    else
+                    {
+                        if (this.SS.ForbiddenDirection != "Left")
+                        {
+                            Snake.SetMovement("Left");
+                            Label_Movement_Direction.Text = "Left";
+                        }
                     }
                 }
                 else
                 {
-                    if (this.SS.ForbiddenDirection != "Left")
+                    if (deltaY > 0)
                     {
-                        Snake.SetMovement("Left");
-                        Label_Movement_Direction.Text = "Left";
+                        if (SS.ForbiddenDirection != "Down")
+                        {
+                            Snake.SetMovement("Down");
+                            Label_Movement_Direction.Text = "Down";
+                        }
                     }
-                }
-            }
-            else
-            {
-                if (deltaY > 0)
-                {
-                    if (SS.ForbiddenDirection != "Down")
+                    else
                     {
-                        Snake.SetMovement("Down");
-                        Label_Movement_Direction.Text = "Down";
-                    }
-                }
-                else
-                {
-                    if (SS.ForbiddenDirection != "Up")
-                    {
-                        Snake.SetMovement("Up");
-                        Label_Movement_Direction.Text = "Up";
+                        if (SS.ForbiddenDirection != "Up")
+                        {
+                            Snake.SetMovement("Up");
+                            Label_Movement_Direction.Text = "Up";
+                        }
                     }
                 }
             }
@@ -291,6 +294,25 @@ namespace GS2
             optionsForm.ShowDialog();
             this.Show();
 
+        }
+
+        private void Main_Form_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == 'p' || e.KeyChar == 'P')
+            {
+                if (SS.Pause)
+                {
+                    Button_Pause.Text = "Pause";
+                    SS.Pause = false;
+                }
+                else
+                {
+                    Button_Pause.Text = "Resume";
+                    SS.Pause = true;
+                }
+            }
+           
+            Debug.WriteLine("Key pressed: " + e.KeyChar);   
         }
     }
 }

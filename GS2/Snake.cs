@@ -35,7 +35,7 @@ namespace GS2
         }
 
         // EVENT from GRID
-        private void OnGridCollisionEvent(object sender, GridCollisionArgs e)
+        public void OnGridCollisionEvent(object sender, GridCollisionArgs e)
         {
             if (e.BlockType == BlockTypes.FoodBlock)
             {
