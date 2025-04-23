@@ -11,7 +11,7 @@ namespace GS2
 {
     interface IGrid
     {
-        public bool AddFood();
+        public Point? AddFood();
         public bool AddFood(int x, int y);
     }
 
@@ -39,6 +39,9 @@ namespace GS2
 
         public delegate void BlockCollisionEventHandler(object sender, GridCollisionArgs args);
         public event BlockCollisionEventHandler BlockCollisionEvent;
+
+        public delegate void NoFreeSpaceForFooodHandler(object sender, EventArgs args);
+        public event NoFreeSpaceForFooodHandler NoFreeSpaceForFoodEvent;
 
         public Grid(int GridXSize, int GridYSize, int BlockSize, Graphics g)
         {
@@ -70,7 +73,7 @@ namespace GS2
         public void OnSnakeMoveEvent(object sender, SnakePointsEvent e)
         {
             Point PlannedMovePoint = e.Points.ElementAt(e.Points.Count - 1);
-            Debug.WriteLine("SnakeMoveEvent in Grid triggered with point: " + PlannedMovePoint.X + "," + PlannedMovePoint.Y);
+            //Debug.WriteLine("SnakeMoveEvent in Grid triggered with point: " + PlannedMovePoint.X + "," + PlannedMovePoint.Y);
             if (IsCollisionOrOutOfBoundsOrSnakeBody(PlannedMovePoint))
             {
                 GridCollisionEvent.IsCollision = true;
@@ -112,11 +115,12 @@ namespace GS2
             }
         }
 
-        public bool AddFood()
+        public Point? AddFood()
         {
             if(GetEmptyCellsCount() == 0)
             {
-                return true; // No empty cells available
+                NoFreeSpaceForFoodEvent?.Invoke(this, EventArgs.Empty);
+                return null; // No empty cells available
             }
             else
             {
@@ -129,7 +133,7 @@ namespace GS2
                     y = random.Next(0, Columns);
                 }
                 DrawCell(x, y, BlockTypes.FoodBlock);
-                return false; // Food added successfully
+                return new Point(x,y); // Food added successfully
             }
         }
 

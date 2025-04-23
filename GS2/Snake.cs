@@ -12,6 +12,7 @@ namespace GS2
     {
         public void Move();
         public void SetMovement(string direction);
+        public string GetMovement();
         public string GetForbiddenMoveDirection();
         public Point GetSnakeHeadPosition();
     }
@@ -20,8 +21,8 @@ namespace GS2
     {
         private bool Growing = false;
 
-        private Point Movement = new Point(1, 0); // Start going right
-        private string ForbiddenDirection = "Down";
+        private Point Movement = new Point(1, 0); // Predetermined - Start going right
+        private string ForbiddenDirection = "Down"; // Predetermined (static Snake Position)
         private SnakePointsEvent SnakePoints = new SnakePointsEvent();
 
         public delegate void SnakeEventHandler(object sender, SnakePointsEvent args);
@@ -105,6 +106,25 @@ namespace GS2
                     break;
                 default:
                     throw new ArgumentException("Invalid direction for Movement in Snake.SetMovement class");
+            }
+        }
+
+        public string GetMovement()
+        {
+            if (Movement.X == 0)
+            {
+                if (Movement.Y == -1)
+                    return "Up";
+                else
+                    return "Down";
+            }
+            else
+            {
+                if (Movement.X == -1)
+                    return "Left";
+                else
+                    return "Right";
+
             }
         }
 

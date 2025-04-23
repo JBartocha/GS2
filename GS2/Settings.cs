@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace GS2
@@ -23,5 +24,11 @@ namespace GS2
         public int Moves { get; set; } = 0;
         public int FoodsEaten { get; set; } = 0;
         public int CellSize { get; set; } = 40;
+
+        public override string ToString()
+        {
+            string jsonString = JsonSerializer.Serialize(this);
+            return jsonString;
+        }
     }
 }
