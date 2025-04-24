@@ -56,7 +56,7 @@
             // Button_Pause
             // 
             Button_Pause.Font = new Font("Segoe UI", 28F);
-            Button_Pause.Location = new Point(459, 355);
+            Button_Pause.Location = new Point(454, 391);
             Button_Pause.Name = "Button_Pause";
             Button_Pause.Size = new Size(184, 64);
             Button_Pause.TabIndex = 1;
@@ -116,7 +116,7 @@
             // Restart
             // 
             Restart.Font = new Font("Segoe UI", 28F);
-            Restart.Location = new Point(459, 287);
+            Restart.Location = new Point(454, 323);
             Restart.Name = "Restart";
             Restart.Size = new Size(184, 64);
             Restart.TabIndex = 7;
@@ -147,7 +147,7 @@
             // Button_Options
             // 
             Button_Options.Font = new Font("Segoe UI", 24F);
-            Button_Options.Location = new Point(460, 217);
+            Button_Options.Location = new Point(455, 253);
             Button_Options.Name = "Button_Options";
             Button_Options.Size = new Size(184, 64);
             Button_Options.TabIndex = 10;

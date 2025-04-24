@@ -25,6 +25,7 @@ namespace GS2
         private PeriodicTimer? timer;
         private string LastMoveDirection;
         private string StartButtonText = "Start";
+        private bool Simulation = false;
 
 
         public Main_Form()
@@ -32,8 +33,6 @@ namespace GS2
             InitializeComponent();
 
             ResetGame();
-
-            //InitializeGrid(); // TODO Neni potreba???
 
             RunTimer();
         }
@@ -108,8 +107,7 @@ namespace GS2
         {
             if (args.IsCollision)
             {
-                
-                //GameRecord.AddSnakeMove(LastMoveDirection);
+                GameRecord.AddSnakeMove(LastMoveDirection);
                 SetGameOver();
             }
             else 
@@ -139,7 +137,7 @@ namespace GS2
         {
             timer = new PeriodicTimer(TimeSpan.FromMilliseconds(SS.TickInMilliseconds));
             float i = 0f;
-            int MoveCounter = 0;
+            //int MoveCounter = 0;
             while (await timer.WaitForNextTickAsync())
             {
                 timer.Period = TimeSpan.FromMilliseconds(SS.TickInMilliseconds);
@@ -152,7 +150,7 @@ namespace GS2
 
                     if (!SS.GameOver)
                     {
-                        Label_Moves.Text = "Moves: " + MoveCounter;
+                        //Label_Moves.Text = "Moves: " + MoveCounter;
                         Label_Moves.Text = "Moves: " + ++SS.Moves; // TODO (duplicita?)
                         SS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
                         SS.HeadPosition = Snake.GetSnakeHeadPosition();
@@ -182,7 +180,6 @@ namespace GS2
             Button_Pause.Text = StartButtonText;
             Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
             Label_Level.Text = "LEVEL: " + SS.Level;
-
             InitializeGrid();
 
             RunTimer();
@@ -196,7 +193,10 @@ namespace GS2
             Panel_Main.Refresh();
             SS.GameOver = true;
             MessageBox.Show(Message);
-            GameRecord.ListValues();
+            //GameRecord.ListValues();
+            GameRecord.SetJsonSettingsFile(SS.ToString());
+            //GameRecord.SaveGameRecord();
+            GameRecord.LoadGameRecord();
         }
 
         private void SetGameOverDueToNoSpaceForFoodEvent(object sender, EventArgs args)
@@ -276,15 +276,18 @@ namespace GS2
 
         private void Button_Pause_Click(object sender, EventArgs e)
         {
-            if (SS.Pause || Button_Pause.Text == StartButtonText)
+            if (!SS.GameOver)
             {
-                Button_Pause.Text = "Pause";
-                SS.Pause = false;
-            }
-            else
-            {
-                Button_Pause.Text = "Resume";
-                SS.Pause = true;
+                if (SS.Pause || Button_Pause.Text == StartButtonText) //TODO - probably Button_Pause.Text == StartButtonText not needed
+                {
+                    Button_Pause.Text = "Pause";
+                    SS.Pause = false;
+                }
+                else
+                {
+                    Button_Pause.Text = "Resume";
+                    SS.Pause = true;
+                }
             }
         }
 
