@@ -41,6 +41,7 @@
             Label_Level = new Label();
             timer1 = new System.Windows.Forms.Timer(components);
             Button_Options = new Button();
+            Button_Load_Record = new Button();
             SuspendLayout();
             // 
             // Panel_Main
@@ -107,7 +108,7 @@
             // 
             Label_Timer.AutoSize = true;
             Label_Timer.Font = new Font("Segoe UI", 12F);
-            Label_Timer.Location = new Point(460, 193);
+            Label_Timer.Location = new Point(459, 159);
             Label_Timer.Name = "Label_Timer";
             Label_Timer.Size = new Size(115, 21);
             Label_Timer.TabIndex = 6;
@@ -138,7 +139,7 @@
             // 
             Label_Level.AutoSize = true;
             Label_Level.Font = new Font("Segoe UI", 24F);
-            Label_Level.Location = new Point(459, 119);
+            Label_Level.Location = new Point(455, 114);
             Label_Level.Name = "Label_Level";
             Label_Level.Size = new Size(109, 45);
             Label_Level.TabIndex = 9;
@@ -155,11 +156,23 @@
             Button_Options.UseVisualStyleBackColor = true;
             Button_Options.Click += Button_Options_Click;
             // 
+            // Button_Load_Record
+            // 
+            Button_Load_Record.Font = new Font("Segoe UI", 18F);
+            Button_Load_Record.Location = new Point(454, 183);
+            Button_Load_Record.Name = "Button_Load_Record";
+            Button_Load_Record.Size = new Size(184, 64);
+            Button_Load_Record.TabIndex = 11;
+            Button_Load_Record.Text = "Load Replay";
+            Button_Load_Record.UseVisualStyleBackColor = true;
+            Button_Load_Record.Click += Button_Load_Record_Click;
+            // 
             // Main_Form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(650, 467);
+            Controls.Add(Button_Load_Record);
             Controls.Add(Button_Options);
             Controls.Add(Label_Level);
             Controls.Add(Label_Speed);
@@ -193,5 +206,6 @@
         private Label Label_Level;
         private System.Windows.Forms.Timer timer1;
         private Button Button_Options;
+        private Button Button_Load_Record;
     }
 }

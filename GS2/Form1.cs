@@ -17,7 +17,7 @@ namespace GS2
     {
         private Snake? Snake;
         private Grid? Grid;
-        private GameRecord? GameRecord;
+        private GameRecord GameRecord = new GameRecord();
 
         private Settings SS = new Settings();
         public Graphics? grap;
@@ -48,7 +48,6 @@ namespace GS2
 
             this.Grid = new Grid(11, 11, SS.CellSize, grap);
             this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y));
-            this.GameRecord = new GameRecord();
 
             for (int i = 0; i < SS.FoodCount; i++)
             {
@@ -110,7 +109,7 @@ namespace GS2
                 GameRecord.AddSnakeMove(LastMoveDirection);
                 SetGameOver();
             }
-            else 
+            else
             {
                 if (args.BlockType == BlockTypes.FoodBlock)
                 {
@@ -194,9 +193,11 @@ namespace GS2
             SS.GameOver = true;
             MessageBox.Show(Message);
             //GameRecord.ListValues();
+            List<ListOfRecords> RecordList = GameRecord.ListAllRecords();
+            
             GameRecord.SetJsonSettingsFile(SS.ToString());
             //GameRecord.SaveGameRecord();
-            GameRecord.LoadGameRecord();
+            //GameRecord.LoadGameRecord(17);
         }
 
         private void SetGameOverDueToNoSpaceForFoodEvent(object sender, EventArgs args)
@@ -225,7 +226,7 @@ namespace GS2
 
         private void PanelMain_MouseMove(object sender, MouseEventArgs e)
         {
-            if(SS.UseMousePositionToMove)
+            if (SS.UseMousePositionToMove)
             {
                 Label_Mouse_Position.Text = $"X:{e.Location.X} Y:{e.Location.Y}";
 
@@ -309,10 +310,18 @@ namespace GS2
             this.Show();
 
         }
+        private void Button_Load_Record_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            RecordForm recordForm = new RecordForm(this.GameRecord);
+            recordForm.ShowDialog();
+            this.Show();
+            Debug.WriteLine("Okno records zavreno");
+        }
 
         private void Main_Form_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if(e.KeyChar == 'p' || e.KeyChar == 'P')
+            if (e.KeyChar == 'p' || e.KeyChar == 'P')
             {
                 if (SS.Pause)
                 {
@@ -325,7 +334,8 @@ namespace GS2
                     SS.Pause = true;
                 }
             }
-           
+
         }
+
     }
 }

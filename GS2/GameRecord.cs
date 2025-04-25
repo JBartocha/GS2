@@ -9,23 +9,43 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GS2
 {
-    public struct Turn
+    public struct TurnRecord
     {
         public int TurnNumber = 0;
         public string MoveDirection;
         public Point? GeneratedFoodPosition;
         
-        public Turn(int turnNumber, string moveDirection)
+        public TurnRecord(int turnNumber, string moveDirection)
         {
             TurnNumber = turnNumber;
             MoveDirection = moveDirection;
             GeneratedFoodPosition = null;
         }
-        public Turn(int turnNumber, string moveDirection, Point? generatedFoodPosition)
+        public TurnRecord(int turnNumber, string moveDirection, Point? generatedFoodPosition)
         {
             TurnNumber = turnNumber;
             MoveDirection = moveDirection;
             GeneratedFoodPosition = generatedFoodPosition;
+        }
+    }
+
+    public struct Record
+    {
+        private string Settings;
+        private List<Point> StartingFoodPositions;
+        private List<TurnRecord> Turns;
+    }
+
+    public struct ListOfRecords
+    {
+
+        public string? ID;
+        public DateTime Date;
+
+        public ListOfRecords(string? iD, DateTime dT) : this()
+        {
+            this.ID = iD;
+            this.Date = dT;
         }
     }
 
@@ -34,21 +54,48 @@ namespace GS2
         public void AddGeneratedFoodAtStart(Point foodPosition);
         public void AddSnakeMove(string moveDirection, Point generatedFoodPosition);
         public void SaveGameRecord();
-        public void LoadGameRecord();
+        public void LoadGameRecord(int ID);
         public void SetJsonSettingsFile(string jsonSettingsFile);
 
     }
 
-    internal class GameRecord : IGameRecord
+    public class GameRecord : IGameRecord
     {
-
-
         private int CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
         private List<Point> GeneratedFoodsAtStart = new List<Point>();
-        private List<Turn> SnakeMoves = new List<Turn>();
+        private List<TurnRecord> SnakeMoves = new List<TurnRecord>();
         private string? JsonSettingsfile;
 
         private const string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security = True";
+
+        public List<ListOfRecords> ListAllRecords()
+        {
+            try // TODO cele spatne ... udelat o znovu
+            {
+                // Updated to use Microsoft.Data.SqlClient.SqlConnection  
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                List<ListOfRecords> PomList = new List<ListOfRecords>();
+
+                string query = "SELECT GameNumbers_ID, Date FROM GameNumbers"; // Replace with your query  
+                using var command = new SqlCommand(query, connection);
+                using var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string ID = reader["GameNumbers_ID"].ToString();  
+                    string Date = reader["Date"].ToString();
+                    DateTime DT = DateTime.Parse(Date);
+                    PomList.Add(new ListOfRecords(ID, DT));
+                }
+                return PomList;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred: {ex.Message}");
+            }
+        }
 
         public void AddGeneratedFoodAtStart(Point FoodPosition)
         {
@@ -57,15 +104,15 @@ namespace GS2
 
         public void AddSnakeMove(string moveDirection)
         {
-            SnakeMoves.Add(new Turn(++CurrentTurnNumber, moveDirection));
-            Turn Last = SnakeMoves.Last();
+            SnakeMoves.Add(new TurnRecord(++CurrentTurnNumber, moveDirection));
+            TurnRecord Last = SnakeMoves.Last();
             Last.GeneratedFoodPosition = null;
             SnakeMoves[SnakeMoves.Count - 1] = Last;    
         }
 
         public void AddSnakeMove(string moveDirection, Point generatedFoodPosition)
         {
-            SnakeMoves.Add(new Turn(CurrentTurnNumber, moveDirection, generatedFoodPosition));
+            SnakeMoves.Add(new TurnRecord(CurrentTurnNumber, moveDirection, generatedFoodPosition));
         }
 
         public void ListValues()
@@ -86,9 +133,9 @@ namespace GS2
             }
         }
 
-        public void LoadGameRecord()
+        public void LoadGameRecord(int ID)
         {
-            try
+            try // TODO cele spatne ... udelat o znovu
             {
                 // Updated to use Microsoft.Data.SqlClient.SqlConnection  
                 using var connection = new SqlConnection(connectionString);
