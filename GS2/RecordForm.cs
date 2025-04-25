@@ -14,27 +14,45 @@ namespace GS2
     public partial class RecordForm : Form
     {
         private GameRecord record;
+        private int selectedID;
+
+        public int GetSelectedID()
+        {
+            return selectedID;
+        }
+
+        public void SetSelectedID(int value)
+        {
+            selectedID = value;
+        }
+
         public RecordForm(GameRecord record)
         {
             InitializeComponent();
             this.record = record;
             List<ListOfRecords> records = record.ListAllRecords();
-            Debug.WriteLine("Pocet zaznamů: " + records.Count);
+            //Debug.WriteLine("Pocet zaznamů: " + records.Count);
             for (int i = 0; i < records.Count; i++)
             {
                 ListBox_Records.Items.Add(records[i].ID + " - " + records[i].Date);
-                //Debug.WriteLine("ID: " + records[i].ID + "DATE: " + records[i].Date);
             }
-            //IEnumerator<ListOfRecords> iter = records.GetEnumerator();
-            //while (iter.MoveNext())
-            //{
-            //    ListBox_Records.Items.Add(iter.Current.ID + " - " + iter.Current.Date);
-            //}
-            
         }
 
         private void Button_Save_And_Exit_Click(object sender, EventArgs e)
         {
+            object? selectedItem = ListBox_Records.SelectedItem;
+            if (selectedItem != null)
+            {
+                string s = selectedItem.ToString();
+                int separator = s.IndexOf('-');
+                s = s.Substring(0, separator - 1);
+                int SelectedIDRecord = Convert.ToInt32(s);
+                SetSelectedID(SelectedIDRecord);
+            }
+            else
+            {
+                throw new NoNullAllowedException();
+            }
             this.Close();
         }
 

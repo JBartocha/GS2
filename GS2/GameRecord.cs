@@ -53,7 +53,7 @@ namespace GS2
     {
         public void AddGeneratedFoodAtStart(Point foodPosition);
         public void AddSnakeMove(string moveDirection, Point generatedFoodPosition);
-        public void SaveGameRecord();
+        public void SaveGameRecord(SnakeGameSettings S);
         public void LoadGameRecord(int ID);
         public void SetJsonSettingsFile(string jsonSettingsFile);
 
@@ -112,7 +112,7 @@ namespace GS2
 
         public void AddSnakeMove(string moveDirection, Point generatedFoodPosition)
         {
-            SnakeMoves.Add(new TurnRecord(CurrentTurnNumber, moveDirection, generatedFoodPosition));
+            SnakeMoves.Add(new TurnRecord(++CurrentTurnNumber, moveDirection, generatedFoodPosition));
         }
 
         public void ListValues()
@@ -161,7 +161,7 @@ namespace GS2
             throw new NotImplementedException();
         }
 
-        public void SaveGameRecord()
+        public void SaveGameRecord(SnakeGameSettings S)
         {
             int LastGameNumbersID = 0; // Initialize LastGameNumbersID to 0
 
@@ -171,7 +171,7 @@ namespace GS2
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
 
-                string query = "INSERT INTO GameNumbers (Date, Settings) VALUES (@TimeNow, @JsonSettings); SELECT SCOPE_IDENTITY();";
+                string query = "INSERT INTO GameNumbers (Date, Settings, Level) VALUES (@TimeNow, @JsonSettings, @Level); SELECT SCOPE_IDENTITY();";
                 using var command = new SqlCommand(query, connection);
 
                 DateTime dateTime = DateTime.Now;
@@ -180,6 +180,7 @@ namespace GS2
                 // Add parameter to prevent SQL injection
                 command.Parameters.AddWithValue("@TimeNow", CurrentTime);
                 command.Parameters.AddWithValue("@JsonSettings", JsonSettingsfile);
+                command.Parameters.AddWithValue("@Level", S.Level);
 
                 //int rowsAffected = command.ExecuteNonQuery();
                 System.Object result = command.ExecuteScalar();
@@ -190,14 +191,14 @@ namespace GS2
                 MessageBox.Show($"An error occurred: {ex.Message}");
             }
 
-            //TODO - Insert starting Settings and Food Position
+            //Insert starting Settings and Food Position
             for (int i = 0; i < GeneratedFoodsAtStart.Count; i++)
             {
                 int FoodID = InsertFoodIntoDB(GeneratedFoodsAtStart[i]);
                 InsertFoodSettingsIntoDB(LastGameNumbersID, FoodID);
-                //Debug.WriteLine($"Iterace {i}");
             }
-            //TODO - Insert moves and food added in turns
+
+            //Insert moves and food added in turns
             for (int i = 0; i < SnakeMoves.Count; i++)
             {
                 if (SnakeMoves[i].GeneratedFoodPosition.HasValue)

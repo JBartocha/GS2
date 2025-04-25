@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace GS2
 {
-    internal class Settings
+    public class SnakeGameSettings
     {
         public static string JsonSaveFileName { get; set; } = "Settings.json";
         public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
         public bool Pause { get; set; } = true;
         public bool GameOver { get; set; } = false;
         public bool UseMousePositionToMove { get; set; } = true;
+        public bool UseKeyboardToMove { get; set; } = true;
         public int Level { get; set; } = 1;
         public int FoodCount { get; set; } = 3;
         public int LevelIncreaseInterval { get; set; } = 2;

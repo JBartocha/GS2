@@ -15,7 +15,7 @@ namespace GS2
 {
     public partial class OptionsForm : Form
     {
-        private Settings SS;
+        private SnakeGameSettings SS;
         public OptionsForm()
         {
 
@@ -43,17 +43,17 @@ namespace GS2
 
         private void LoadJsonSettings()
         {
-            System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(Settings.JsonSaveFileName);
+            System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(SnakeGameSettings.JsonSaveFileName);
             if (fileInfo.Exists)
             {
-                string json = File.ReadAllText(Settings.JsonSaveFileName);
-                SS = JsonSerializer.Deserialize<Settings>(json);
+                string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
+                SS = JsonSerializer.Deserialize<SnakeGameSettings>(json);
                 if (SS == null)
                     throw new Exception("Failed to deserialize settings.");
             }
             else
             {
-                SS = new Settings();
+                SS = new SnakeGameSettings();
             }
             string FoodCount = SS.FoodCount.ToString();
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
@@ -110,7 +110,7 @@ namespace GS2
             SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
 
             string json = JsonSerializer.Serialize(SS);
-            File.WriteAllText(Settings.JsonSaveFileName, json);
+            File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
         }
 
     }

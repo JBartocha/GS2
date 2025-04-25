@@ -19,7 +19,7 @@ namespace GS2
         private Grid? Grid;
         private GameRecord GameRecord = new GameRecord();
 
-        private Settings SS = new Settings();
+        private SnakeGameSettings SS = new SnakeGameSettings();
         public Graphics? grap;
         Bitmap? surface;
         private PeriodicTimer? timer;
@@ -72,10 +72,10 @@ namespace GS2
 
         private void SerializeConfigSettings()
         {
-            if (TestFileExists(Settings.JsonSaveFileName))
+            if (TestFileExists(SnakeGameSettings.JsonSaveFileName))
             {
-                string json = File.ReadAllText(Settings.JsonSaveFileName);
-                var deserializedSettings = JsonSerializer.Deserialize<Settings>(json);
+                string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
+                var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
                 if (deserializedSettings != null)
                 {
                     SS = deserializedSettings;
@@ -84,7 +84,7 @@ namespace GS2
             else
             {
                 string json = JsonSerializer.Serialize(SS);
-                File.WriteAllText(Settings.JsonSaveFileName, json);
+                File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
             }
         }
 
@@ -163,10 +163,10 @@ namespace GS2
 
         private void ResetGame()
         {
-            string json = File.ReadAllText(Settings.JsonSaveFileName);
+            string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
             GameRecord = new GameRecord();
 
-            var deserializedSettings = JsonSerializer.Deserialize<Settings>(json);
+            var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
             if (deserializedSettings != null) // TODO abundant
             {
                 SS = deserializedSettings;
@@ -196,7 +196,7 @@ namespace GS2
             List<ListOfRecords> RecordList = GameRecord.ListAllRecords();
             
             GameRecord.SetJsonSettingsFile(SS.ToString());
-            //GameRecord.SaveGameRecord();
+            GameRecord.SaveGameRecord(SS);
             //GameRecord.LoadGameRecord(17);
         }
 
@@ -238,40 +238,33 @@ namespace GS2
                 {
                     if (deltaX > 0)
                     {
-                        if (SS.ForbiddenDirection != "Right")
-                        {
-                            Snake.SetMovement("Right");
-                            Label_Movement_Direction.Text = "Right";
-                        }
+                        SetMovementForSnake("Right");
                     }
                     else
                     {
-                        if (this.SS.ForbiddenDirection != "Left")
-                        {
-                            Snake.SetMovement("Left");
-                            Label_Movement_Direction.Text = "Left";
-                        }
+                        SetMovementForSnake("Left");
                     }
                 }
                 else
                 {
                     if (deltaY > 0)
                     {
-                        if (SS.ForbiddenDirection != "Down")
-                        {
-                            Snake.SetMovement("Down");
-                            Label_Movement_Direction.Text = "Down";
-                        }
+                        SetMovementForSnake("Down");
                     }
                     else
                     {
-                        if (SS.ForbiddenDirection != "Up")
-                        {
-                            Snake.SetMovement("Up");
-                            Label_Movement_Direction.Text = "Up";
-                        }
+                        SetMovementForSnake("Up");
                     }
                 }
+            }
+        }
+
+        private void SetMovementForSnake(string direction)
+        {
+            if (SS.ForbiddenDirection != direction)
+            {
+                Snake.SetMovement(direction);
+                Label_Movement_Direction.Text = direction;
             }
         }
 
@@ -294,7 +287,7 @@ namespace GS2
 
         private void Panel_Main_Paint(object sender, PaintEventArgs e)
         {
-
+            // So lonely
         }
 
         private void Restart_Click(object sender, EventArgs e)
@@ -316,11 +309,32 @@ namespace GS2
             RecordForm recordForm = new RecordForm(this.GameRecord);
             recordForm.ShowDialog();
             this.Show();
-            Debug.WriteLine("Okno records zavreno");
+            int SelectedID = recordForm.GetSelectedID();
+            Debug.WriteLine("Okno records zavreno. vybrane ID: " + SelectedID);
         }
 
         private void Main_Form_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (SS.UseKeyboardToMove)
+            {
+                if (e.KeyChar == 'd' || e.KeyChar == 'D')
+                {
+                    SetMovementForSnake("Right");
+                }
+                else if (e.KeyChar == 'a' || e.KeyChar == 'A')
+                {
+                    SetMovementForSnake("Left");
+                }
+                else if (e.KeyChar == 's' || e.KeyChar == 'S')
+                {
+                    SetMovementForSnake("Down");
+                }
+                else if (e.KeyChar == 'w' || e.KeyChar == 'W')
+                {
+                    SetMovementForSnake("Up");
+                }
+            }
+
             if (e.KeyChar == 'p' || e.KeyChar == 'P')
             {
                 if (SS.Pause)
@@ -334,7 +348,7 @@ namespace GS2
                     SS.Pause = true;
                 }
             }
-
+            
         }
 
     }

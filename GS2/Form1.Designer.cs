@@ -138,10 +138,10 @@
             // Label_Level
             // 
             Label_Level.AutoSize = true;
-            Label_Level.Font = new Font("Segoe UI", 24F);
-            Label_Level.Location = new Point(455, 114);
+            Label_Level.Font = new Font("Segoe UI", 18F);
+            Label_Level.Location = new Point(454, 119);
             Label_Level.Name = "Label_Level";
-            Label_Level.Size = new Size(109, 45);
+            Label_Level.Size = new Size(80, 32);
             Label_Level.TabIndex = 9;
             Label_Level.Text = "LEVEL:";
             // 
