@@ -47,6 +47,8 @@
             label7 = new Label();
             TextBoxCellSize = new TextBox();
             TrackBarCellSize = new TrackBar();
+            CheckBox_MouseControl = new CheckBox();
+            CheckBox_KeyboardControl = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)TrackBarRows).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarColumns).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarCellSize).BeginInit();
@@ -238,11 +240,43 @@
             TrackBarCellSize.Value = 40;
             TrackBarCellSize.ValueChanged += TrackBarCellSize_ValueChanged;
             // 
+            // CheckBox_MouseControl
+            // 
+            CheckBox_MouseControl.AutoSize = true;
+            CheckBox_MouseControl.CheckAlign = ContentAlignment.MiddleRight;
+            CheckBox_MouseControl.Checked = true;
+            CheckBox_MouseControl.CheckState = CheckState.Checked;
+            CheckBox_MouseControl.Font = new Font("Segoe UI", 12F);
+            CheckBox_MouseControl.Location = new Point(12, 62);
+            CheckBox_MouseControl.Name = "CheckBox_MouseControl";
+            CheckBox_MouseControl.Size = new Size(128, 25);
+            CheckBox_MouseControl.TabIndex = 21;
+            CheckBox_MouseControl.Text = "Ovládání Myší";
+            CheckBox_MouseControl.UseVisualStyleBackColor = true;
+            CheckBox_MouseControl.CheckedChanged += CheckBox_MouseControl_CheckedChanged;
+            // 
+            // CheckBox_KeyboardControl
+            // 
+            CheckBox_KeyboardControl.AutoSize = true;
+            CheckBox_KeyboardControl.CheckAlign = ContentAlignment.MiddleRight;
+            CheckBox_KeyboardControl.Checked = true;
+            CheckBox_KeyboardControl.CheckState = CheckState.Checked;
+            CheckBox_KeyboardControl.Font = new Font("Segoe UI", 12F);
+            CheckBox_KeyboardControl.Location = new Point(12, 93);
+            CheckBox_KeyboardControl.Name = "CheckBox_KeyboardControl";
+            CheckBox_KeyboardControl.Size = new Size(163, 25);
+            CheckBox_KeyboardControl.TabIndex = 22;
+            CheckBox_KeyboardControl.Text = "Ovládání Klávesnicí";
+            CheckBox_KeyboardControl.UseVisualStyleBackColor = true;
+            CheckBox_KeyboardControl.CheckedChanged += CheckBox_KeyboardControl_CheckedChanged;
+            // 
             // OptionsForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(652, 462);
+            Controls.Add(CheckBox_KeyboardControl);
+            Controls.Add(CheckBox_MouseControl);
             Controls.Add(label7);
             Controls.Add(TextBoxCellSize);
             Controls.Add(TrackBarCellSize);
@@ -292,5 +326,7 @@
         private Label label7;
         private TextBox TextBoxCellSize;
         private TrackBar TrackBarCellSize;
+        private CheckBox CheckBox_MouseControl;
+        private CheckBox CheckBox_KeyboardControl;
     }
 }

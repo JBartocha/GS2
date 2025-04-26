@@ -97,7 +97,7 @@ namespace GS2
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
-            if(ListBoxFoodCount.SelectedIndex == -1 || ListBoxFoodInterval.SelectedIndex == -1 || ListBoxSpeedPercent.SelectedIndex == -1)
+            if (ListBoxFoodCount.SelectedIndex == -1 || ListBoxFoodInterval.SelectedIndex == -1 || ListBoxSpeedPercent.SelectedIndex == -1)
             {
                 MessageBox.Show("Please select a food count.");
                 return;
@@ -113,6 +113,16 @@ namespace GS2
             File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
         }
 
+        private void CheckBox_MouseControl_CheckedChanged(object sender, EventArgs e)
+        {
+            if(CheckBox_MouseControl.Checked == true) SS.UseMousePositionToMove = true;
+            if(CheckBox_MouseControl.Checked == false) SS.UseMousePositionToMove = false;
+        }
+        private void CheckBox_KeyboardControl_CheckedChanged(object sender, EventArgs e)
+        {
+            if(CheckBox_KeyboardControl.Checked == true) SS.UseMousePositionToMove = true;
+            if(CheckBox_KeyboardControl.Checked == false) SS.UseMousePositionToMove = false;
+        }
     }
 }
 

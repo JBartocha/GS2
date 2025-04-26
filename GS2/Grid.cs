@@ -12,7 +12,7 @@ namespace GS2
     interface IGrid
     {
         public Point? AddFood();
-        public bool AddFood(int x, int y);
+        public bool AddFood(Point p);
     }
 
     interface IBlock
@@ -98,7 +98,7 @@ namespace GS2
             DrawSnake(e.Points);
         }
 
-        public bool AddFood(int x, int y)
+        public bool AddFood(Point p)
         {
             if (GetEmptyCellsCount() == 0)
             {
@@ -106,11 +106,11 @@ namespace GS2
             }
             else
             {
-                if(GetBlockType(x, y) != BlockTypes.EmptyBlock)
+                if(GetBlockType(p.X, p.Y) != BlockTypes.EmptyBlock)
                 {
                     return true; // Cell is not empty
                 }
-                DrawCell(x, y, BlockTypes.FoodBlock);
+                DrawCell(p.X, p.Y, BlockTypes.FoodBlock);
                 return false; // Food added successfully
             }
         }
