@@ -10,11 +10,12 @@ namespace GS2
     {
         public BlockTypes BlockType { get; set; }
         public bool IsCollision { get; set; }
-
-        public GridCollisionArgs(bool Collision = true, BlockTypes Type = BlockTypes.OutOfBoundsBlock)
+        public string Message { get; set; }
+        public GridCollisionArgs()
         {
             IsCollision = false;
             BlockType = BlockTypes.EmptyBlock;
+            Message = string.Empty;
         }
     }
 

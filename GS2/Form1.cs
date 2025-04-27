@@ -44,32 +44,23 @@ namespace GS2
 
             SerializeConfigSettings();
 
-            /*
-            if (Snake != null && Grid != null)
+            
+            if (Snake != null && Snake != null)
             {
-                Snake.SnakeMoveEvent -= Grid.OnSnakeMoveEvent;
-                Grid.BlockCollisionEvent -= Snake.OnGridCollisionEvent;
-                Grid.BlockCollisionEvent -= OnGridCollisionEvent;
-                Grid.NoFreeSpaceForFoodEvent -= SetGameOverDueToNoSpaceForFoodEvent;
+                Snake.CellCollisionEvent -= OnGridCollisionEvent;
+                Snake.FoodEatenEvent -= OnFoodEatenEvent;
             }
-            */
+            
 
-            if(Simulation == false)
+            if (Simulation == false)
                 GameRecord = new GameRecord();
 
-            // Create new instances of Snake and Grid
-            //this.Grid = new Grid(11, 11, SS.CellSize, grap);
-            //this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y));
-            this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y), 11, 11, 20, grap);
+            this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y), 
+                SS.Rows, SS.Columns, SS.CellSize, grap);
 
-            Snake.GridCollisionEvent += OnGridCollisionEvent;
-            /*
-            // Subscribe to new event handlers
-            Snake.SnakeMoveEvent += Grid.OnSnakeMoveEvent;
-            Grid.BlockCollisionEvent += Snake.OnGridCollisionEvent;
-            Grid.BlockCollisionEvent += OnGridCollisionEvent;
-            Grid.NoFreeSpaceForFoodEvent += SetGameOverDueToNoSpaceForFoodEvent;
-            */
+            Snake.CellCollisionEvent += OnGridCollisionEvent;
+            Snake.FoodEatenEvent += OnFoodEatenEvent;
+
 
             if (Simulation)
             {
@@ -87,19 +78,10 @@ namespace GS2
                 Debug.WriteLine("NOT Simulace - InitializeGrid Pole jidla na zacatek Hry.");
                 for (int i = 0; i < SS.FoodCount; i++)
                 {
-                    Point? FoodPos = Snake.AddFood(); //Redundant check in AddFood() method for empty space
-                    if (!FoodPos.HasValue)
-                    {
-                        SetGameOver();
-                    }
-                    else
-                    {
-                        GameRecord.AddGeneratedFoodAtStart(FoodPos.Value);
-                    }
+                    Point FoodPos = Snake.AddFood(); //Redundant check in AddFood() method for empty space
+                    GameRecord.AddGeneratedFoodAtStart(FoodPos);
                 }
             }
-
-            
         }
 
 
@@ -135,8 +117,14 @@ namespace GS2
             }
         }
 
+        private void OnFoodEatenEvent(object sender, EventArgs args)
+        {
+            SS.FoodsEaten++;
+            Debug.WriteLine("call from OnFoodEatenEvent. Food Eaten");
+        }
+
         //EVENT from GRID
-        private void OnGridCollisionEvent(object sender, Grid.GridCollisionArgs args)
+        private void OnGridCollisionEvent(object sender, GridCollisionArgs args)
         {
             if(this.Simulation)
             {
@@ -153,7 +141,12 @@ namespace GS2
                         Point? pom = GameRecord.GetGeneratedFoodPosition(SS.Moves).Value;
                         Point point = pom.Value;
                         Debug.WriteLine("Added Food during simulation: " + point);
-                        Grid.AddFood(point);
+                        if(Snake.AddFood(point) == false)
+                        {
+                            throw new Exception("Bìhem simulace se snažil ze zaznamù z databáze" +
+                                "zapsat do Snake pole bod který je mimo møížku.");
+                        }
+                        
 
                         Label_Food_Eaten.Text = "Points: " + ++SS.FoodsEaten;
                         if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
@@ -175,8 +168,8 @@ namespace GS2
                 {
                     if (args.BlockType == BlockTypes.FoodBlock)
                     {
-                        Point? FoodPos = Grid.AddFood();
-                        GameRecord.AddSnakeMove(LastMoveDirection, FoodPos.Value);
+                        Point FoodPos = Snake.AddFood();
+                        GameRecord.AddSnakeMove(LastMoveDirection, FoodPos);
                         SS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
 
 
@@ -277,7 +270,8 @@ namespace GS2
         {
             if (SS.ForbiddenDirection != direction)
             {
-                Snake.SetMovement(direction);
+                if(Snake.SetMovement(direction))
+                    LastMoveDirection = direction;
                 Label_Movement_Direction.Text = direction;
             }
         }
@@ -326,7 +320,7 @@ namespace GS2
                 Label_Timer.Text = "Running Time: " + ConvertToHHMMSS((int)i);
                 if (!SS.Pause)
                 {
-                    LastMoveDirection = Snake.GetMovement();
+
                     Snake.Move();
 
                     if (!SS.GameOver)

@@ -25,6 +25,8 @@ namespace GS2
         public int Moves { get; set; } = 0;
         public int FoodsEaten { get; set; } = 0;
         public int CellSize { get; set; } = 40;
+        public int Rows { get; set; } = 11;
+        public int Columns { get; set; } = 11;
 
         public override string ToString()
         {
