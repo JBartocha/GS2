@@ -8,6 +8,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace GS2
 {
+    /*
     public interface ISnake
     {
         public void Move();
@@ -143,4 +144,5 @@ namespace GS2
             OnSnakeEvent();
         }
     }
+    */
 }

@@ -11,7 +11,7 @@ namespace GS2
         public BlockTypes BlockType { get; set; }
         public bool IsCollision { get; set; }
 
-        public GridCollisionArgs()
+        public GridCollisionArgs(bool Collision = true, BlockTypes Type = BlockTypes.OutOfBoundsBlock)
         {
             IsCollision = false;
             BlockType = BlockTypes.EmptyBlock;

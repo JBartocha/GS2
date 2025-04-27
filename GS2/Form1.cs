@@ -11,12 +11,13 @@ namespace GS2
         FoodBlock,
         SnakeBody,
         SnakeHead,
+        OutOfBoundsBlock
     }
 
     public partial class Main_Form : Form
     {
         private Snake? Snake;
-        private Grid? Grid;
+        //private Grid? Grid;
         private GameRecord GameRecord = new GameRecord();
 
         private SnakeGameSettings SS = new SnakeGameSettings();
@@ -43,6 +44,7 @@ namespace GS2
 
             SerializeConfigSettings();
 
+            /*
             if (Snake != null && Grid != null)
             {
                 Snake.SnakeMoveEvent -= Grid.OnSnakeMoveEvent;
@@ -50,19 +52,24 @@ namespace GS2
                 Grid.BlockCollisionEvent -= OnGridCollisionEvent;
                 Grid.NoFreeSpaceForFoodEvent -= SetGameOverDueToNoSpaceForFoodEvent;
             }
+            */
 
             if(Simulation == false)
                 GameRecord = new GameRecord();
 
             // Create new instances of Snake and Grid
-            this.Grid = new Grid(11, 11, SS.CellSize, grap);
-            this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y));
+            //this.Grid = new Grid(11, 11, SS.CellSize, grap);
+            //this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y));
+            this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y), 11, 11, 20, grap);
 
+            Snake.GridCollisionEvent += OnGridCollisionEvent;
+            /*
             // Subscribe to new event handlers
             Snake.SnakeMoveEvent += Grid.OnSnakeMoveEvent;
             Grid.BlockCollisionEvent += Snake.OnGridCollisionEvent;
             Grid.BlockCollisionEvent += OnGridCollisionEvent;
             Grid.NoFreeSpaceForFoodEvent += SetGameOverDueToNoSpaceForFoodEvent;
+            */
 
             if (Simulation)
             {
@@ -70,7 +77,7 @@ namespace GS2
                 for (int i = 0; i < FieldOfFood.Count; i++)
                 {
                     Debug.WriteLine("Simulace - InitializeGrid Pole jidla na zacatek Hry: " + FieldOfFood[i]);
-                    bool ret = Grid.AddFood(FieldOfFood.ElementAt(i));
+                    bool ret = Snake.AddFood(FieldOfFood.ElementAt(i));
                     if (ret)
                         SetGameOver();
                 }
@@ -80,7 +87,7 @@ namespace GS2
                 Debug.WriteLine("NOT Simulace - InitializeGrid Pole jidla na zacatek Hry.");
                 for (int i = 0; i < SS.FoodCount; i++)
                 {
-                    Point? FoodPos = Grid.AddFood(); //Redundant check in AddFood() method for empty space
+                    Point? FoodPos = Snake.AddFood(); //Redundant check in AddFood() method for empty space
                     if (!FoodPos.HasValue)
                     {
                         SetGameOver();
@@ -129,7 +136,7 @@ namespace GS2
         }
 
         //EVENT from GRID
-        private void OnGridCollisionEvent(object sender, GridCollisionArgs args)
+        private void OnGridCollisionEvent(object sender, Grid.GridCollisionArgs args)
         {
             if(this.Simulation)
             {

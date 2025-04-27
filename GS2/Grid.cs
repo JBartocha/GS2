@@ -9,16 +9,11 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace GS2
 {
+    /*
     interface IGrid
     {
         public Point? AddFood();
         public bool AddFood(Point p);
-    }
-
-    interface IBlock
-    {
-        Point Position { get; set; }
-        BlockTypes BlockType { get; set; }
     }
 
     internal class Grid : IGrid
@@ -256,5 +251,5 @@ namespace GS2
 
 
     }
-
+    */
 }
