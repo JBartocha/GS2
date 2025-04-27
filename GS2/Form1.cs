@@ -232,6 +232,8 @@ namespace GS2
                 GameRecord.SetJsonSettingsFile(SS.ToString());
                 GameRecord.SaveGameRecord(SS);
             }
+
+            timer.Dispose();
             Button_Pause.Text = StartButtonText;
             SS.Pause = true;
             Panel_Main.Refresh();
