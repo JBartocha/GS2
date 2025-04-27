@@ -136,7 +136,7 @@ namespace GS2
                 Debug.WriteLine("current turn: " + SS.Moves);
                 if (args.IsCollision)
                 {
-                    SetGameOver();
+                    SetGameOver("End of simulation");
                 }
                 else
                 {
@@ -231,6 +231,10 @@ namespace GS2
             {
                 GameRecord.SetJsonSettingsFile(SS.ToString());
                 GameRecord.SaveGameRecord(SS);
+            }
+            else
+            {
+                timer.Dispose();
             }
             Button_Pause.Text = StartButtonText;
             SS.Pause = true;
