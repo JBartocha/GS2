@@ -17,8 +17,8 @@ namespace GS2
     public partial class Main_Form : Form
     {
         private Snake? Snake;
-        //private Grid? Grid;
         private GameRecord GameRecord = new GameRecord();
+        
 
         private SnakeGameSettings SS = new SnakeGameSettings();
         private Graphics? grap;
@@ -42,12 +42,12 @@ namespace GS2
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
 
-            SerializeConfigSettings();
+            SerializeConfigSettings(SnakeGameSettings.JsonSaveFileName);
 
             
             if (Snake != null && Snake != null)
             {
-                Snake.CellCollisionEvent -= OnGridCollisionEvent;
+                Snake.CellCollisionEvent -= OnCellCollisionEvent;
                 Snake.FoodEatenEvent -= OnFoodEatenEvent;
             }
             
@@ -58,39 +58,22 @@ namespace GS2
             this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y), 
                 SS.Rows, SS.Columns, SS.CellSize, grap);
 
-            Snake.CellCollisionEvent += OnGridCollisionEvent;
+            Snake.CellCollisionEvent += OnCellCollisionEvent;
             Snake.FoodEatenEvent += OnFoodEatenEvent;
-
-
-            if (Simulation)
+            
+            for (int i = 0; i < SS.FoodCount; i++)
             {
-                List<Point> FieldOfFood = GameRecord.GetGeneratedFoodAtStart();
-                for (int i = 0; i < FieldOfFood.Count; i++)
-                {
-                    Debug.WriteLine("Simulace - InitializeGrid Pole jidla na zacatek Hry: " + FieldOfFood[i]);
-                    bool ret = Snake.AddFood(FieldOfFood.ElementAt(i));
-                    if (ret)
-                        SetGameOver();
-                }
+                Snake.AddFood(true); //Redundant check in AddFood() method for empty space
+                //GameRecord.AddGeneratedFoodAtStart(FoodPos);
             }
-            else
-            {
-                Debug.WriteLine("NOT Simulace - InitializeGrid Pole jidla na zacatek Hry.");
-                for (int i = 0; i < SS.FoodCount; i++)
-                {
-                    Point FoodPos = Snake.AddFood(); //Redundant check in AddFood() method for empty space
-                    GameRecord.AddGeneratedFoodAtStart(FoodPos);
-                }
-            }
+
         }
 
-
-
-        private void SerializeConfigSettings()
+        private void SerializeConfigSettings(String JsonFilename)
         {
-            if (TestFileExists(SnakeGameSettings.JsonSaveFileName))
+            if (TestFileExists(JsonFilename))
             {
-                string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
+                string json = File.ReadAllText(JsonFilename);
                 var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
                 if (deserializedSettings != null)
                 {
@@ -120,75 +103,24 @@ namespace GS2
         private void OnFoodEatenEvent(object sender, EventArgs args)
         {
             SS.FoodsEaten++;
-            Debug.WriteLine("call from OnFoodEatenEvent. Food Eaten");
+            if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
+            {
+                Label_Level.Text = "LEVEL: " + ++SS.Level;
+                IncreaseSpeed();
+            }
         }
 
-        //EVENT from GRID
-        private void OnGridCollisionEvent(object sender, GridCollisionArgs args)
+        private void OnCellCollisionEvent(object sender, GridCollisionArgs args)
         {
-            if(this.Simulation)
+            if (this.Simulation)
             {
-                Debug.WriteLine("current turn: " + SS.Moves);
-                if (args.IsCollision)
-                {
-                    SetGameOver();
-                }
-                else
-                {
-                    if (args.BlockType == BlockTypes.FoodBlock)
-                    {
-                        //TODO - ugly - cannot ever be null but is in nullable field
-                        Point? pom = GameRecord.GetGeneratedFoodPosition(SS.Moves).Value;
-                        Point point = pom.Value;
-                        Debug.WriteLine("Added Food during simulation: " + point);
-                        if(Snake.AddFood(point) == false)
-                        {
-                            throw new Exception("Bìhem simulace se snažil ze zaznamù z databáze" +
-                                "zapsat do Snake pole bod který je mimo møížku.");
-                        }
-                        
-
-                        Label_Food_Eaten.Text = "Points: " + ++SS.FoodsEaten;
-                        if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
-                        {
-                            Label_Level.Text = "LEVEL: " + ++SS.Level;
-                            IncreaseSpeed();
-                        }
-                    }
-                }
+                    SetGameOver(args.Message);
             }
-            else
+            else // regular game
             {
-                if (args.IsCollision)
-                {
-                    GameRecord.AddSnakeMove(LastMoveDirection);
-                    SetGameOver();
-                }
-                else
-                {
-                    if (args.BlockType == BlockTypes.FoodBlock)
-                    {
-                        Point FoodPos = Snake.AddFood();
-                        GameRecord.AddSnakeMove(LastMoveDirection, FoodPos);
-                        SS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
-
-
-                        Label_Food_Eaten.Text = "Points: " + ++SS.FoodsEaten;
-                        if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
-                        {
-                            Label_Level.Text = "LEVEL: " + ++SS.Level;
-                            IncreaseSpeed();
-                        }
-                    }
-                    else
-                    {
-                        GameRecord.AddSnakeMove(LastMoveDirection);
-                        SS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
-                    }
-                }
+                    //TODO uloz record
+                    SetGameOver(args.Message);
             }
-
-            
         }
 
         private void ResetGame()
@@ -215,14 +147,8 @@ namespace GS2
 
             InitializeGrid();
 
-            if (Simulation)
-            {
-                StartPlayRecordTimer();
-            }
-            else
-            {
-                RegularGameTimer();
-            }
+            RegularGameTimer();
+
         }
 
         private void SetGameOver(string Message = "Game Over")
@@ -240,11 +166,6 @@ namespace GS2
             SS.GameOver = true;
             MessageBox.Show(Message);
             Simulation = false;
-        }
-
-        private void SetGameOverDueToNoSpaceForFoodEvent(object sender, EventArgs args)
-        {
-            SetGameOver("No free space for food. Game Over.");
         }
 
         private void IncreaseSpeed()
@@ -294,19 +215,6 @@ namespace GS2
             SS.ForbiddenDirection = "Down";
         }
 
-        // some variables from loaded json file for simulation must be reset. UGLY
-        private void PrepareJsonSettingsForSimulation()
-        {
-            SS.Level = 0;
-            SS.FoodsEaten = 0;
-            SS.Moves = 0;
-            SS.HeadPosition = new Point(5, 5);
-            SS.UseKeyboardToMove = false;
-            SS.UseMousePositionToMove = false;
-            SS.GameOver = false;
-            SS.ForbiddenDirection = "Down";
-
-        }
 
         public async Task<bool> RegularGameTimer()
         {
@@ -320,9 +228,7 @@ namespace GS2
                 Label_Timer.Text = "Running Time: " + ConvertToHHMMSS((int)i);
                 if (!SS.Pause)
                 {
-
                     Snake.Move();
-
                     if (!SS.GameOver)
                     {
                         //Label_Moves.Text = "Moves: " + MoveCounter;

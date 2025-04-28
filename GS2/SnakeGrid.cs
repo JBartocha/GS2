@@ -9,9 +9,8 @@ namespace GS2
 {
     interface IGrid
     {
-        int Xss { get; set; }
-        public Point? AddFood();
-        public bool AddFood(Point p);
+        public Point? AddFood(bool StartingPositionFood = false);
+        public bool AddFood(Point p, bool StartingPositionFood = false);
     }
     public struct Cell
     {
@@ -33,7 +32,7 @@ namespace GS2
             Rows = gridXSize;
             Columns = gridYSize;
             BlockSize = blockSize;
-            Graphics = graphics;
+            Graphics = graphics; 
             Cells = new BlockTypes[Rows, Columns];
             InitializeGrid();
         }
@@ -59,18 +58,18 @@ namespace GS2
             }
         }
 
-        public virtual bool AddFood(Point position)
+        // TODO - not sure if should be here (no use)
+        public virtual void AddFood(Point position, bool StartingPositionFood = false)
         {
             if (IsValidPosition(position) && Cells[position.X, position.Y] == BlockTypes.EmptyBlock)
             {
                 Cells[position.X, position.Y] = BlockTypes.FoodBlock;
                 DrawCell(position.X, position.Y, BlockTypes.FoodBlock);
-                return true;
             }
-            return false;
         }
          
-        public Point AddFood()
+        // TODO - not sure if should be here (no use)
+        public virtual void AddFood(bool StartingPositionFood = false)
         {
             if (IsThereEmptyCellInGrid())
             {
@@ -84,7 +83,6 @@ namespace GS2
                 }
                 Cells[x, y] = BlockTypes.FoodBlock;
                 DrawCell(x, y, BlockTypes.FoodBlock);
-                return new Point(x, y); // Food added successfully
             }
             else
             {
@@ -92,7 +90,7 @@ namespace GS2
             }
         }
 
-        private bool IsThereEmptyCellInGrid()
+        protected bool IsThereEmptyCellInGrid()
         {
             for (int x = 0; x < Rows; Rows++)
             {
@@ -108,12 +106,11 @@ namespace GS2
 
         protected bool IsValidPosition(Point position)
         {
-            return position.X >= 0 && position.X < Rows && position.Y >= 0 && position.Y < Columns;
+            return position.X >= 0 && position.X < this.Rows && position.Y >= 0 && position.Y < this.Columns;
         }
 
         protected void DrawCell(int x, int y, BlockTypes blockType)
         {
-            // Drawing logic for a cell
             SolidBrush brush = GetBrushByType(blockType);
             Graphics.FillRectangle(brush, x * BlockSize + 1, y * BlockSize + 1, BlockSize - 1, BlockSize - 1);
         }
@@ -136,9 +133,12 @@ namespace GS2
     {
         private List<Point> SnakeBody; //0==Head...Other==body
         private Point Movement;
-        private string ForbiddenDirection;
-        private int CycleCounter = 0; // Everytime snake moves, this is incremented by 1
+        private string MovementDirection;
 
+        private string ForbiddenDirection;
+        private int MoveCounter = 0; // Everytime snake moves, this is incremented by 1
+        private Record record = new Record();
+        
         public Snake(Point startingPosition, int gridXSize, int gridYSize, int blockSize, Graphics graphics)
             : base(gridXSize, gridYSize, blockSize, graphics)
         {
@@ -158,30 +158,48 @@ namespace GS2
         public delegate void FoodEatenEventHandler(object sender, EventArgs args);
         public event FoodEatenEventHandler FoodEatenEvent;
 
+        private void Debug_ListRecordValues()
+        {
+            for (int i = 0; i < record.StartingFoodPositions.Count; i++)
+            {
+                Debug.WriteLine("StartingFoodPosition: " + record.StartingFoodPositions[i].X + "," + record.StartingFoodPositions[i].Y);
+            }
+            Debug.WriteLine("--------------------------------------");
+            for (int i = 0; i < record.Turns.Count; i++)
+            {
+                Debug.WriteLine("Turn: " + record.Turns[i].TurnNumber + " MoveDirection: " + record.Turns[i].MoveDirection);
+            }
+        }
 
         public void Move()
         {
-            this.CycleCounter++;
             Point newHeadPosition = new Point(SnakeBody[0].X + Movement.X, SnakeBody[0].Y + Movement.Y);
-
+            
+            this.MoveCounter++;
+            /*
+            record.Turns[MoveCounter - 1] = new TurnRecord
+            {
+                TurnNumber = MoveCounter,
+                MoveDirection = MovementDirection,
+                GeneratedFoodPosition = null
+            };
+            */
             if (!IsValidPosition(newHeadPosition) || Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.SnakeBody)
             {
-                // TODO - Invoke Event
-                CellCollisionEvent(this, new GridCollisionArgs
+                GridCollisionArgs GridCollisionArgs = new GridCollisionArgs
                 {
-                    BlockType = Cells[newHeadPosition.X, newHeadPosition.Y],
-                    IsCollision = true,
-                    Message = "Game Over: Snake collided with itself or the wall."
-                });
-                Debug.WriteLine("NIKDY SE NEUKAZE: Snake collided with itself or the wall.");
-
-                throw new Exception("Game Over: Snake collided with itself or the wall.");
+                    BlockType = BlockTypes.WallBlock, // TODO nevyuzije se - zatim
+                    Message = "Game Over: Snake collided."
+                };
+                CrossSnakeHead();
+                //Debug_ListRecordValues();
+                CellCollisionEvent?.Invoke(this, GridCollisionArgs);
             }
             if (Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.FoodBlock)
             {
                 SnakeBody.Insert(0, newHeadPosition);
-                FoodEatenEvent?.Invoke(this, EventArgs.Empty);
                 AddFood();
+                FoodEatenEvent?.Invoke(this, EventArgs.Empty);
             }
             else
             {
@@ -191,6 +209,7 @@ namespace GS2
                 Cells[tail.X, tail.Y] = BlockTypes.EmptyBlock;
                 DrawCell(tail.X, tail.Y, BlockTypes.EmptyBlock);
             }
+
             Cells[newHeadPosition.X, newHeadPosition.Y] = BlockTypes.SnakeHead;
             DetermineForbiddenDirection();
             DrawSnake();
@@ -201,26 +220,96 @@ namespace GS2
             if (direction == "Up" && ForbiddenDirection != "Up")
             {
                 Movement = new Point(0, -1);
+                MovementDirection = direction;
                 return true;
             }
             else if (direction == "Down" && ForbiddenDirection != "Down")
             {
                 Movement = new Point(0, 1);
+                MovementDirection = direction;
                 return true;
             }
             else if (direction == "Left" && ForbiddenDirection != "Left")
             {
                 Movement = new Point(-1, 0);
+                MovementDirection = direction;
                 return true;
             }
             else if (direction == "Right" && ForbiddenDirection != "Right")
             {
                 Movement = new Point(1, 0);
+                MovementDirection = direction;
                 return true;
             }
             return false;
         }
+        /*
+        public override void AddFood(Point position, bool StartingPositionFood = false)
+        {
+            if (IsValidPosition(position) && Cells[position.X, position.Y] == BlockTypes.EmptyBlock)
+            {
+                Cells[position.X, position.Y] = BlockTypes.FoodBlock;
+                DrawCell(position.X, position.Y, BlockTypes.FoodBlock);
+            }
 
+            if (StartingPositionFood)
+            {
+                record.StartingFoodPositions.Add(new Point(position.X, position.Y));
+            }
+            else
+            {
+                string MoveDirection = record.Turns.ElementAt(MoveCounter - 1).MoveDirection;
+                int TurnNumber = record.Turns.ElementAt(MoveCounter - 1).TurnNumber;
+                TurnRecord turnRecord = new TurnRecord
+                {
+                    MoveDirection = MoveDirection,
+                    TurnNumber = TurnNumber,
+                    GeneratedFoodPosition = new Point(position.X, position.Y)
+                };
+                record.Turns[MoveCounter] = turnRecord;
+            }
+        }*/
+        /*
+        public override void AddFood(bool StartingPositionFood = false)
+        {
+            if (IsThereEmptyCellInGrid())
+            {
+                Random random = new Random();
+                int x = random.Next(0, Rows);
+                int y = random.Next(0, Columns);
+                while (Cells[x, y] != BlockTypes.EmptyBlock)
+                {
+                    //TODO - check if possible?
+                    x = random.Next(0, Rows); 
+                    y = random.Next(0, Columns);
+                }
+                Cells[x, y] = BlockTypes.FoodBlock;
+                
+                if (StartingPositionFood)
+                {
+                    record.StartingFoodPositions.Add(new Point(x, y));
+                }
+                else
+                {
+                    string MoveDirection = record.Turns.ElementAt(MoveCounter - 1).MoveDirection;
+                    int TurnNumber = record.Turns.ElementAt(MoveCounter - 1).TurnNumber;
+
+                    TurnRecord turnRecord = new TurnRecord { 
+                        MoveDirection = MoveDirection, 
+                        TurnNumber = TurnNumber,
+                        GeneratedFoodPosition = new Point(x, y)
+                    };
+                    record.Turns[MoveCounter] = turnRecord;
+                }
+                
+                DrawCell(x, y, BlockTypes.FoodBlock);
+            }
+            else
+            {
+                throw new Exception("There is no space to put Food!"); // TODO what to do
+            }
+        }
+        */
         private void DrawSnake()
         {
             foreach (Point segment in SnakeBody)
@@ -232,11 +321,6 @@ namespace GS2
             Point head = SnakeBody[0];
             Cells[head.X, head.Y] = BlockTypes.SnakeHead;
             DrawCell(head.X, head.Y, BlockTypes.SnakeHead);
-        }
-
-        public string GetForbbidenMoveDirection()
-        {
-            return this.ForbiddenDirection;
         }
 
         private void DetermineForbiddenDirection()
@@ -259,6 +343,13 @@ namespace GS2
                         ForbiddenDirection = "Down";
                     break;
             }
+        }
+        private void CrossSnakeHead()
+        {
+            Graphics.DrawLine(Pens.Black, SnakeBody[0].X * BlockSize, SnakeBody[0].Y * BlockSize, 
+                (SnakeBody[0].X + 1) * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
+            Graphics.DrawLine(Pens.Black, (SnakeBody[0].X + 1) * BlockSize, SnakeBody[0].Y * BlockSize,
+                SnakeBody[0].X * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
         }
 
         public string GetForbiddenMoveDirection()

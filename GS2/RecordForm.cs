@@ -13,7 +13,7 @@ namespace GS2
 {
     public partial class RecordForm : Form
     {
-        private GameRecord record;
+        private GameRecord record; // TODO - to je tohle?
         private int selectedID;
 
         public int GetSelectedID()
