@@ -25,8 +25,11 @@ namespace GS2
             for (int i = 1; i < 5; i++)
             {
                 ListBoxFoodInterval.Items.Add(i.ToString());
-                ListBoxFoodCount.Items.Add(i.ToString());
                 ListBoxSpeedPercent.Items.Add((i * 5).ToString());
+            }
+            for (int i = 1; i < 10; i++)
+            {
+                ListBoxFoodCount.Items.Add(i.ToString());
             }
 
             LoadJsonSettings();

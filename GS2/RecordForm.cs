@@ -34,7 +34,7 @@ namespace GS2
             //Debug.WriteLine("Pocet zaznamů: " + records.Count);
             for (int i = 0; i < records.Count; i++)
             {
-                ListBox_Records.Items.Add(records[i].ID + " - " + records[i].Date);
+                ListBox_Records.Items.Add(records[i].ID + " - " + records[i].Date + " - Level: " + records[i].Level);
             }
         }
 

@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace GS2
 {
-    interface IGrid
+
+    interface ISnakeRecord
     {
-        public Point? AddFood(bool StartingPositionFood = false);
-        public bool AddFood(Point p, bool StartingPositionFood = false);
+        public Record GetGameRecord();
     }
+
     public struct Cell
     {
         public int x;
@@ -19,12 +20,13 @@ namespace GS2
         public BlockTypes blockType;
     }
 
-    public class Grid
+    public abstract class Grid
     {
         protected int Rows;
         protected int Columns;
         protected int BlockSize;
         protected Graphics Graphics;
+        //protected Bitmap canvas;
         protected BlockTypes[,] Cells;
         
         public Grid(int gridXSize, int gridYSize, int blockSize, Graphics graphics)
@@ -34,6 +36,8 @@ namespace GS2
             BlockSize = blockSize;
             Graphics = graphics; 
             Cells = new BlockTypes[Rows, Columns];
+            //canvas = new Bitmap(gridXSize*blockSize, gridYSize*blockSize);
+
             InitializeGrid();
         }
 
@@ -129,7 +133,15 @@ namespace GS2
         }
     }
 
-    public class Snake : Grid
+
+
+
+
+
+
+
+
+    public class Snake : Grid, ISnakeRecord
     {
         private List<Point> SnakeBody; //0==Head...Other==body
         private Point Movement;
@@ -158,7 +170,7 @@ namespace GS2
         public delegate void FoodEatenEventHandler(object sender, EventArgs args);
         public event FoodEatenEventHandler FoodEatenEvent;
 
-        private void Debug_ListRecordValues()
+        private void Debug_ListRecordValues() // TODO REMOVE DEBUG METHOD
         {
             for (int i = 0; i < record.StartingFoodPositions.Count; i++)
             {
@@ -167,7 +179,10 @@ namespace GS2
             Debug.WriteLine("--------------------------------------");
             for (int i = 0; i < record.Turns.Count; i++)
             {
-                Debug.WriteLine("Turn: " + record.Turns[i].TurnNumber + " MoveDirection: " + record.Turns[i].MoveDirection);
+                string w = record.Turns[i].GeneratedFoodPosition.HasValue ? record.Turns[i].GeneratedFoodPosition.Value.ToString() : "null";
+                Debug.WriteLine("Turn: " + record.Turns[i].TurnNumber + 
+                    " MoveDirection: " + record.Turns[i].MoveDirection + 
+                    " Food: " + w);
             }
         }
 
@@ -175,30 +190,35 @@ namespace GS2
         {
             Point newHeadPosition = new Point(SnakeBody[0].X + Movement.X, SnakeBody[0].Y + Movement.Y);
             
+            //Generate record for turn (move)
             this.MoveCounter++;
-            /*
-            record.Turns[MoveCounter - 1] = new TurnRecord
+            record.Turns.Add(new TurnRecord { 
+                TurnNumber = MoveCounter, 
+                MoveDirection = MovementDirection, 
+                GeneratedFoodPosition = null 
+            });
+
+            if (!IsValidPosition(newHeadPosition))
             {
-                TurnNumber = MoveCounter,
-                MoveDirection = MovementDirection,
-                GeneratedFoodPosition = null
-            };
-            */
-            if (!IsValidPosition(newHeadPosition) || Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.SnakeBody)
-            {
-                GridCollisionArgs GridCollisionArgs = new GridCollisionArgs
-                {
-                    BlockType = BlockTypes.WallBlock, // TODO nevyuzije se - zatim
-                    Message = "Game Over: Snake collided."
-                };
-                CrossSnakeHead();
-                //Debug_ListRecordValues();
-                CellCollisionEvent?.Invoke(this, GridCollisionArgs);
+                InvokeCollisionEvent("GameRecord Over: Snake is Out of Bounds.", BlockTypes.OutOfBoundsBlock);
             }
+            else if (Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.SnakeBody)
+            {
+                InvokeCollisionEvent("Game Over: Snake collided with itself.", BlockTypes.SnakeBody);
+            }
+            else if (Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.WallBlock)
+            {
+                InvokeCollisionEvent("Game Over: Snake collided with wall.", BlockTypes.WallBlock);
+            }
+            else if (Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.SnakeBody)
+            {
+                InvokeCollisionEvent("Game Over: Snake collided with itself.", BlockTypes.SnakeBody);
+            }
+
             if (Cells[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.FoodBlock)
             {
                 SnakeBody.Insert(0, newHeadPosition);
-                AddFood();
+                //AddFood();
                 FoodEatenEvent?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -212,7 +232,20 @@ namespace GS2
 
             Cells[newHeadPosition.X, newHeadPosition.Y] = BlockTypes.SnakeHead;
             DetermineForbiddenDirection();
+            //Debug.WriteLine("Snake Head Position: " + newHeadPosition.X + "," + newHeadPosition.Y);
             DrawSnake();
+        }
+
+        private void InvokeCollisionEvent(string message, BlockTypes BlockType)
+        {
+            GridCollisionArgs GridCollisionArgs = new GridCollisionArgs
+            {
+                BlockType = BlockType, // TODO nevyuzije se - zatim
+                Message = message
+            };
+            CrossSnakeHead();
+            Debug_ListRecordValues();
+            CellCollisionEvent?.Invoke(this, GridCollisionArgs);
         }
 
         public bool SetMovement(string direction)
@@ -243,7 +276,7 @@ namespace GS2
             }
             return false;
         }
-        /*
+
         public override void AddFood(Point position, bool StartingPositionFood = false)
         {
             if (IsValidPosition(position) && Cells[position.X, position.Y] == BlockTypes.EmptyBlock)
@@ -256,20 +289,15 @@ namespace GS2
             {
                 record.StartingFoodPositions.Add(new Point(position.X, position.Y));
             }
+
             else
             {
-                string MoveDirection = record.Turns.ElementAt(MoveCounter - 1).MoveDirection;
-                int TurnNumber = record.Turns.ElementAt(MoveCounter - 1).TurnNumber;
-                TurnRecord turnRecord = new TurnRecord
-                {
-                    MoveDirection = MoveDirection,
-                    TurnNumber = TurnNumber,
-                    GeneratedFoodPosition = new Point(position.X, position.Y)
-                };
-                record.Turns[MoveCounter] = turnRecord;
+                TurnRecord ThisTurn = record.Turns.Last();
+                ThisTurn.GeneratedFoodPosition = new Point(position.X, position.Y);
+                record.Turns[MoveCounter - 1] = ThisTurn;
             }
-        }*/
-        /*
+        }
+        
         public override void AddFood(bool StartingPositionFood = false)
         {
             if (IsThereEmptyCellInGrid())
@@ -279,7 +307,7 @@ namespace GS2
                 int y = random.Next(0, Columns);
                 while (Cells[x, y] != BlockTypes.EmptyBlock)
                 {
-                    //TODO - check if possible?
+                    //TODO - check if possible? Also better algorithm
                     x = random.Next(0, Rows); 
                     y = random.Next(0, Columns);
                 }
@@ -291,15 +319,9 @@ namespace GS2
                 }
                 else
                 {
-                    string MoveDirection = record.Turns.ElementAt(MoveCounter - 1).MoveDirection;
-                    int TurnNumber = record.Turns.ElementAt(MoveCounter - 1).TurnNumber;
-
-                    TurnRecord turnRecord = new TurnRecord { 
-                        MoveDirection = MoveDirection, 
-                        TurnNumber = TurnNumber,
-                        GeneratedFoodPosition = new Point(x, y)
-                    };
-                    record.Turns[MoveCounter] = turnRecord;
+                    TurnRecord ThisTurn = record.Turns.Last();
+                    ThisTurn.GeneratedFoodPosition = new Point(x, y);
+                    record.Turns[MoveCounter - 1] = ThisTurn;
                 }
                 
                 DrawCell(x, y, BlockTypes.FoodBlock);
@@ -309,7 +331,7 @@ namespace GS2
                 throw new Exception("There is no space to put Food!"); // TODO what to do
             }
         }
-        */
+        
         private void DrawSnake()
         {
             foreach (Point segment in SnakeBody)
@@ -359,6 +381,11 @@ namespace GS2
         public Point GetSnakeHeadPosition()
         {
             return SnakeBody[0];
+        }
+
+        public Record GetGameRecord()
+        {
+            return record;
         }
     }
 }

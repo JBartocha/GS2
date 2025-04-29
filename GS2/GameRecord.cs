@@ -43,6 +43,22 @@ namespace GS2
             StartingFoodPositions = new List<Point>();
             Turns = new List<TurnRecord>();
         }
+
+        public string toString()
+        {
+            System.String ret = "";
+            for (int i = 0; i < StartingFoodPositions.Count; i++)
+            {
+                ret += "StartingFood Number: " + i + " = " + StartingFoodPositions[i].ToString() + "\n";
+            }
+            for (int i = 0; i < Turns.Count; i++)
+            {
+                ret += "Turn Number: " + Turns[i].TurnNumber + " Move Direction: " + Turns[i].MoveDirection + "\n";
+                if (Turns[i].GeneratedFoodPosition != null)
+                    ret += " Generated Food Position: " + Turns[i].GeneratedFoodPosition.ToString() + "\n";
+            }
+            return ret;
+        }
     }
 
     public struct ListOfRecords
@@ -50,24 +66,26 @@ namespace GS2
 
         public string? ID;
         public DateTime Date;
+        public int Level;
 
-        public ListOfRecords(string? iD, DateTime dT) : this()
+        public ListOfRecords(string? iD, DateTime dT, int Lvl) : this()
         {
             this.ID = iD;
             this.Date = dT;
+            this.Level = Lvl;
         }
     }
 
     interface IGameRecord
     {
-        public void AddGeneratedFoodAtStart(Point foodPosition);
-        public void AddSnakeMove(string moveDirection, Point generatedFoodPosition);
-        public string GetMoveDirectionOnTurn(int turnNumber);
-        public Point? GetGeneratedFoodPosition(int turnNumber);
-        public List<Point> GetGeneratedFoodAtStart();
-        public void SaveGameRecord(SnakeGameSettings S);
-        public void LoadGameRecord(int ID);
-        public void SetJsonSettingsFile(string jsonSettingsFile);
+        //public void AddGeneratedFoodAtStart(Point foodPosition);
+        //public void AddSnakeMove(string moveDirection, Point generatedFoodPosition);
+        //public string GetMoveDirectionOnTurn(int turnNumber);
+        //public Point? GetGeneratedFoodPosition(int turnNumber);
+        //public List<Point> GetGeneratedFoodAtStart();
+        public void SaveGameRecord(SnakeGameSettings S, Record record);
+        public Record LoadGameRecord(int ID);
+        //public void SetJsonSettingsFile(string jsonSettingsFile);
         public SnakeGameSettings GetJsonSettings();
 
     }
@@ -76,7 +94,6 @@ namespace GS2
     {
         private int CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
         private Record RC = new Record();
-
         private const string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security = True";
 
         public List<ListOfRecords> ListAllRecords()
@@ -89,7 +106,7 @@ namespace GS2
 
                 List<ListOfRecords> PomList = new List<ListOfRecords>();
 
-                string query = "SELECT GameNumbers_ID, Date FROM GameNumbers"; // Replace with your query  
+                string query = "SELECT GameNumbers_ID, Date, Level FROM GameNumbers"; // Replace with your query  
                 using var command = new SqlCommand(query, connection);
                 using var reader = command.ExecuteReader();
 
@@ -97,8 +114,15 @@ namespace GS2
                 {
                     string ID = reader["GameNumbers_ID"].ToString();
                     string Date = reader["Date"].ToString();
+                    string LevelString = reader["Level"].ToString();
+                    int Level = 0;
+                    if (int.TryParse(LevelString, out int level))
+                    {
+                        Level = level; // Assign to the int property
+                    }
+
                     DateTime DT = DateTime.Parse(Date);
-                    PomList.Add(new ListOfRecords(ID, DT));
+                    PomList.Add(new ListOfRecords(ID, DT, Level));
                 }
                 return PomList;
             }
@@ -108,48 +132,12 @@ namespace GS2
             }
         }
 
-        public void AddGeneratedFoodAtStart(Point FoodPosition)
-        {
-            RC.StartingFoodPositions.Add(FoodPosition);
-        }
-
-        public void AddSnakeMove(string moveDirection)
-        {
-            RC.Turns.Add(new TurnRecord(++CurrentTurnNumber, moveDirection));
-            TurnRecord Last = RC.Turns.Last();
-            Last.GeneratedFoodPosition = null;
-            RC.Turns[RC.Turns.Count - 1] = Last;
-        }
-
-        public void AddSnakeMove(string moveDirection, Point generatedFoodPosition)
-        {
-            RC.Turns.Add(new TurnRecord(++CurrentTurnNumber, moveDirection, generatedFoodPosition));
-        }
-
-        public void ListValues()
-        {
-            Debug.WriteLine("Generated Foods at Start:");
-            foreach (var food in RC.StartingFoodPositions)
-            {
-                Debug.WriteLine(food);
-            }
-            Debug.WriteLine("Snake Moves:");
-            foreach (var move in RC.Turns)
-            {
-                Debug.WriteLine(move.MoveDirection);
-                if (move.GeneratedFoodPosition == null)
-                    Debug.WriteLine("null");
-                else
-                    Debug.WriteLine(move.GeneratedFoodPosition);
-            }
-        }
-
-
-        private void LoadGameRecord_StartingPositions(int ID)
+        private List<Point> LoadGameRecord_StartingPositions(int ID)
         {
             try
             {
-                RC.StartingFoodPositions = new List<Point>();
+                //RC.StartingFoodPositions = new List<Point>();
+                List<Point> StartingFoodPositions = new List<Point>(); // Initialize the list to avoid null reference
 
                 // Updated to use Microsoft.Data.SqlClient.SqlConnection  
                 using var connection = new SqlConnection(connectionString);
@@ -178,19 +166,22 @@ namespace GS2
                     int posY = Convert.ToInt32(reader["PosY"]);
 
 
-                    RC.StartingFoodPositions.Add(new Point(posX, posY));
+                    StartingFoodPositions.Add(new Point(posX, posY));
                 }
+                return StartingFoodPositions;
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}");
-            }
+                throw new Exception($"SQL error: {ex.Message}", ex);
+            }     
         }
 
-        private void LoadGameRecord_SnakeMoves(int ID)
+        private List<TurnRecord> LoadGameRecord_SnakeMoves(int ID)
         {
             try
             {
+                List<TurnRecord> Turns = new List<TurnRecord>();
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
 
@@ -226,27 +217,58 @@ namespace GS2
                     turnRecord.MoveDirection = Direction;
 
 
-                    RC.Turns.Add(turnRecord);
-
+                    Turns.Add(turnRecord);
                 }
+                return Turns;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message} \n {ex.Data}");
+                throw new Exception($"SQL error: {ex.Message}", ex);
             }
         }
 
-        public void LoadGameRecord(int ID)
+        public Record LoadGameRecord(int ID)
         {
-            LoadGameRecord_StartingPositions(ID);
-            LoadGameRecord_SnakeMoves(ID); 
+            List<Point>? StartFoPos;
+            List<TurnRecord>? Turns;
 
-            ListValues();
+            StartFoPos = LoadGameRecord_StartingPositions(ID);
+            if(StartFoPos == null)
+            {
+                throw new Exception("Failed to load starting food positions.");
+            }
+            RC.StartingFoodPositions = StartFoPos;
+            Turns = LoadGameRecord_SnakeMoves(ID);
+            if (Turns == null)
+            {
+                throw new Exception("Failed to load turns.");
+            }
+            RC.Turns = Turns;
+            Record record = new Record();
+            record.Settings = RC.Settings;
+            record.StartingFoodPositions = StartFoPos;
+            record.Turns = Turns;
+            
+            return record;            
         }
 
-        public void SaveGameRecord(SnakeGameSettings S)
+        private int CalculateReachedLevel(SnakeGameSettings S)
+        {
+            int FoodEaten = 0;
+            for (int i = 0; i < RC.Turns.Count; i++)
+            {
+                if (RC.Turns[i].GeneratedFoodPosition.HasValue)
+                    FoodEaten++;
+            }
+            return FoodEaten / S.LevelIncreaseInterval;
+        }
+
+        public void SaveGameRecord(SnakeGameSettings S, Record record)
         {
             int LastGameNumbersID = 0; // Initialize LastGameNumbersID to 0
+            RC = record;
+            int Level = CalculateReachedLevel(S);
 
             try
             {
@@ -262,8 +284,8 @@ namespace GS2
 
                 // Add parameter to prevent SQL injection
                 command.Parameters.AddWithValue("@TimeNow", CurrentTime);
-                command.Parameters.AddWithValue("@JsonSettings", RC.Settings);
-                command.Parameters.AddWithValue("@Level", S.Level);
+                command.Parameters.AddWithValue("@JsonSettings", S.ToString());
+                command.Parameters.AddWithValue("@Level", Level);
 
                 //int rowsAffected = command.ExecuteNonQuery();
                 System.Object result = command.ExecuteScalar();
@@ -298,13 +320,12 @@ namespace GS2
             }
         }
 
-
-
-        public void SetJsonSettingsFile(string jsonSettingsFile)
+        /*
+        private void SetJsonSettingsFile(string jsonSettingsFile)
         {
             RC.Settings = jsonSettingsFile;
         }
-
+        */
         private int InsertFoodIntoDB(Point FoodPosition)
         {
             try
@@ -415,30 +436,18 @@ namespace GS2
                 throw new Exception("Error inserting food into database", ex);
             }
         }
-        
+
         public SnakeGameSettings GetJsonSettings()
         {
-            if(RC.Settings == null)
+            SnakeGameSettings deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(RC.Settings);
+            if (deserializedSettings != null)
             {
-                throw new Exception("Settings not set in GameRecords.GetJsonSettings()");
+                return deserializedSettings;
             }
-            return JsonSerializer.Deserialize<SnakeGameSettings>(RC.Settings);
-        }
-
-        public string GetMoveDirectionOnTurn(int turnNumber)
-        {
-            return RC.Turns[turnNumber - 1].MoveDirection;
-        }
-
-        public Point? GetGeneratedFoodPosition(int turnNumber)
-        {
-            Debug.WriteLine(RC.Turns[turnNumber - 1].GeneratedFoodPosition);
-            return RC.Turns[turnNumber - 1].GeneratedFoodPosition;
-        }
-
-        public List<Point> GetGeneratedFoodAtStart()
-        {
-            return RC.StartingFoodPositions;
+            else
+            {
+                throw new Exception("Failed to deserialize settings.");
+            }
         }
     }
 }
