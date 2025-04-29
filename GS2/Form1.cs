@@ -39,7 +39,8 @@ namespace GS2
         private SnakeGameSettings GS = new SnakeGameSettings();
         private MainFormSettings MFS = new MainFormSettings(); 
         private Graphics? grap;
-        Bitmap? surface;
+        private Bitmap? surface;
+
         private PeriodicTimer? timer;
         private string StartButtonText = "Start";
         private bool Simulation = false;
@@ -208,14 +209,8 @@ namespace GS2
                 this.Simulation = false; // After end of simulation its regular game
                 SetGameOver(args.Message);
             }
-            else // regular game
+            else // regular
             {
-                //TODO uloz record
-                Record rec = Snake.GetGameRecord();
-
-                GameRecord.SaveGameRecord(GS, rec); // SAVE RECORD TO DATABASE
-                
-                Debug.WriteLine(rec.toString());
 
                 SetGameOver(args.Message);
             }
@@ -227,16 +222,38 @@ namespace GS2
         {
             if (!Simulation)
             {
+                string AdditionalMessage = "\nDo you want to save your record?";
+                bool Save = SelectionMessageBox(Message + AdditionalMessage, "Game Over");
+                if(Save)
+                {
+                    Record rec = Snake.GetGameRecord();
+                    GameRecord.SaveGameRecord(GS, rec); // SAVE RECORD TO DATABASE
+                    Debug.WriteLine(rec.toString());
+                }
             }
-
+            else
+            {
+                MessageBox.Show(Message);
+            }
             timer.Dispose();
             Button_Pause.Text = StartButtonText;
             MFS.Pause = true;
-            //Panel_Main.Refresh();
             Panel_Main.Invalidate();
             MFS.GameOver = true;
-            MessageBox.Show(Message);
             Simulation = false;
+        }
+
+        private bool SelectionMessageBox(string message, string caption = "")
+        {
+            DialogResult result = MessageBox.Show(message, caption, MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void IncreaseSpeed()
@@ -289,14 +306,18 @@ namespace GS2
                         Label_Moves.Text = "Moves: " + ++MFS.Moves; // TODO (duplicita?)
                         MFS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
                         MFS.HeadPosition = Snake.GetSnakeHeadPosition();
-                        //Panel_Main.Refresh();
-                        Panel_Main.Invalidate();
+                        List<Region> reg = Snake.GetRegion();
+                        Debug.WriteLine("---------------------------");
+                        Debug.WriteLine("Region: " + reg.ToString());
+                        foreach(Region r in reg)
+                        {
+                            Panel_Main.Invalidate(r);
+                        }
                     }
                 }
             }
             return true;
         }
-
 
         private void Button_Pause_Click(object sender, EventArgs e)
         {

@@ -26,9 +26,9 @@ namespace GS2
         protected int Columns;
         protected int BlockSize;
         protected Graphics Graphics;
-        //protected Bitmap canvas;
         protected BlockTypes[,] Cells;
-        
+        protected List<Region> Region = new List<Region>();
+
         public Grid(int gridXSize, int gridYSize, int blockSize, Graphics graphics)
         {
             Rows = gridXSize;
@@ -36,7 +36,6 @@ namespace GS2
             BlockSize = blockSize;
             Graphics = graphics; 
             Cells = new BlockTypes[Rows, Columns];
-            //canvas = new Bitmap(gridXSize*blockSize, gridYSize*blockSize);
 
             InitializeGrid();
         }
@@ -72,6 +71,11 @@ namespace GS2
             }
         }
          
+        public List<Region> GetRegion()
+        {
+            return Region;
+        }
+
         // TODO - not sure if should be here (no use)
         public virtual void AddFood(bool StartingPositionFood = false)
         {
@@ -117,6 +121,8 @@ namespace GS2
         {
             SolidBrush brush = GetBrushByType(blockType);
             Graphics.FillRectangle(brush, x * BlockSize + 1, y * BlockSize + 1, BlockSize - 1, BlockSize - 1);
+            
+            Region.Add(new Region(new Rectangle(x * BlockSize, y * BlockSize, BlockSize, BlockSize)));
         }
 
         protected SolidBrush GetBrushByType(BlockTypes type)
@@ -189,7 +195,8 @@ namespace GS2
         public void Move()
         {
             Point newHeadPosition = new Point(SnakeBody[0].X + Movement.X, SnakeBody[0].Y + Movement.Y);
-            
+            Region = new List<Region>();
+
             //Generate record for turn (move)
             this.MoveCounter++;
             record.Turns.Add(new TurnRecord { 
@@ -334,15 +341,20 @@ namespace GS2
         
         private void DrawSnake()
         {
+            /*
             foreach (Point segment in SnakeBody)
             {
                 Cells[segment.X, segment.Y] = BlockTypes.SnakeBody;
                 DrawCell(segment.X, segment.Y, BlockTypes.SnakeBody);
             }
-
+            */
             Point head = SnakeBody[0];
             Cells[head.X, head.Y] = BlockTypes.SnakeHead;
             DrawCell(head.X, head.Y, BlockTypes.SnakeHead);
+
+            Point FirstBody = SnakeBody[1];
+            Cells[FirstBody.X, FirstBody.Y] = BlockTypes.SnakeBody;
+            DrawCell(FirstBody.X, FirstBody.Y, BlockTypes.SnakeBody);
         }
 
         private void DetermineForbiddenDirection()
@@ -372,6 +384,9 @@ namespace GS2
                 (SnakeBody[0].X + 1) * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
             Graphics.DrawLine(Pens.Black, (SnakeBody[0].X + 1) * BlockSize, SnakeBody[0].Y * BlockSize,
                 SnakeBody[0].X * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
+            
+            Region.Add(new Region(
+                new Rectangle(SnakeBody[0].X * BlockSize, SnakeBody[0].Y * BlockSize, BlockSize, BlockSize)));
         }
 
         public string GetForbiddenMoveDirection()
