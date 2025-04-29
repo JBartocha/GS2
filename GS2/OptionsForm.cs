@@ -37,11 +37,7 @@ namespace GS2
             TextBoxRows.Text = TrackBarRows.Value.ToString();
             TextBoxColumns.Text = TrackBarColumns.Value.ToString();
             TextBoxCellSize.Text = TrackBarCellSize.Value.ToString();
-            /*
-            ListBoxFoodCount.SelectedIndex = 1;
-            ListBoxFoodInterval.SelectedIndex = 1;
-            ListBoxSpeedPercent.SelectedIndex = 1;
-            */
+
         }
 
         private void LoadJsonSettings()
@@ -62,11 +58,14 @@ namespace GS2
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
             string FoodInterval = SS.LevelIncreaseInterval.ToString();
             ListBoxFoodInterval.SelectedIndex = ListBoxFoodInterval.Items.IndexOf(FoodInterval);
-            string SpeedPercent = (SS.DifficultyIncrease * 100).ToString();
+            string SpeedPercent = (Convert.ToInt32(SS.DifficultyIncrease * 100)).ToString();
             ListBoxSpeedPercent.SelectedIndex = ListBoxSpeedPercent.Items.IndexOf(SpeedPercent);
-            TrackBarCellSize.Value = SS.CellSize;
-            TextBoxInitialSpeed.Text = SS.TickInMilliseconds.ToString();
 
+            TextBoxInitialSpeed.SelectedText = SS.TickInMilliseconds.ToString();
+            TextBoxInitialSpeed.Text = SS.TickInMilliseconds.ToString();
+            TrackBarRows.Value = SS.Rows;
+            TrackBarColumns.Value = SS.Columns;
+            TrackBarCellSize.Value = SS.CellSize;
         }
 
         private void Button_EXIT_Click(object sender, EventArgs e)
@@ -111,6 +110,9 @@ namespace GS2
             SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
             SS.LevelIncreaseInterval = int.Parse(ListBoxFoodInterval.SelectedItem.ToString());
             SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
+            SS.Rows = TrackBarRows.Value;
+            SS.Columns = TrackBarColumns.Value;
+            SS.CellSize = TrackBarCellSize.Value;  
 
             string json = JsonSerializer.Serialize(SS);
             File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
@@ -119,12 +121,30 @@ namespace GS2
         private void CheckBox_MouseControl_CheckedChanged(object sender, EventArgs e)
         {
             if(CheckBox_MouseControl.Checked == true) SS.UseMousePositionToMove = true;
-            if(CheckBox_MouseControl.Checked == false) SS.UseMousePositionToMove = false;
+            if (CheckBox_MouseControl.Checked == false)
+            {
+                SS.UseMousePositionToMove = false;
+                if(CheckBox_KeyboardControl.Checked == false)
+                {
+                    CheckBox_KeyboardControl.Checked = true;
+                    SS.UseMousePositionToMove = true;
+                }
+            }
+            
         }
+        
         private void CheckBox_KeyboardControl_CheckedChanged(object sender, EventArgs e)
         {
             if(CheckBox_KeyboardControl.Checked == true) SS.UseMousePositionToMove = true;
-            if(CheckBox_KeyboardControl.Checked == false) SS.UseMousePositionToMove = false;
+            if (CheckBox_KeyboardControl.Checked == false)
+            {
+                SS.UseMousePositionToMove = false;
+                if (CheckBox_MouseControl.Checked == false)
+                {
+                    CheckBox_MouseControl.Checked = true;
+                    SS.UseMousePositionToMove = true;
+                }
+            }
         }
     }
 }

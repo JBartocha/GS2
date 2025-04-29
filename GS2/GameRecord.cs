@@ -320,12 +320,6 @@ namespace GS2
             }
         }
 
-        /*
-        private void SetJsonSettingsFile(string jsonSettingsFile)
-        {
-            RC.Settings = jsonSettingsFile;
-        }
-        */
         private int InsertFoodIntoDB(Point FoodPosition)
         {
             try

@@ -54,6 +54,10 @@ namespace GS2
 
         private void ResetGame()
         {
+            if(File.Exists(SnakeGameSettings.JsonSaveFileName) == false)
+            {
+                SaveSettingsToFile(SnakeGameSettings.JsonSaveFileName);
+            }
 
             string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
 
@@ -85,7 +89,6 @@ namespace GS2
         {
             if (Simulation)
             {
-                // TODO - Simulace - 2.poradi
                 for (int i = 0; i < GS.FoodCount; i++)
                 {
                     Point Food = record.StartingFoodPositions[i];
@@ -108,7 +111,7 @@ namespace GS2
             grap = Graphics.FromImage(surface);
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
-
+            
             SaveSettingsToFile(SnakeGameSettings.JsonSaveFileName);
 
             if (Snake != null)
@@ -119,7 +122,13 @@ namespace GS2
             
             this.Snake = new Snake(new Point(MFS.SnakeStartingHeadPosition.X, MFS.SnakeStartingHeadPosition.Y), 
                 GS.Rows, GS.Columns, GS.CellSize, grap);
+
+            // TODO - debug
+            this.Size = new Size(GS.Columns * GS.CellSize + 220, GS.Rows * GS.CellSize + 60);
+            Panel_Main.Size = new Size(GS.Columns * GS.CellSize + 1, GS.Rows * GS.CellSize + 1);
+
             Snake.SetMovement("Right");
+            
 
             Snake.CellCollisionEvent += OnCellCollisionEvent;
             Snake.FoodEatenEvent += OnFoodEatenEvent;
@@ -206,8 +215,8 @@ namespace GS2
         {
             if (this.Simulation)
             {
-                this.Simulation = false; // After end of simulation its regular game
                 SetGameOver(args.Message);
+                this.Simulation = false; // After end of simulation its regular game
             }
             else // regular
             {
@@ -306,9 +315,9 @@ namespace GS2
                         Label_Moves.Text = "Moves: " + ++MFS.Moves; // TODO (duplicita?)
                         MFS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
                         MFS.HeadPosition = Snake.GetSnakeHeadPosition();
-                        List<Region> reg = Snake.GetRegion();
-                        Debug.WriteLine("---------------------------");
-                        Debug.WriteLine("Region: " + reg.ToString());
+                         
+
+                        List<Region> reg = Snake.GetRegion(); // For redrawing only blocks that changed
                         foreach(Region r in reg)
                         {
                             Panel_Main.Invalidate(r);
