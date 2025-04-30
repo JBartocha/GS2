@@ -37,7 +37,7 @@ namespace GS2
         private Record record = new Record();
 
         private SnakeGameSettings GS = new SnakeGameSettings();
-        private MainFormSettings MFS = new MainFormSettings(); 
+        private MainFormSettings MFS = new MainFormSettings();
         private Graphics? grap;
         private Bitmap? surface;
 
@@ -47,35 +47,33 @@ namespace GS2
 
         public Main_Form()
         {
+            if (File.Exists(SnakeGameSettings.JsonSaveFileName) == false)
+            {
+                string jsonString = JsonSerializer.Serialize(GS);
+                File.WriteAllText(SnakeGameSettings.JsonSaveFileName, jsonString);
+            }
+
+            string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
+
+            var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
+            if (deserializedSettings != null) // TODO abundant?
+            {
+                GS = deserializedSettings;
+            }
+            else
+                throw new Exception("Failed to deserialize settings after ResetGame().");
+
             InitializeComponent();
+
+
+            FormularEntitiesResizing();
+
 
             ResetGame();
         }
 
         private void ResetGame()
         {
-            if(File.Exists(SnakeGameSettings.JsonSaveFileName) == false)
-            {
-                SaveSettingsToFile(SnakeGameSettings.JsonSaveFileName);
-            }
-
-            string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
-
-            if (Simulation == false)
-            {
-                var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
-                if (deserializedSettings != null) // TODO abundant?
-                {
-                    GS = deserializedSettings;
-                }
-                else
-                    throw new Exception("Failed to deserialize settings after ResetGame().");
-            }
-            else 
-            {
-                // TODO - Simulace - zacatek
-            }
-
             InitializeGrid();
 
             AddStartingFood();
@@ -107,32 +105,54 @@ namespace GS2
 
         private void InitializeGrid()
         {
+            //if (TestFileExists(SnakeGameSettings.JsonSaveFileName))
+            //{
+            //    string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
+            //    var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
+            //    if (deserializedSettings != null)
+            //    {
+            //        GS = deserializedSettings;
+            //    }
+            //}
+            FormularEntitiesResizing();
+
             surface = new Bitmap(Panel_Main.Width, Panel_Main.Height);
             grap = Graphics.FromImage(surface);
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
-            
-            SaveSettingsToFile(SnakeGameSettings.JsonSaveFileName);
-
+             
             if (Snake != null)
             {
                 Snake.CellCollisionEvent -= OnCellCollisionEvent;
                 Snake.FoodEatenEvent -= OnFoodEatenEvent;
             }
-            
-            this.Snake = new Snake(new Point(MFS.SnakeStartingHeadPosition.X, MFS.SnakeStartingHeadPosition.Y), 
+
+            this.Snake = new Snake(new Point(MFS.SnakeStartingHeadPosition.X, MFS.SnakeStartingHeadPosition.Y),
                 GS.Rows, GS.Columns, GS.CellSize, grap);
-
-            // TODO - debug
-            this.Size = new Size(GS.Columns * GS.CellSize + 220, GS.Rows * GS.CellSize + 60);
-            Panel_Main.Size = new Size(GS.Columns * GS.CellSize + 1, GS.Rows * GS.CellSize + 1);
-
             Snake.SetMovement("Right");
+
             
 
             Snake.CellCollisionEvent += OnCellCollisionEvent;
             Snake.FoodEatenEvent += OnFoodEatenEvent;
 
+        }
+
+        private void FormularEntitiesResizing()
+        {
+            int Width = GS.Columns * GS.CellSize + 260;
+            int Height = GS.Rows * GS.CellSize + 70;
+            if (Height < 500)
+            {
+                Height = 500;
+            }
+
+            this.Size = new Size(Width, Height);
+            Panel_Main.Size = new Size(GS.Columns * GS.CellSize + 1, GS.Rows * GS.CellSize + 1);
+            Panel_Right.Location = new Point(Panel_Main.Width + 40, Panel_Main.Location.Y);
+            //this.Invalidate();
+            //Panel_Main.Invalidate();
+            //Panel_Right.Invalidate();
         }
 
         private void ResetFormVariables()
@@ -165,25 +185,8 @@ namespace GS2
             }
         }
 
-        private void SaveSettingsToFile(String JsonFilename)
-        {
-            if (TestFileExists(JsonFilename))
-            {
-                string json = File.ReadAllText(JsonFilename);
-                var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
-                if (deserializedSettings != null)
-                {
-                    GS = deserializedSettings;
-                }
-            }
-            else
-            {
-                string json = JsonSerializer.Serialize(GS);
-                File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
-            }
-        }
 
-        
+
         private void OnFoodEatenEvent(object sender, EventArgs args)
         {
             MFS.FoodsEaten++;
@@ -195,7 +198,7 @@ namespace GS2
             if (Simulation)
             {
                 Point FoodPos;
-                if(record.Turns[MFS.Moves].GeneratedFoodPosition.HasValue)
+                if (record.Turns[MFS.Moves].GeneratedFoodPosition.HasValue)
                 {
                     FoodPos = record.Turns[MFS.Moves].GeneratedFoodPosition.Value;
                     Snake.AddFood(FoodPos, true);
@@ -233,7 +236,7 @@ namespace GS2
             {
                 string AdditionalMessage = "\nDo you want to save your record?";
                 bool Save = SelectionMessageBox(Message + AdditionalMessage, "Game Over");
-                if(Save)
+                if (Save)
                 {
                     Record rec = Snake.GetGameRecord();
                     GameRecord.SaveGameRecord(GS, rec); // SAVE RECORD TO DATABASE
@@ -288,8 +291,8 @@ namespace GS2
         {
             if (MFS.ForbiddenDirection != direction)
             {
-                if(Snake.SetMovement(direction))
-                Label_Movement_Direction.Text = direction;
+                if (Snake.SetMovement(direction))
+                    Label_Movement_Direction.Text = direction;
             }
         }
 
@@ -309,16 +312,16 @@ namespace GS2
                     {
                         Snake.SetMovement(record.Turns[MFS.Moves].MoveDirection);
                     }
-                        Snake.Move();
+                    Snake.Move();
                     if (!MFS.GameOver)
                     {
                         Label_Moves.Text = "Moves: " + ++MFS.Moves; // TODO (duplicita?)
                         MFS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
                         MFS.HeadPosition = Snake.GetSnakeHeadPosition();
-                         
+
 
                         List<Region> reg = Snake.GetRegion(); // For redrawing only blocks that changed
-                        foreach(Region r in reg)
+                        foreach (Region r in reg)
                         {
                             Panel_Main.Invalidate(r);
                         }

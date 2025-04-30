@@ -29,7 +29,7 @@ namespace GS2
         protected BlockTypes[,] Block;
         protected List<Region> Region = new List<Region>();
 
-        public Grid(int GridRows, int GridColumns, int BlockSize, Graphics graphics)
+        public Grid(int GridColumns, int GridRows, int BlockSize, Graphics graphics)
         {
             Rows = GridRows;
             Columns = GridColumns;
@@ -46,7 +46,6 @@ namespace GS2
             {
                 for (int y = 0; y < Columns; y++)
                 {
-                    Debug.WriteLine("Initializing cell: " + x + "," + y);
                     Block[x, y] = BlockTypes.EmptyBlock;
                 }
             }
@@ -54,11 +53,13 @@ namespace GS2
             // Draw the grid lines
             for (int i = 0; i <= Rows; i++)
             {
-                Graphics.DrawLine(Pens.Black, 0, i * BlockSize, Columns * BlockSize, i * BlockSize);
+                //Graphics.DrawLine(Pens.Black, 0, i * BlockSize, Columns * BlockSize, i * BlockSize);
+                Graphics.DrawLine(Pens.Black, i*BlockSize, 0, i*BlockSize, BlockSize*Columns);
             }
             for (int j = 0; j <= Columns; j++)
             {
-                Graphics.DrawLine(Pens.Black, j * BlockSize, 0, j * BlockSize, Rows * BlockSize);
+                Graphics.DrawLine(Pens.Black, 0, j * BlockSize, Rows * BlockSize, j * BlockSize);
+                //Graphics.DrawLine(Pens.Yellow, j * BlockSize, 0, j * BlockSize, Rows * BlockSize);
             }
         }
 
