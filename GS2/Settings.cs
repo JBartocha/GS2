@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace GS2
 {
-    public class SnakeGameSettings
+    public class Settings
     {
+        // These Variables are modifiable in OptionsForm
         public static string JsonSaveFileName { get; set; } = "Settings.json";
         public bool UseMousePositionToMove { get; set; } = true;
         public bool UseKeyboardToMove { get; set; } = true;
@@ -19,6 +20,18 @@ namespace GS2
         public int CellSize { get; set; } = 40;
         public int Rows { get; set; } = 11;
         public int Columns { get; set; } = 11;
+
+
+
+        // NOT modifiable in OptionsForm
+        public int Level { get; set; } = 0;
+        public int FoodsEaten { get; set; } = 0;
+        public int Moves { get; set; } = 0;
+        public Point HeadPosition { get; set; } = new Point(5, 5);
+        public bool GameOver { get; set; } = false;
+        public string ForbiddenDirection { get; set; } = "Down";
+        public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
+        public bool Pause { get; set; } = true;
 
         public override string ToString()
         {

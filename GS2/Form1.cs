@@ -36,8 +36,7 @@ namespace GS2
         private GameRecord GameRecord = new GameRecord();
         private Record record = new Record();
 
-        private SnakeGameSettings GS = new SnakeGameSettings();
-        private MainFormSettings MFS = new MainFormSettings();
+        private Settings SS = new Settings();
         private Graphics? grap;
         private Bitmap? surface;
 
@@ -47,47 +46,33 @@ namespace GS2
 
         public Main_Form()
         {
-            if (File.Exists(SnakeGameSettings.JsonSaveFileName) == false)
-            {
-                string jsonString = JsonSerializer.Serialize(GS);
-                File.WriteAllText(SnakeGameSettings.JsonSaveFileName, jsonString);
-            }
-
-            string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
-
-            var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
-            if (deserializedSettings != null) // TODO abundant?
-            {
-                GS = deserializedSettings;
-            }
-            else
-                throw new Exception("Failed to deserialize settings after ResetGame().");
+            LoadSettingsFromFile();
 
             InitializeComponent();
 
-
             FormularEntitiesResizing();
-
 
             ResetGame();
         }
 
         private void ResetGame()
         {
+            FormularEntitiesResizing();
+
             InitializeGrid();
 
             AddStartingFood();
 
             ResetFormVariables();
 
-            RegularTimer();
+            TurnPeriodicTimer();
         }
 
         private void AddStartingFood()
         {
             if (Simulation)
             {
-                for (int i = 0; i < GS.FoodCount; i++)
+                for (int i = 0; i < SS.FoodCount; i++)
                 {
                     Point Food = record.StartingFoodPositions[i];
                     Snake.AddFood(Food, true);
@@ -96,7 +81,7 @@ namespace GS2
             else
             {
                 GameRecord = new GameRecord();
-                for (int i = 0; i < GS.FoodCount; i++)
+                for (int i = 0; i < SS.FoodCount; i++)
                 {
                     Snake.AddFood(true);
                 }
@@ -105,17 +90,6 @@ namespace GS2
 
         private void InitializeGrid()
         {
-            //if (TestFileExists(SnakeGameSettings.JsonSaveFileName))
-            //{
-            //    string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
-            //    var deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(json);
-            //    if (deserializedSettings != null)
-            //    {
-            //        GS = deserializedSettings;
-            //    }
-            //}
-            FormularEntitiesResizing();
-
             surface = new Bitmap(Panel_Main.Width, Panel_Main.Height);
             grap = Graphics.FromImage(surface);
             Panel_Main.BackgroundImage = surface;
@@ -127,8 +101,8 @@ namespace GS2
                 Snake.FoodEatenEvent -= OnFoodEatenEvent;
             }
 
-            this.Snake = new Snake(new Point(MFS.SnakeStartingHeadPosition.X, MFS.SnakeStartingHeadPosition.Y),
-                GS.Rows, GS.Columns, GS.CellSize, grap);
+            this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
+                SS.Rows, SS.Columns, SS.CellSize, grap);
             Snake.SetMovement("Right");
 
             
@@ -140,15 +114,15 @@ namespace GS2
 
         private void FormularEntitiesResizing()
         {
-            int Width = GS.Columns * GS.CellSize + 260;
-            int Height = GS.Rows * GS.CellSize + 70;
+            int Width = SS.Columns * SS.CellSize + 260;
+            int Height = SS.Rows * SS.CellSize + 70;
             if (Height < 500)
             {
                 Height = 500;
             }
 
             this.Size = new Size(Width, Height);
-            Panel_Main.Size = new Size(GS.Columns * GS.CellSize + 1, GS.Rows * GS.CellSize + 1);
+            Panel_Main.Size = new Size(SS.Columns * SS.CellSize + 1, SS.Rows * SS.CellSize + 1);
             Panel_Right.Location = new Point(Panel_Main.Width + 40, Panel_Main.Location.Y);
             //this.Invalidate();
             //Panel_Main.Invalidate();
@@ -157,50 +131,37 @@ namespace GS2
 
         private void ResetFormVariables()
         {
-            Label_Food_Eaten.Text = "Points: " + MFS.FoodsEaten;
-            Label_Moves.Text = "Moves: " + MFS.Moves;
+            SS.Level = 0;
+            SS.FoodsEaten = 0;
+            SS.Moves = 0;
+            SS.HeadPosition = new Point(5, 5);
+            SS.GameOver = false;
+            SS.ForbiddenDirection = "Down";
+            SS.Pause = true;
+            SS.TickInMilliseconds = 500;
+
+            Label_Food_Eaten.Text = "Points: " + SS.FoodsEaten;
+            Label_Moves.Text = "Moves: " + SS.Moves;
             Button_Pause.Text = StartButtonText;
-            Label_Speed.Text = "Speed: " + GS.TickInMilliseconds + "ms";
-            Label_Level.Text = "LEVEL: " + MFS.Level;
+            Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
+            Label_Level.Text = "LEVEL: " + SS.Level;
 
-            MFS.Level = 0;
-            MFS.FoodsEaten = 0;
-            MFS.Moves = 0;
-            MFS.HeadPosition = new Point(5, 5);
-            MFS.GameOver = false;
-            MFS.ForbiddenDirection = "Down";
-            MFS.Pause = true;
         }
-
-        private bool TestFileExists(string file)
-        {
-            System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(file);
-            if (fileInfo.Exists)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-
 
         private void OnFoodEatenEvent(object sender, EventArgs args)
         {
-            MFS.FoodsEaten++;
-            if (MFS.FoodsEaten % GS.LevelIncreaseInterval == 0)
+            SS.FoodsEaten++;
+            if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
             {
-                Label_Level.Text = "LEVEL: " + ++MFS.Level;
+                Label_Level.Text = "LEVEL: " + ++SS.Level;
                 IncreaseSpeed();
             }
             if (Simulation)
             {
                 Point FoodPos;
-                if (record.Turns[MFS.Moves].GeneratedFoodPosition.HasValue)
+                if (record.Turns[SS.Moves].GeneratedFoodPosition.HasValue)
                 {
-                    FoodPos = record.Turns[MFS.Moves].GeneratedFoodPosition.Value;
+                    FoodPos = record.Turns[SS.Moves].GeneratedFoodPosition.Value;
                     Snake.AddFood(FoodPos, true);
                 }
                 else
@@ -228,7 +189,25 @@ namespace GS2
             }
         }
 
+        private void LoadSettingsFromFile()
+        {
+            if (File.Exists(Settings.JsonSaveFileName) == false)
+            {
+                string jsonString = JsonSerializer.Serialize(SS);
+                File.WriteAllText(Settings.JsonSaveFileName, jsonString);
+            }
 
+            string json = File.ReadAllText(Settings.JsonSaveFileName);
+
+            var deserializedSettings = JsonSerializer.Deserialize<Settings>(json);
+            if (deserializedSettings != null) // TODO abundant?
+            {
+                SS = deserializedSettings;
+            }
+            else
+                throw new Exception("Failed to deserialize settings after ResetGame().");
+
+        }
 
         private void SetGameOver(string Message = "Game Over")
         {
@@ -239,8 +218,7 @@ namespace GS2
                 if (Save)
                 {
                     Record rec = Snake.GetGameRecord();
-                    GameRecord.SaveGameRecord(GS, rec); // SAVE RECORD TO DATABASE
-                    Debug.WriteLine(rec.toString());
+                    GameRecord.SaveGameRecord(SS, rec); // SAVE RECORD TO DATABASE
                 }
             }
             else
@@ -249,9 +227,9 @@ namespace GS2
             }
             timer.Dispose();
             Button_Pause.Text = StartButtonText;
-            MFS.Pause = true;
+            SS.Pause = true;
             Panel_Main.Invalidate();
-            MFS.GameOver = true;
+            SS.GameOver = true;
             Simulation = false;
         }
 
@@ -270,14 +248,14 @@ namespace GS2
 
         private void IncreaseSpeed()
         {
-            if (GS.TickInMilliseconds > 100)
+            if (SS.TickInMilliseconds > 100)
             {
-                GS.TickInMilliseconds -= (int)(GS.TickInMilliseconds * GS.DifficultyIncrease);
-                Label_Speed.Text = "Speed: " + GS.TickInMilliseconds + "ms";
+                SS.TickInMilliseconds -= (int)(SS.TickInMilliseconds * SS.DifficultyIncrease);
+                Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
             }
             else
             {
-                GS.TickInMilliseconds = 100;
+                SS.TickInMilliseconds = 100;
             }
         }
 
@@ -289,35 +267,35 @@ namespace GS2
 
         private void SetMovementForSnake(string direction)
         {
-            if (MFS.ForbiddenDirection != direction)
+            if (SS.ForbiddenDirection != direction)
             {
                 if (Snake.SetMovement(direction))
                     Label_Movement_Direction.Text = direction;
             }
         }
 
-        public async Task<bool> RegularTimer()
+        public async Task<bool> TurnPeriodicTimer()
         {
-            timer = new PeriodicTimer(TimeSpan.FromMilliseconds(GS.TickInMilliseconds));
+            timer = new PeriodicTimer(TimeSpan.FromMilliseconds(SS.TickInMilliseconds));
             float i = 0f;
             //int MoveCounter = 0;
             while (await timer.WaitForNextTickAsync())
             {
-                timer.Period = TimeSpan.FromMilliseconds(GS.TickInMilliseconds);
-                i += GS.TickInMilliseconds / 1000f;
+                timer.Period = TimeSpan.FromMilliseconds(SS.TickInMilliseconds);
+                i += SS.TickInMilliseconds / 1000f;
                 Label_Timer.Text = "Running Time: " + ConvertToHHMMSS((int)i);
-                if (!MFS.Pause)
+                if (!SS.Pause)
                 {
                     if (Simulation)
                     {
-                        Snake.SetMovement(record.Turns[MFS.Moves].MoveDirection);
+                        Snake.SetMovement(record.Turns[SS.Moves].MoveDirection);
                     }
                     Snake.Move();
-                    if (!MFS.GameOver)
+                    if (!SS.GameOver)
                     {
-                        Label_Moves.Text = "Moves: " + ++MFS.Moves; // TODO (duplicita?)
-                        MFS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
-                        MFS.HeadPosition = Snake.GetSnakeHeadPosition();
+                        Label_Moves.Text = "Moves: " + ++SS.Moves; // TODO (duplicita?)
+                        SS.ForbiddenDirection = Snake.GetForbiddenMoveDirection();
+                        SS.HeadPosition = Snake.GetSnakeHeadPosition();
 
 
                         List<Region> reg = Snake.GetRegion(); // For redrawing only blocks that changed
@@ -333,17 +311,17 @@ namespace GS2
 
         private void Button_Pause_Click(object sender, EventArgs e)
         {
-            if (!MFS.GameOver)
+            if (!SS.GameOver)
             {
-                if (MFS.Pause || Button_Pause.Text == StartButtonText) //TODO - probably Button_Pause.Text == StartButtonText not needed
+                if (SS.Pause || Button_Pause.Text == StartButtonText) //TODO - probably Button_Pause.Text == StartButtonText not needed
                 {
                     Button_Pause.Text = "Pause";
-                    MFS.Pause = false;
+                    SS.Pause = false;
                 }
                 else
                 {
                     Button_Pause.Text = "Resume";
-                    MFS.Pause = true;
+                    SS.Pause = true;
                 }
             }
         }
@@ -363,9 +341,11 @@ namespace GS2
             this.Hide();
             OptionsForm optionsForm = new OptionsForm();
             optionsForm.ShowDialog();
+            LoadSettingsFromFile();
+            ResetGame();
             this.Show();
-
         }
+
         private void Button_Load_Record_Click(object sender, EventArgs e)
         {
             this.Hide();
@@ -377,13 +357,13 @@ namespace GS2
             {
                 record = GameRecord.LoadGameRecord(SelectedID);
 
-                GS = GameRecord.GetJsonSettings();
+                SS = GameRecord.GetJsonSettings();
 
                 this.Simulation = true;
                 Debug.WriteLine("Okno records zavreno. vybrane ID: " + SelectedID);
                 ResetGame();
-                GS.UseKeyboardToMove = false;
-                GS.UseMousePositionToMove = false;
+                SS.UseKeyboardToMove = false;
+                SS.UseMousePositionToMove = false;
                 ResetFormVariables();
             }
             else
@@ -395,14 +375,14 @@ namespace GS2
 
         private void PanelMain_MouseMove(object sender, MouseEventArgs e)
         {
-            if (GS.UseMousePositionToMove)
+            if (SS.UseMousePositionToMove)
             {
                 Label_Mouse_Position.Text = $"X:{e.Location.X} Y:{e.Location.Y}";
 
                 Point Cursor = new Point(e.Location.X, e.Location.Y);
 
-                int deltaX = Cursor.X - ((MFS.HeadPosition.X) * GS.CellSize + (GS.CellSize / 2));
-                int deltaY = Cursor.Y - ((MFS.HeadPosition.Y) * GS.CellSize + (GS.CellSize / 2));
+                int deltaX = Cursor.X - ((SS.HeadPosition.X) * SS.CellSize + (SS.CellSize / 2));
+                int deltaY = Cursor.Y - ((SS.HeadPosition.Y) * SS.CellSize + (SS.CellSize / 2));
                 if (Math.Abs(deltaX) > Math.Abs(deltaY))
                 {
                     if (deltaX > 0)
@@ -430,7 +410,7 @@ namespace GS2
 
         private void Main_Form_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (GS.UseKeyboardToMove)
+            if (SS.UseKeyboardToMove)
             {
                 if (e.KeyChar == 'd' || e.KeyChar == 'D')
                 {
@@ -452,15 +432,15 @@ namespace GS2
 
             if (e.KeyChar == 'p' || e.KeyChar == 'P')
             {
-                if (MFS.Pause)
+                if (SS.Pause)
                 {
                     Button_Pause.Text = "Pause";
-                    MFS.Pause = false;
+                    SS.Pause = false;
                 }
                 else
                 {
                     Button_Pause.Text = "Resume";
-                    MFS.Pause = true;
+                    SS.Pause = true;
                 }
             }
         }

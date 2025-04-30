@@ -83,10 +83,10 @@ namespace GS2
         //public string GetMoveDirectionOnTurn(int turnNumber);
         //public Point? GetGeneratedFoodPosition(int turnNumber);
         //public List<Point> GetGeneratedFoodAtStart();
-        public void SaveGameRecord(SnakeGameSettings S, Record record);
+        public void SaveGameRecord(Settings S, Record record);
         public Record LoadGameRecord(int ID);
         //public void SetJsonSettingsFile(string jsonSettingsFile);
-        public SnakeGameSettings GetJsonSettings();
+        public Settings GetJsonSettings();
 
     }
 
@@ -253,7 +253,7 @@ namespace GS2
             return record;            
         }
 
-        private int CalculateReachedLevel(SnakeGameSettings S)
+        private int CalculateReachedLevel(Settings S)
         {
             int FoodEaten = 0;
             for (int i = 0; i < RC.Turns.Count; i++)
@@ -264,7 +264,7 @@ namespace GS2
             return FoodEaten / S.LevelIncreaseInterval;
         }
 
-        public void SaveGameRecord(SnakeGameSettings S, Record record)
+        public void SaveGameRecord(Settings S, Record record)
         {
             int LastGameNumbersID = 0; // Initialize LastGameNumbersID to 0
             RC = record;
@@ -431,9 +431,9 @@ namespace GS2
             }
         }
 
-        public SnakeGameSettings GetJsonSettings()
+        public Settings GetJsonSettings()
         {
-            SnakeGameSettings deserializedSettings = JsonSerializer.Deserialize<SnakeGameSettings>(RC.Settings);
+            Settings deserializedSettings = JsonSerializer.Deserialize<Settings>(RC.Settings);
             if (deserializedSettings != null)
             {
                 return deserializedSettings;

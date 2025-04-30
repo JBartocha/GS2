@@ -83,16 +83,20 @@ namespace GS2
         {
             if (IsThereEmptyCellInGrid())
             {
-                Random random = new Random();
-                int x = random.Next(0, Rows);
-                int y = random.Next(0, Columns);
-                while (Block[x, y] != BlockTypes.EmptyBlock)
-                {
-                    x = random.Next(0, Rows); //TODO - check if is out of bounds
-                    y = random.Next(0, Columns);
-                }
-                Block[x, y] = BlockTypes.FoodBlock;
-                DrawCell(x, y, BlockTypes.FoodBlock);
+                Point p = GetRandomEmptyCellPosition();
+                
+                Block[p.X, p.Y] = BlockTypes.FoodBlock;
+                DrawCell(p.X, p.Y, BlockTypes.FoodBlock);
+                //Random random = new Random();
+                //int x = random.Next(0, Rows);
+                //int y = random.Next(0, Columns);
+                //while (Block[x, y] != BlockTypes.EmptyBlock)
+                //{
+                //    x = random.Next(0, Rows); //TODO - check if is out of bounds
+                //    y = random.Next(0, Columns);
+                //}
+                //Block[x, y] = BlockTypes.FoodBlock;
+                //DrawCell(x, y, BlockTypes.FoodBlock);
             }
             else
             {
@@ -100,11 +104,26 @@ namespace GS2
             }
         }
 
-        protected bool IsThereEmptyCellInGrid()
+        protected Point GetRandomEmptyCellPosition()
         {
-            for (int x = 0; x < Rows; Rows++)
+            List<Point> emptyCells = new List<Point>();
+            for (int x = 0; x < Rows; x++)
             {
                 for (int y = 0; y < Columns; ++y)
+                {
+                    if (Block[x, y] == BlockTypes.EmptyBlock)
+                        emptyCells.Add(new Point(x, y));
+                }
+            }
+            int randomIndex = new Random().Next(0, emptyCells.Count);
+            return emptyCells[randomIndex];
+        }
+
+        protected bool IsThereEmptyCellInGrid()
+        {
+            for (int x = 0; x < Rows; x++)
+            {
+                for (int y = 0; y < Columns; y++)
                 {
                     if (Block[x,y] == BlockTypes.EmptyBlock)
                         return true;
@@ -178,24 +197,6 @@ namespace GS2
         public delegate void FoodEatenEventHandler(object sender, EventArgs args);
         public event FoodEatenEventHandler FoodEatenEvent;
 
-        /*
-        private void Debug_ListRecordValues() // TODO REMOVE DEBUG METHOD
-        {
-            for (int i = 0; i < record.StartingFoodPositions.Count; i++)
-            {
-                Debug.WriteLine("StartingFoodPosition: " + record.StartingFoodPositions[i].X + "," + record.StartingFoodPositions[i].Y);
-            }
-            Debug.WriteLine("--------------------------------------");
-            for (int i = 0; i < record.Turns.Count; i++)
-            {
-                string w = record.Turns[i].GeneratedFoodPosition.HasValue ? record.Turns[i].GeneratedFoodPosition.Value.ToString() : "null";
-                Debug.WriteLine("Turn: " + record.Turns[i].TurnNumber + 
-                    " MoveDirection: " + record.Turns[i].MoveDirection + 
-                    " Food: " + w);
-            }
-        }
-        */
-
         public void Move()
         {
             Point newHeadPosition = new Point(SnakeBody[0].X + Movement.X, SnakeBody[0].Y + Movement.Y);
@@ -225,26 +226,39 @@ namespace GS2
             {
                 InvokeCollisionEvent("Game Over: Snake collided with itself.", BlockTypes.SnakeBody);
             }
-
-            if (Block[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.FoodBlock)
-            {
-                SnakeBody.Insert(0, newHeadPosition);
-                //AddFood();
-                FoodEatenEvent?.Invoke(this, EventArgs.Empty);
-            }
             else
             {
-                SnakeBody.Insert(0, newHeadPosition);
-                Point tail = SnakeBody.Last();
-                SnakeBody.RemoveAt(SnakeBody.Count - 1);
-                Block[tail.X, tail.Y] = BlockTypes.EmptyBlock;
-                DrawCell(tail.X, tail.Y, BlockTypes.EmptyBlock);
-            }
+                if (Block[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.FoodBlock)
+                {
+                    DebugLog("Food eaten", newHeadPosition);
+                    SnakeBody.Insert(0, newHeadPosition);
+                    FoodEatenEvent?.Invoke(this, EventArgs.Empty);
+                    Debug.WriteLine("----------------------Food eaten");
+                }
+                else
+                {
+                    DebugLog("Move", newHeadPosition);
+                    Debug.WriteLine("----------------------Move");
+                    SnakeBody.Insert(0, newHeadPosition);
+                    Point tail = SnakeBody.Last();
+                    SnakeBody.RemoveAt(SnakeBody.Count - 1);
+                    Block[tail.X, tail.Y] = BlockTypes.EmptyBlock;
+                    DrawCell(tail.X, tail.Y, BlockTypes.EmptyBlock);
+                }
 
-            Block[newHeadPosition.X, newHeadPosition.Y] = BlockTypes.SnakeHead;
-            DetermineForbiddenDirection();
-            DrawSnake();
+                Block[newHeadPosition.X, newHeadPosition.Y] = BlockTypes.SnakeHead;
+                DetermineForbiddenDirection();
+                DrawSnake();
+            }
         }
+
+        private void DebugLog(String s, Point point)
+        {
+            Debug.WriteLine(s);
+            Debug.WriteLine("Point: " + point.ToString());
+            Debug.WriteLine("Snake " + SnakeBody[0].ToString());
+        }
+
 
         private void InvokeCollisionEvent(string message, BlockTypes BlockType)
         {
@@ -310,19 +324,24 @@ namespace GS2
         
         public override void AddFood(bool StartingPositionFood = false)
         {
+            Debug.WriteLine("SG00");
+
             if (IsThereEmptyCellInGrid())
             {
+                Debug.WriteLine("SG01");
                 Random random = new Random();
                 int x = random.Next(0, Rows);
                 int y = random.Next(0, Columns);
+                Debug.WriteLine("SG02");
                 while (Block[x, y] != BlockTypes.EmptyBlock)
                 {
                     //TODO - check if possible? Also better algorithm
+                    Debug.WriteLine("SG03 pos:" + x + ":" + y);
                     x = random.Next(0, Rows); 
                     y = random.Next(0, Columns);
                 }
                 Block[x, y] = BlockTypes.FoodBlock;
-                
+                Debug.WriteLine("SG04");
                 if (StartingPositionFood)
                 {
                     record.StartingFoodPositions.Add(new Point(x, y));
@@ -344,13 +363,6 @@ namespace GS2
         
         private void DrawSnake()
         {
-            /*
-            foreach (Point segment in SnakeBody)
-            {
-                Cells[segment.X, segment.Y] = BlockTypes.SnakeBody;
-                DrawCell(segment.X, segment.Y, BlockTypes.SnakeBody);
-            }
-            */
             Point head = SnakeBody[0];
             Block[head.X, head.Y] = BlockTypes.SnakeHead;
             DrawCell(head.X, head.Y, BlockTypes.SnakeHead);

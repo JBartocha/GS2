@@ -15,7 +15,7 @@ namespace GS2
 {
     public partial class OptionsForm : Form
     {
-        private SnakeGameSettings SS;
+        private Settings SS;
         public OptionsForm()
         {
 
@@ -42,17 +42,17 @@ namespace GS2
 
         private void LoadJsonSettings()
         {
-            System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(SnakeGameSettings.JsonSaveFileName);
+            System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(Settings.JsonSaveFileName);
             if (fileInfo.Exists)
             {
-                string json = File.ReadAllText(SnakeGameSettings.JsonSaveFileName);
-                SS = JsonSerializer.Deserialize<SnakeGameSettings>(json);
+                string json = File.ReadAllText(Settings.JsonSaveFileName);
+                SS = JsonSerializer.Deserialize<Settings>(json);
                 if (SS == null)
                     throw new Exception("Failed to deserialize settings.");
             }
             else
             {
-                SS = new SnakeGameSettings();
+                SS = new Settings();
             }
             string FoodCount = SS.FoodCount.ToString();
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
@@ -112,10 +112,11 @@ namespace GS2
             SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
             SS.Rows = TrackBarRows.Value;
             SS.Columns = TrackBarColumns.Value;
-            SS.CellSize = TrackBarCellSize.Value;  
+            SS.CellSize = TrackBarCellSize.Value;
 
             string json = JsonSerializer.Serialize(SS);
-            File.WriteAllText(SnakeGameSettings.JsonSaveFileName, json);
+            File.WriteAllText(Settings.JsonSaveFileName, json);
+            this.Close();
         }
 
         private void CheckBox_MouseControl_CheckedChanged(object sender, EventArgs e)
