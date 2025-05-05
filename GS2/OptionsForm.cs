@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GS2
 {
@@ -54,6 +55,8 @@ namespace GS2
             {
                 SS = new Settings();
             }
+
+
             string FoodCount = SS.FoodCount.ToString();
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
             string FoodInterval = SS.LevelIncreaseInterval.ToString();
@@ -154,16 +157,19 @@ namespace GS2
             int rows = TrackBarRows.Value;
             int columns = TrackBarColumns.Value;
             int cellSize = TrackBarCellSize.Value;
+
             Point[] forbiddenPoints = new Point[]
             {
                 new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
-                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y+1),
-                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y+2),
+                new Point(SS.SnakeStartingHeadPosition.X+1, SS.SnakeStartingHeadPosition.Y),
             };
 
-            WallOptionsForm optionsForm = new WallOptionsForm(rows, columns, cellSize, forbiddenPoints);
-            // TODO - sesbirej data z WallOptionsForm do OptionsForm
+            WallOptionsForm optionsForm = new WallOptionsForm(rows, columns, cellSize,
+                forbiddenPoints, SS.WallPositions);
             optionsForm.ShowDialog();
+            
+
+
             this.Show();
         }
     }

@@ -78,16 +78,10 @@ namespace GS2
 
     interface IGameRecord
     {
-        //public void AddGeneratedFoodAtStart(Point foodPosition);
-        //public void AddSnakeMove(string moveDirection, Point generatedFoodPosition);
-        //public string GetMoveDirectionOnTurn(int turnNumber);
-        //public Point? GetGeneratedFoodPosition(int turnNumber);
-        //public List<Point> GetGeneratedFoodAtStart();
         public void SaveGameRecord(Settings S, Record record);
         public Record LoadGameRecord(int ID);
-        //public void SetJsonSettingsFile(string jsonSettingsFile);
         public Settings GetJsonSettings();
-
+        public List<ListOfRecords> ListAllRecords();
     }
 
     public class GameRecord : IGameRecord
@@ -318,6 +312,7 @@ namespace GS2
                 }
 
             }
+
         }
 
         private int InsertFoodIntoDB(Point FoodPosition)
@@ -420,8 +415,7 @@ namespace GS2
                 // Execute the query and retrieve the last inserted ID
                 object result = command.ExecuteScalar();
                 int LastFoodSettingsID = Convert.ToInt32(result);
-                //MessageBox.Show($"New record inserted into FoodSettings with ID: {LastFoodSettingsID}");
-
+          
                 return LastFoodSettingsID;
             }
             catch (Exception ex)

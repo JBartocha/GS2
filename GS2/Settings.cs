@@ -20,7 +20,7 @@ namespace GS2
         public int CellSize { get; set; } = 40;
         public int Rows { get; set; } = 11;
         public int Columns { get; set; } = 11;
-        public List<Point>? WallPositions { get; set; }
+        public List<Point> WallPositions { get; set; } = new List<Point>();
 
 
         // NOT modifiable in OptionsForm

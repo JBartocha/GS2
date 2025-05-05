@@ -61,7 +61,6 @@ namespace GS2
                 //Graphics.DrawLine(Pens.Black, 0, j * BlockSize, Rows * BlockSize, j * BlockSize);
                 Graphics.DrawLine(Pens.Black, j * BlockSize, 0, j * BlockSize, Rows * BlockSize);
             }
-            Debug.WriteLine("Grid initialized with size - ROWS:" + Rows + " COLUMNS:" + Columns);
         }
 
         // TODO - not sure if should be here (no use)
@@ -70,13 +69,26 @@ namespace GS2
             if (IsValidPosition(position) && Block[position.X, position.Y] == BlockTypes.EmptyBlock)
             {
                 Block[position.X, position.Y] = BlockTypes.FoodBlock;
-                DrawCell(position, BlockTypes.FoodBlock);
+                DrawBlock(position, BlockTypes.FoodBlock);
             }
         }
          
         public List<Region> GetRegion()
         {
             return Region;
+        }
+
+        public virtual void AddWall(Point position)
+        {
+            if (IsValidPosition(position) && Block[position.X, position.Y] == BlockTypes.EmptyBlock)
+            {
+                Block[position.X, position.Y] = BlockTypes.WallBlock;
+                DrawBlock(position, BlockTypes.WallBlock);
+            }
+            else
+            {
+                throw new Exception("Error: wall inicialization outside of valid bounds!");
+            }
         }
 
         // TODO - not sure if should be here (no use)
@@ -87,7 +99,7 @@ namespace GS2
                 Point p = GetRandomEmptyCellPosition();
                 
                 Block[p.X, p.Y] = BlockTypes.FoodBlock;
-                DrawCell(p, BlockTypes.FoodBlock);
+                DrawBlock(p, BlockTypes.FoodBlock);
 
                 //Random random = new Random();
                 //int x = random.Next(0, Rows);
@@ -140,7 +152,7 @@ namespace GS2
             return position.X >= 0 && position.X < this.Rows && position.Y >= 0 && position.Y < this.Columns;
         }
 
-        protected void DrawCell(Point p, BlockTypes blockType)
+        protected void DrawBlock(Point p, BlockTypes blockType)
         {
             SolidBrush brush = GetBrushByType(blockType);
             Graphics.FillRectangle(brush, p.Y * BlockSize + 1, p.X * BlockSize + 1, BlockSize - 1, BlockSize - 1);
@@ -244,7 +256,7 @@ namespace GS2
                     Point tail = SnakeBody.Last();
                     SnakeBody.RemoveAt(SnakeBody.Count - 1);
                     Block[tail.X, tail.Y] = BlockTypes.EmptyBlock;
-                    DrawCell(tail, BlockTypes.EmptyBlock);
+                    DrawBlock(tail, BlockTypes.EmptyBlock);
                 }
 
                 Block[newHeadPosition.X, newHeadPosition.Y] = BlockTypes.SnakeHead;
@@ -311,7 +323,7 @@ namespace GS2
             if (IsValidPosition(position) && Block[position.X, position.Y] == BlockTypes.EmptyBlock)
             {
                 Block[position.X, position.Y] = BlockTypes.FoodBlock;
-                DrawCell(position, BlockTypes.FoodBlock);
+                DrawBlock(position, BlockTypes.FoodBlock);
             }
 
             if (StartingPositionFood)
@@ -329,7 +341,6 @@ namespace GS2
         
         public override void AddFood(bool StartingPositionFood = false)
         {
-  
             if (IsThereEmptyCellInGrid())
             {
                 Random random = new Random();
@@ -353,11 +364,24 @@ namespace GS2
                     record.Turns[MoveCounter - 1] = ThisTurn;
                 }
                 
-                DrawCell(new Point(x,y), BlockTypes.FoodBlock);
+                DrawBlock(new Point(x,y), BlockTypes.FoodBlock);
             }
             else
             {
                 throw new Exception("There is no space to put Food!"); // TODO what to do
+            }
+        }
+
+        public override void AddWall(Point position)
+        {
+            if (IsValidPosition(position) && Block[position.X, position.Y] == BlockTypes.EmptyBlock)
+            {
+                Block[position.X, position.Y] = BlockTypes.WallBlock;
+                DrawBlock(position, BlockTypes.WallBlock);
+            }
+            else
+            {
+                throw new Exception("Error: wall inicialization outside of valid bounds!");
             }
         }
         
@@ -365,10 +389,10 @@ namespace GS2
         {
             Point head = SnakeBody[0];
             Block[head.X, head.Y] = BlockTypes.SnakeHead;
-            DrawCell(head, BlockTypes.SnakeHead);
+            DrawBlock(head, BlockTypes.SnakeHead);
             Point FirstBody = SnakeBody[1];
             Block[FirstBody.X, FirstBody.Y] = BlockTypes.SnakeBody;
-            DrawCell(FirstBody, BlockTypes.SnakeBody);
+            DrawBlock(FirstBody, BlockTypes.SnakeBody);
         }
 
         private void DetermineForbiddenDirection()

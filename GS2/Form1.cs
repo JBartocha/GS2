@@ -46,6 +46,8 @@ namespace GS2
 
             InitializeGrid();
 
+            AddWalls();
+            
             AddStartingFood();
 
             ResetFormVariables();
@@ -70,6 +72,15 @@ namespace GS2
                 {
                     Snake.AddFood(true);
                 }
+            }
+        }
+
+        private void AddWalls()
+        {
+            for(int i = 0; i < SS.WallPositions.Count; i++)
+            {
+                Point Wall = SS.WallPositions[i];
+                Snake.AddWall(Wall);
             }
         }
 
