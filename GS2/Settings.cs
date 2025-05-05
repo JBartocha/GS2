@@ -32,6 +32,7 @@ namespace GS2
         public string ForbiddenDirection { get; set; } = "Down";
         public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
         public bool Pause { get; set; } = true;
+        public int CurrentSpeed { get; set; } = 0;
 
         public override string ToString()
         {

@@ -123,13 +123,12 @@ namespace GS2
             SS.GameOver = false;
             SS.ForbiddenDirection = "Down";
             SS.Pause = true;
-            // TODO - bude potreba promennou pro vychozzi hodnotu a pro aktualni (kvùli resetu)
-            SS.TickInMilliseconds = 500;
+            SS.CurrentSpeed = SS.TickInMilliseconds;
 
             Label_Food_Eaten.Text = "Points: " + SS.FoodsEaten;
             Label_Moves.Text = "Moves: " + SS.Moves;
             Button_Pause.Text = StartButtonText;
-            Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
+            Label_Speed.Text = "Speed: " + SS.CurrentSpeed + "ms";
             Label_Level.Text = "LEVEL: " + SS.Level;
 
         }
@@ -234,14 +233,14 @@ namespace GS2
 
         private void IncreaseSpeed()
         {
-            if (SS.TickInMilliseconds > 100)
+            if (SS.CurrentSpeed > 100)
             {
-                SS.TickInMilliseconds -= (int)(SS.TickInMilliseconds * SS.DifficultyIncrease);
-                Label_Speed.Text = "Speed: " + SS.TickInMilliseconds + "ms";
+                SS.CurrentSpeed -= (int)(SS.CurrentSpeed * SS.DifficultyIncrease);
+                Label_Speed.Text = "Speed: " + SS.CurrentSpeed + "ms";
             }
             else
             {
-                SS.TickInMilliseconds = 100;
+                SS.CurrentSpeed = 100;
             }
         }
 
@@ -262,13 +261,13 @@ namespace GS2
 
         public async Task<bool> TurnPeriodicTimer()
         {
-            timer = new PeriodicTimer(TimeSpan.FromMilliseconds(SS.TickInMilliseconds));
+            timer = new PeriodicTimer(TimeSpan.FromMilliseconds(SS.CurrentSpeed));
             float i = 0f;
             //int MoveCounter = 0;
             while (await timer.WaitForNextTickAsync())
             {
-                timer.Period = TimeSpan.FromMilliseconds(SS.TickInMilliseconds);
-                i += SS.TickInMilliseconds / 1000f;
+                timer.Period = TimeSpan.FromMilliseconds(SS.CurrentSpeed);
+                i += SS.CurrentSpeed / 1000f;
                 Label_Timer.Text = "Running Time: " + ConvertToHHMMSS((int)i);
                 if (!SS.Pause)
                 {
@@ -356,7 +355,6 @@ namespace GS2
             {
                 //Nothing selected (cancel button instead of save)
             }
-
         }
 
         private void PanelMain_MouseMove(object sender, MouseEventArgs e)
