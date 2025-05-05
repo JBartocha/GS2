@@ -29,13 +29,13 @@ namespace GS2
         protected BlockTypes[,] Block;
         protected List<Region> Region = new List<Region>();
 
-        public Grid(int GridColumns, int GridRows, int BlockSize, Graphics graphics)
+        public Grid(int Rows, int Columns, int BlockSize, Graphics graphics)
         {
-            Rows = GridRows;
-            Columns = GridColumns;
+            this.Rows = Columns;
+            this.Columns = Rows;
             this.BlockSize = BlockSize;
-            Graphics = graphics; 
-            Block = new BlockTypes[Rows, Columns];
+            Graphics = graphics;
+            Block = new BlockTypes[this.Rows, this.Columns];
 
             InitializeGrid();
         }
@@ -87,6 +87,7 @@ namespace GS2
                 
                 Block[p.X, p.Y] = BlockTypes.FoodBlock;
                 DrawCell(p.X, p.Y, BlockTypes.FoodBlock);
+
                 //Random random = new Random();
                 //int x = random.Next(0, Rows);
                 //int y = random.Next(0, Columns);
@@ -158,7 +159,7 @@ namespace GS2
                 _ => new SolidBrush(Color.Black),
             };
         }
-    }
+    }   
 
 
 
@@ -178,8 +179,8 @@ namespace GS2
         private int MoveCounter = 0; // Everytime snake moves, this is incremented by 1
         private Record record = new Record();
         
-        public Snake(Point startingPosition, int gridXSize, int gridYSize, int blockSize, Graphics graphics)
-            : base(gridXSize, gridYSize, blockSize, graphics)
+        public Snake(Point startingPosition, int Rows, int Columns, int blockSize, Graphics graphics)
+            : base(Rows, Columns, blockSize, graphics)
         {
             SnakeBody = new List<Point> { startingPosition };
             SnakeBody.Add(new Point(startingPosition.X, startingPosition.Y + 1));
@@ -324,24 +325,19 @@ namespace GS2
         
         public override void AddFood(bool StartingPositionFood = false)
         {
-            Debug.WriteLine("SG00");
-
+  
             if (IsThereEmptyCellInGrid())
             {
-                Debug.WriteLine("SG01");
                 Random random = new Random();
                 int x = random.Next(0, Rows);
                 int y = random.Next(0, Columns);
-                Debug.WriteLine("SG02");
                 while (Block[x, y] != BlockTypes.EmptyBlock)
                 {
                     //TODO - check if possible? Also better algorithm
-                    Debug.WriteLine("SG03 pos:" + x + ":" + y);
                     x = random.Next(0, Rows); 
                     y = random.Next(0, Columns);
                 }
                 Block[x, y] = BlockTypes.FoodBlock;
-                Debug.WriteLine("SG04");
                 if (StartingPositionFood)
                 {
                     record.StartingFoodPositions.Add(new Point(x, y));

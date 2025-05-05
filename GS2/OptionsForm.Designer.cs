@@ -49,6 +49,7 @@
             TrackBarCellSize = new TrackBar();
             CheckBox_MouseControl = new CheckBox();
             CheckBox_KeyboardControl = new CheckBox();
+            Button_Walls_Option = new Button();
             ((System.ComponentModel.ISupportInitialize)TrackBarRows).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarColumns).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarCellSize).BeginInit();
@@ -67,7 +68,7 @@
             // TrackBarRows
             // 
             TrackBarRows.Location = new Point(310, 308);
-            TrackBarRows.Maximum = 15;
+            TrackBarRows.Maximum = 32;
             TrackBarRows.Minimum = 7;
             TrackBarRows.Name = "TrackBarRows";
             TrackBarRows.Size = new Size(210, 45);
@@ -107,7 +108,7 @@
             // TrackBarColumns
             // 
             TrackBarColumns.Location = new Point(310, 359);
-            TrackBarColumns.Maximum = 15;
+            TrackBarColumns.Maximum = 32;
             TrackBarColumns.Minimum = 7;
             TrackBarColumns.Name = "TrackBarColumns";
             TrackBarColumns.Size = new Size(210, 45);
@@ -237,7 +238,7 @@
             TrackBarCellSize.Name = "TrackBarCellSize";
             TrackBarCellSize.Size = new Size(210, 45);
             TrackBarCellSize.TabIndex = 18;
-            TrackBarCellSize.Value = 40;
+            TrackBarCellSize.Value = 30;
             TrackBarCellSize.ValueChanged += TrackBarCellSize_ValueChanged;
             // 
             // CheckBox_MouseControl
@@ -270,11 +271,23 @@
             CheckBox_KeyboardControl.UseVisualStyleBackColor = true;
             CheckBox_KeyboardControl.CheckedChanged += CheckBox_KeyboardControl_CheckedChanged;
             // 
+            // Button_Walls_Option
+            // 
+            Button_Walls_Option.Font = new Font("Segoe UI", 12F);
+            Button_Walls_Option.Location = new Point(527, 414);
+            Button_Walls_Option.Name = "Button_Walls_Option";
+            Button_Walls_Option.Size = new Size(113, 36);
+            Button_Walls_Option.TabIndex = 23;
+            Button_Walls_Option.Text = "Nastav Zdi";
+            Button_Walls_Option.UseVisualStyleBackColor = true;
+            Button_Walls_Option.Click += Button_Walls_Option_Click;
+            // 
             // OptionsForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(652, 462);
+            Controls.Add(Button_Walls_Option);
             Controls.Add(CheckBox_KeyboardControl);
             Controls.Add(CheckBox_MouseControl);
             Controls.Add(label7);
@@ -328,5 +341,6 @@
         private TrackBar TrackBarCellSize;
         private CheckBox CheckBox_MouseControl;
         private CheckBox CheckBox_KeyboardControl;
+        private Button Button_Walls_Option;
     }
 }

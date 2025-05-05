@@ -14,21 +14,6 @@ namespace GS2
         OutOfBoundsBlock
     }
 
-    public struct MainFormSettings
-    {
-        public int Level { get; set; } = 0;
-        public int FoodsEaten { get; set; } = 0;
-        public int Moves { get; set; } = 0;
-        public Point HeadPosition { get; set; } = new Point(5, 5);
-        public bool GameOver { get; set; } = false;
-        public string ForbiddenDirection { get; set; } = "Down";
-        public Point SnakeStartingHeadPosition { get; set; } = new Point(5, 5);
-        public bool Pause { get; set; } = true;
-
-        public MainFormSettings()
-        {
-        }
-    }
 
     public partial class Main_Form : Form
     {
@@ -138,6 +123,7 @@ namespace GS2
             SS.GameOver = false;
             SS.ForbiddenDirection = "Down";
             SS.Pause = true;
+            // TODO - bude potreba promennou pro vychozzi hodnotu a pro aktualni (kvùli resetu)
             SS.TickInMilliseconds = 500;
 
             Label_Food_Eaten.Text = "Points: " + SS.FoodsEaten;

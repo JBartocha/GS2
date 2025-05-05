@@ -121,22 +121,22 @@ namespace GS2
 
         private void CheckBox_MouseControl_CheckedChanged(object sender, EventArgs e)
         {
-            if(CheckBox_MouseControl.Checked == true) SS.UseMousePositionToMove = true;
+            if (CheckBox_MouseControl.Checked == true) SS.UseMousePositionToMove = true;
             if (CheckBox_MouseControl.Checked == false)
             {
                 SS.UseMousePositionToMove = false;
-                if(CheckBox_KeyboardControl.Checked == false)
+                if (CheckBox_KeyboardControl.Checked == false)
                 {
                     CheckBox_KeyboardControl.Checked = true;
                     SS.UseMousePositionToMove = true;
                 }
             }
-            
+
         }
-        
+
         private void CheckBox_KeyboardControl_CheckedChanged(object sender, EventArgs e)
         {
-            if(CheckBox_KeyboardControl.Checked == true) SS.UseMousePositionToMove = true;
+            if (CheckBox_KeyboardControl.Checked == true) SS.UseMousePositionToMove = true;
             if (CheckBox_KeyboardControl.Checked == false)
             {
                 SS.UseMousePositionToMove = false;
@@ -146,6 +146,25 @@ namespace GS2
                     SS.UseMousePositionToMove = true;
                 }
             }
+        }
+
+        private void Button_Walls_Option_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            int rows = TrackBarRows.Value;
+            int columns = TrackBarColumns.Value;
+            int cellSize = TrackBarCellSize.Value;
+            Point[] forbiddenPoints = new Point[]
+            {
+                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
+                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y+1),
+                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y+2),
+            };
+
+            WallOptionsForm optionsForm = new WallOptionsForm(rows, columns, cellSize, forbiddenPoints);
+            // TODO - sesbirej data z WallOptionsForm do OptionsForm
+            optionsForm.ShowDialog();
+            this.Show();
         }
     }
 }
