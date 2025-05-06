@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace GS2
 {
@@ -13,6 +8,13 @@ namespace GS2
         public Record GetGameRecord();
     }
 
+    interface IGrid
+    {
+        public void AddFood(Point position, bool StartingPositionFood = false);
+        public void AddWall(Point position);
+        public void AddFood(bool StartingPositionFood = false);
+    }
+
     public struct Cell
     {
         public int x;
@@ -20,7 +22,7 @@ namespace GS2
         public BlockTypes blockType;
     }
 
-    public abstract class Grid
+    public abstract class Grid : IGrid
     {
         protected int Rows;
         protected int Columns;
@@ -416,6 +418,7 @@ namespace GS2
                     break;
             }
         }
+
         private void CrossSnakeHead()
         {
             Graphics.DrawLine(Pens.Black, SnakeBody[0].X * BlockSize, SnakeBody[0].Y * BlockSize, 

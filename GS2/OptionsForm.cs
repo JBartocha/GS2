@@ -169,7 +169,6 @@ namespace GS2
             optionsForm.ShowDialog();
             
 
-
             this.Show();
         }
     }

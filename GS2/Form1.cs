@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text.Json;
-using System.IO;
 
 namespace GS2
 {
@@ -100,8 +99,6 @@ namespace GS2
             this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
                 SS.Rows, SS.Columns, SS.CellSize, grap);
             Snake.SetMovement("Right");
-
-            
 
             Snake.CellCollisionEvent += OnCellCollisionEvent;
             Snake.FoodEatenEvent += OnFoodEatenEvent;
