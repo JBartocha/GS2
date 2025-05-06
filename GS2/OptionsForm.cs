@@ -151,6 +151,7 @@ namespace GS2
             }
         }
 
+
         private void Button_Walls_Option_Click(object sender, EventArgs e)
         {
             this.Hide();
