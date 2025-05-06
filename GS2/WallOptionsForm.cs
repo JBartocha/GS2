@@ -75,8 +75,6 @@ namespace GS2
 
             this.ForbiddenWallPositions = ForbiddenWallPositions;
 
-            
-
             for (int i = 0; i <= Rows; i++)
             {
                 Grap.DrawLine(Pens.Black, new Point(0, i * BlockSize), new Point(Columns * BlockSize, i * BlockSize));
@@ -90,7 +88,6 @@ namespace GS2
                 Grap.FillRectangle(Brushes.DarkRed, ForbiddenWallPositions[i].Y * BlockSize+1,
                     ForbiddenWallPositions[i].X * BlockSize+1, BlockSize-1, BlockSize-1);
             }
-
 
         }
 
@@ -125,20 +122,23 @@ namespace GS2
                 {
                     if (Blocks[i, j] == BlockTypes.WallBlock)
                     {
-                        Grap.FillRectangle(brushes[BlockTypes.WallBlock], j * BlockSize + 1,
-                            i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
+                        DrawBlock(new Point(i, j), BlockTypes.WallBlock);
+                        //Grap.FillRectangle(brushes[BlockTypes.WallBlock], j * BlockSize + 1,
+                        //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                     }
                     if (Blocks[i, j] == BlockTypes.EmptyBlock)
                     {
-                        Grap.FillRectangle(brushes[BlockTypes.EmptyBlock], j * BlockSize + 1,
-                            i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
+                        DrawBlock(new Point(i, j), BlockTypes.EmptyBlock);
+                        //Grap.FillRectangle(brushes[BlockTypes.EmptyBlock], j * BlockSize + 1,
+                        //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                     }
                     for (int k = 0; k < ForbiddenWallPositions.Length; k++)
                     {
                         if (i == ForbiddenWallPositions[k].X && j == ForbiddenWallPositions[k].Y)
                         {
-                            Grap.FillRectangle(Brushes.DarkRed, j * BlockSize + 1,
-                                i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
+                            DrawBlock(new Point(i, j), BlockTypes.SnakeBody);
+                            //Grap.FillRectangle(Brushes.DarkRed, j * BlockSize + 1,
+                            //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                         }
                     }
                 }
