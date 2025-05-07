@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 
 namespace GS2
@@ -55,7 +56,6 @@ namespace GS2
 
     public struct ListOfRecords
     {
-
         public string? ID;
         public DateTime Date;
         public int Level;
@@ -80,7 +80,28 @@ namespace GS2
     {
         private int CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
         private Record RC = new Record();
-        private const string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security = True";
+
+        //private const string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security=True";
+        private string connectionString = "";
+
+        public GameRecord()
+        {
+            string DBfilename = Environment.CurrentDirectory;
+            for (int i = 0; i < 3; i++)
+            {
+                DBfilename = Directory.GetParent(DBfilename).ToString();
+            }
+            DBfilename += "\\SnakeDB.mdf";
+
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = @"(LocalDB)\MSSQLLocalDB",
+                AttachDBFilename = @DBfilename,
+                IntegratedSecurity = true
+            };
+            connectionString = builder.ConnectionString;
+            Debug.WriteLine(connectionString);
+        }
 
         public List<ListOfRecords> ListAllRecords()
         {
