@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 
 namespace GS2
@@ -15,7 +16,8 @@ namespace GS2
             MoveDirection = moveDirection;
             GeneratedFoodPosition = null;
         }
-        public TurnRecord(int turnNumber, string moveDirection, Point? generatedFoodPosition)
+
+        public TurnRecord(int turnNumber, string moveDirection, Point? generatedFoodPosition = null)
         {
             TurnNumber = turnNumber;
             MoveDirection = moveDirection;
@@ -55,7 +57,6 @@ namespace GS2
 
     public struct ListOfRecords
     {
-
         public string? ID;
         public DateTime Date;
         public int Level;
@@ -80,11 +81,32 @@ namespace GS2
     {
         private int CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
         private Record RC = new Record();
-        private const string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security = True";
+
+        //private const string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security=True";
+        private string connectionString = "";
+
+        public GameRecord()
+        {
+            string DBfilename = Environment.CurrentDirectory;
+            for (int i = 0; i < 3; i++)
+            {
+                DBfilename = Directory.GetParent(DBfilename).ToString();
+            }
+            DBfilename += "\\SnakeDB.mdf";
+
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = @"(LocalDB)\MSSQLLocalDB",
+                AttachDBFilename = @DBfilename,
+                IntegratedSecurity = true
+            };
+            connectionString = builder.ConnectionString;
+            Debug.WriteLine(connectionString);
+        }
 
         public List<ListOfRecords> ListAllRecords()
         {
-            try // TODO cele spatne ... udelat o znovu
+            try
             {
                 // Updated to use Microsoft.Data.SqlClient.SqlConnection  
                 using var connection = new SqlConnection(connectionString);
@@ -314,25 +336,20 @@ namespace GS2
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
 
-                // Replace "YourTable" and "ColumnName" with your actual table and column names
                 string query = "INSERT INTO Food (PosX, PosY) VALUES (@PX, @PY); SELECT SCOPE_IDENTITY();";
                 using var command = new SqlCommand(query, connection);
 
-                // Add parameter to prevent SQL injection
                 command.Parameters.AddWithValue("@PX", FoodPosition.X);
                 command.Parameters.AddWithValue("@PY", FoodPosition.Y);
 
-                // Execute the query and retrieve the last inserted ID
                 object result = command.ExecuteScalar();
                 int LastFoodID = Convert.ToInt32(result);
-                //MessageBox.Show($"New record inserted into Food with ID: {LastFoodID}");
-
+                
                 return LastFoodID;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred in method InsertFoodIntoDB: {ex.Message}");
-                // Replace the invalid SqlException instantiation with a generic Exception throw
                 throw new Exception("Error inserting food into database", ex);
             }
         }

@@ -11,24 +11,25 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 
 namespace GS2
 {
     public partial class OptionsForm : Form
     {
         private Settings SS;
+        private Point OriginalSize;
         public OptionsForm()
         {
 
             InitializeComponent();
-
 
             for (int i = 1; i < 5; i++)
             {
                 ListBoxFoodInterval.Items.Add(i.ToString());
                 ListBoxSpeedPercent.Items.Add((i * 5).ToString());
             }
-            for (int i = 1; i < 10; i++)
+            for (int i = 1; i < 16; i++)
             {
                 ListBoxFoodCount.Items.Add(i.ToString());
             }
@@ -39,6 +40,7 @@ namespace GS2
             TextBoxColumns.Text = TrackBarColumns.Value.ToString();
             TextBoxCellSize.Text = TrackBarCellSize.Value.ToString();
 
+            OriginalSize = new Point(TrackBarRows.Value, TrackBarColumns.Value);
         }
 
         private void LoadJsonSettings()
@@ -116,6 +118,11 @@ namespace GS2
             SS.Rows = TrackBarRows.Value;
             SS.Columns = TrackBarColumns.Value;
             SS.CellSize = TrackBarCellSize.Value;
+
+            if(OriginalSize.X != TrackBarRows.Value || OriginalSize.Y != TrackBarColumns.Value)
+            {
+                SS.WallPositions.Clear();
+            }
 
             string json = JsonSerializer.Serialize(SS);
             File.WriteAllText(Settings.JsonSaveFileName, json);

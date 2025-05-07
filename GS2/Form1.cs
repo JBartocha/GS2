@@ -1,5 +1,9 @@
+using System.Configuration;
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
+using Microsoft.VisualBasic.ApplicationServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GS2
 {
@@ -30,6 +34,8 @@ namespace GS2
 
         public Main_Form()
         {
+            testsomething();
+
             LoadSettingsFromFile();
 
             InitializeComponent();
@@ -37,6 +43,25 @@ namespace GS2
             FormularEntitiesResizing();
 
             ResetGame();
+        }
+
+        private void testsomething()
+        {
+            string DBfilename = Environment.CurrentDirectory;
+            for(int i = 0; i < 3; i++)
+            {
+                DBfilename = Directory.GetParent(DBfilename).ToString();
+            }
+            DBfilename += "\\SnakeDB.mdf";
+
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = @"(LocalDB)\MSSQLLocalDB",
+                AttachDBFilename = @DBfilename,
+                IntegratedSecurity = true
+            };
+            string ConnectionString = builder.ConnectionString;
+            Debug.WriteLine(ConnectionString);
         }
 
         private void ResetGame()
@@ -117,9 +142,6 @@ namespace GS2
             this.Size = new Size(Width, Height);
             Panel_Main.Size = new Size(SS.Columns * SS.CellSize + 1, SS.Rows * SS.CellSize + 1);
             Panel_Right.Location = new Point(Panel_Main.Width + 40, Panel_Main.Location.Y);
-            //this.Invalidate();
-            //Panel_Main.Invalidate();
-            //Panel_Right.Invalidate();
         }
 
         private void ResetFormVariables()

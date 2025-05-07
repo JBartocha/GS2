@@ -1,1 +1,84 @@
-# GS2
+# GS2 
+
+# Požadavky
+
+- Nainstalovanou **SQL Server Express LocalDB** (V expresní instalaci je instalována automaticky)
+- Požadování dodatečně nainstalovat NuGet Microsoft.Data.SqlClient;
+ viz [Link](https://www.nuget.org/packages/Microsoft.Data.SqlClient/6.0.2?_src=template)
+
+
+# Popis
+
+**Testovací projekt**
+
+Hra had. Obsahuje následující prvky:
+- Ovládání klávesnicí (tlačítka **AWSD**), pomocí Myši nebo obě možnosti.
+Při ovládání přes myš bere poslední pozici myši při pohybu na herní ploše a podle ní nastavuje směr).
+Pomocí tlačítka nebo tlačítka 'p' lze hru pozastavit
+
+
+Sekce s nastavením "Options", která umožňuje nastavení:
+
+    - Nastavení velikosti bloků
+    - Nastavení množství řádků a sloupců herní plochy
+    - Nastavení ovládání přes myš, klávesnici nebo obojí
+    - Množství jídla na herní ploše
+    - Počáteční rychlost
+    - Množství jídla
+    - Množství jídla potřebné na zvýšení obtížnosti
+    - Procentuální navýšení rychlosti při zvýšení obtížnosti
+
+V sekci nastavení je "Nastav zdi" tlačítko, které umožňuje individuálně nastavit kde budou generované zdi. Pokud se v hlavním nastavovacím formuláři neuloží nastavení tak i nastavení v "Nastav Zdi" nebude uloženo.
+
+
+Hra také umožňuje po ukončení hry (prohrou) uložit do lokální MS SQL databáze uložit záznam hry, který může být pomocí tlačítka "Load Replay" a následného stlačení tlačítka "Start" přehrán od začátku do konce.
+
+Při stlačení tlačítka "Restart" je simulace/hra zrušena a nachystána nová hra(pozastavená).
+
+### Třída Settings
+
+Hlavní nastavovací prvky.
+Veškerá 'globální nastavení' jsou uložena v třídě Settings, která je při změnách uložena do .json souboru jako výchozí nastavení pro příští zapnutí.
+
+Modifikovatelné v OptionsForm (formulář pro nastavení):
+```
+JsonSaveFileName
+UseMousePositionToMove 
+UseKeyboardToMove 
+FoodCount 
+LevelIncreaseInterval
+TickInMilliseconds
+DifficultyIncrease
+CellSize
+Rows
+Columns
+WallPositions
+```
+Tyto proměnné se mění v průběhu hry:
+```
+Level
+FoodsEaten
+Moves
+HeadPosition
+GameOver
+ForbiddenDirection
+SnakeStartingHeadPosition
+Pause
+CurrentSpeed
+```
+
+### Poznámky
+
+Zpracováno v `MSV 17.13.5` `.NET Framework 4.8.09032`
+
+Využití obojího .json a databáze je podle mě logicky nesmyslné ale chtěl jsem použít oba způsoby pro procvičení.
+WFA pro tento projekt není nejlepší hlavně kvůli vykreslování, které při překleslování způsobuje blikání. To se objevuje i přes to, že bylo výrazně zmírněno skrze regionální vykreslování jen v oblastech kde je tomu potřeba.
+
+### TODO
+
+- Přidat nastavení možnosti přecházet s hadem z jednoho okraje na opačný (tento stav by se zároveň nepovažoval jako konec hry).
+- Ošetřit stav kdy je celá herní plocha zaplněná a není co kam přidat.
+- Upravit vzhled hada tak, aby bylo možné kdykoliv poznat kudy trasoval cestu (něco jako přidat čáry na vykreslované body hada).
+- Opravit blikání při přidávání bloků v WallOptionsForm.
+- Ve WallOptionsForm využít třídu "Grid".
+- Pro srandu přidat počítání bodů tak, aby to dávalo smysl. Počítání s použitím parabolických křivek pravděpodobně pro proměnné které ovlivňují rychlost, počáteční rychlost a konstantním počtu jídla na ploše.
