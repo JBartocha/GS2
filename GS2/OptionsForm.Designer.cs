@@ -69,7 +69,7 @@
             // 
             TrackBarRows.Location = new Point(310, 308);
             TrackBarRows.Maximum = 32;
-            TrackBarRows.Minimum = 7;
+            TrackBarRows.Minimum = 8;
             TrackBarRows.Name = "TrackBarRows";
             TrackBarRows.Size = new Size(210, 45);
             TrackBarRows.TabIndex = 1;
@@ -109,7 +109,7 @@
             // 
             TrackBarColumns.Location = new Point(310, 359);
             TrackBarColumns.Maximum = 32;
-            TrackBarColumns.Minimum = 7;
+            TrackBarColumns.Minimum = 8;
             TrackBarColumns.Name = "TrackBarColumns";
             TrackBarColumns.Size = new Size(210, 45);
             TrackBarColumns.TabIndex = 5;
@@ -309,6 +309,7 @@
             Controls.Add(TextBoxRows);
             Controls.Add(TrackBarRows);
             Controls.Add(Button_EXIT);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "OptionsForm";
             Text = "OptionsForm";
             ((System.ComponentModel.ISupportInitialize)TrackBarRows).EndInit();

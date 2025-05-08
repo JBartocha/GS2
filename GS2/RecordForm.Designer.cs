@@ -70,6 +70,7 @@
             Controls.Add(Button_Cancel);
             Controls.Add(Button_Save_And_Exit);
             Controls.Add(ListBox_Records);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "RecordForm";
             Text = "RecordForm";
             ResumeLayout(false);

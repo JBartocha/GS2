@@ -43,6 +43,7 @@
             Button_Options = new Button();
             Button_Load_Record = new Button();
             Panel_Right = new Panel();
+            Label_Score = new Label();
             Panel_Right.SuspendLayout();
             SuspendLayout();
             // 
@@ -59,7 +60,7 @@
             // Button_Pause
             // 
             Button_Pause.Font = new Font("Segoe UI", 20F);
-            Button_Pause.Location = new Point(4, 331);
+            Button_Pause.Location = new Point(4, 380);
             Button_Pause.Name = "Button_Pause";
             Button_Pause.Size = new Size(160, 50);
             Button_Pause.TabIndex = 1;
@@ -110,7 +111,7 @@
             // 
             Label_Timer.AutoSize = true;
             Label_Timer.Font = new Font("Segoe UI", 12F);
-            Label_Timer.Location = new Point(4, 139);
+            Label_Timer.Location = new Point(4, 188);
             Label_Timer.Name = "Label_Timer";
             Label_Timer.Size = new Size(115, 21);
             Label_Timer.TabIndex = 6;
@@ -119,7 +120,7 @@
             // Restart
             // 
             Restart.Font = new Font("Segoe UI", 20F);
-            Restart.Location = new Point(3, 275);
+            Restart.Location = new Point(3, 324);
             Restart.Name = "Restart";
             Restart.Size = new Size(160, 50);
             Restart.TabIndex = 7;
@@ -150,7 +151,7 @@
             // Button_Options
             // 
             Button_Options.Font = new Font("Segoe UI", 18F);
-            Button_Options.Location = new Point(3, 219);
+            Button_Options.Location = new Point(3, 268);
             Button_Options.Name = "Button_Options";
             Button_Options.Size = new Size(160, 50);
             Button_Options.TabIndex = 10;
@@ -161,7 +162,7 @@
             // Button_Load_Record
             // 
             Button_Load_Record.Font = new Font("Segoe UI", 14F);
-            Button_Load_Record.Location = new Point(3, 163);
+            Button_Load_Record.Location = new Point(3, 212);
             Button_Load_Record.Name = "Button_Load_Record";
             Button_Load_Record.Size = new Size(160, 50);
             Button_Load_Record.TabIndex = 11;
@@ -171,6 +172,7 @@
             // 
             // Panel_Right
             // 
+            Panel_Right.Controls.Add(Label_Score);
             Panel_Right.Controls.Add(Button_Load_Record);
             Panel_Right.Controls.Add(Button_Pause);
             Panel_Right.Controls.Add(Button_Options);
@@ -187,6 +189,16 @@
             Panel_Right.Size = new Size(175, 443);
             Panel_Right.TabIndex = 12;
             // 
+            // Label_Score
+            // 
+            Label_Score.AutoSize = true;
+            Label_Score.Font = new Font("Segoe UI", 12F);
+            Label_Score.Location = new Point(4, 139);
+            Label_Score.Name = "Label_Score";
+            Label_Score.Size = new Size(52, 21);
+            Label_Score.TabIndex = 12;
+            Label_Score.Text = "Score:";
+            // 
             // Main_Form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -194,6 +206,7 @@
             ClientSize = new Size(669, 467);
             Controls.Add(Panel_Right);
             Controls.Add(Panel_Main);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             KeyPreview = true;
             Name = "Main_Form";
             Text = "Main";
@@ -219,5 +232,6 @@
         private Button Button_Options;
         private Button Button_Load_Record;
         private Panel Panel_Right;
+        private Label Label_Score;
     }
 }

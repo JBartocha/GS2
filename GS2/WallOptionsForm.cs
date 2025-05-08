@@ -1,4 +1,7 @@
-﻿namespace GS2
+﻿using System.Diagnostics;
+using System.Drawing;
+
+namespace GS2
 {
     public partial class WallOptionsForm : Form
     {
@@ -77,7 +80,7 @@
                 Grap.FillRectangle(Brushes.DarkRed, ForbiddenWallPositions[i].Y * BlockSize+1,
                     ForbiddenWallPositions[i].X * BlockSize+1, BlockSize-1, BlockSize-1);
             }
-
+            DrawBlocks();
         }
 
         private void DrawBlock(Point point, BlockTypes blockType)
@@ -134,7 +137,6 @@
             }
         }
 
-
         private void Panel_Main_MouseClick(object sender, MouseEventArgs e)
         {
 
@@ -156,8 +158,11 @@
                 WallPositions.Remove(BlockPosition);
                 Blocks[row, column] = BlockTypes.EmptyBlock;
             }
-            DrawBlocks();
-            Panel_Main.Invalidate();
+
+            Region region = new Region(new Rectangle(column * BlockSize + 1,
+                    row * BlockSize + 1, BlockSize-1,BlockSize-1));
+            Grap.FillRegion(brushes[Blocks[row, column]], region);
+            Panel_Main.Invalidate(region);
         }
     }
 }

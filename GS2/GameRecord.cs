@@ -60,12 +60,14 @@ namespace GS2
         public string? ID;
         public DateTime Date;
         public int Level;
+        public int Score;
 
-        public ListOfRecords(string? iD, DateTime dT, int Lvl) : this()
+        public ListOfRecords(string? iD, DateTime dT, int Lvl, int Score) : this()
         {
             this.ID = iD;
             this.Date = dT;
             this.Level = Lvl;
+            this.Score = Score;
         }
     }
 
@@ -114,7 +116,7 @@ namespace GS2
 
                 List<ListOfRecords> PomList = new List<ListOfRecords>();
 
-                string query = "SELECT GameNumbers_ID, Date, Level FROM GameNumbers"; // Replace with your query  
+                string query = "SELECT GameNumbers_ID, Date, Level, Score FROM GameNumbers"; // Replace with your query  
                 using var command = new SqlCommand(query, connection);
                 using var reader = command.ExecuteReader();
 
@@ -122,15 +124,23 @@ namespace GS2
                 {
                     string ID = reader["GameNumbers_ID"].ToString();
                     string Date = reader["Date"].ToString();
+                    
                     string LevelString = reader["Level"].ToString();
                     int Level = 0;
                     if (int.TryParse(LevelString, out int level))
                     {
                         Level = level; // Assign to the int property
                     }
+                    
+                    string ScoreString = reader["Score"].ToString();
+                    int Score = 0;
+                    if (int.TryParse(ScoreString, out int score))
+                    {
+                        Score = score;
+                    }
 
                     DateTime DT = DateTime.Parse(Date);
-                    PomList.Add(new ListOfRecords(ID, DT, Level));
+                    PomList.Add(new ListOfRecords(ID, DT, Level, Score));
                 }
                 return PomList;
             }
@@ -284,7 +294,7 @@ namespace GS2
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
 
-                string query = "INSERT INTO GameNumbers (Date, Settings, Level) VALUES (@TimeNow, @JsonSettings, @Level); SELECT SCOPE_IDENTITY();";
+                string query = "INSERT INTO GameNumbers (Date, Settings, Level, Score) VALUES (@TimeNow, @JsonSettings, @Level, @Score); SELECT SCOPE_IDENTITY();";
                 using var command = new SqlCommand(query, connection);
 
                 DateTime dateTime = DateTime.Now;
@@ -294,6 +304,7 @@ namespace GS2
                 command.Parameters.AddWithValue("@TimeNow", CurrentTime);
                 command.Parameters.AddWithValue("@JsonSettings", S.ToString());
                 command.Parameters.AddWithValue("@Level", Level);
+                command.Parameters.AddWithValue("@Score", S.Score);
 
                 //int rowsAffected = command.ExecuteNonQuery();
                 System.Object result = command.ExecuteScalar();

@@ -85,6 +85,7 @@
             Controls.Add(Button_CancelAndExit);
             Controls.Add(Button_Reset);
             Controls.Add(Panel_Main);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "WallOptionsForm";
             Text = "WallOptionsForm";
             ResumeLayout(false);

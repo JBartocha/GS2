@@ -34,8 +34,6 @@ namespace GS2
 
         public Main_Form()
         {
-            testsomething();
-
             LoadSettingsFromFile();
 
             InitializeComponent();
@@ -43,25 +41,6 @@ namespace GS2
             FormularEntitiesResizing();
 
             ResetGame();
-        }
-
-        private void testsomething()
-        {
-            string DBfilename = Environment.CurrentDirectory;
-            for(int i = 0; i < 3; i++)
-            {
-                DBfilename = Directory.GetParent(DBfilename).ToString();
-            }
-            DBfilename += "\\SnakeDB.mdf";
-
-            var builder = new SqlConnectionStringBuilder
-            {
-                DataSource = @"(LocalDB)\MSSQLLocalDB",
-                AttachDBFilename = @DBfilename,
-                IntegratedSecurity = true
-            };
-            string ConnectionString = builder.ConnectionString;
-            Debug.WriteLine(ConnectionString);
         }
 
         private void ResetGame()
@@ -99,6 +78,32 @@ namespace GS2
             }
         }
 
+        private int ScoreCounter()
+        {
+            //starting speed koefficient
+            double StartingSpeed = SS.TickInMilliseconds / 1000.0;
+            StartingSpeed = 1.2 / Math.Pow(StartingSpeed, 2);
+
+            //zrychlovací koefficient
+            double SpeedIncrease = 0.1 / SS.DifficultyIncrease;
+
+            //current speed koefficient
+            double CurrentSpeed = SS.CurrentSpeed / 1000.0;
+            CurrentSpeed = 1 / Math.Pow(CurrentSpeed,2);
+            
+            //Food Count koefficient
+            double FoodMultiplier = (1.0 / (SS.FoodCount)) * Math.Pow(SS.FoodCount, 0.75);
+
+            //Level increase koefficient
+            double LevelIncreaseIntervalMultiplier = 4.0 / SS.LevelIncreaseInterval;
+
+            //Size of grid not included - maybe change?
+
+            double result = CurrentSpeed * SpeedIncrease * StartingSpeed * FoodMultiplier * LevelIncreaseIntervalMultiplier;
+
+            return Convert.ToInt32(result);
+        }
+
         private void AddWalls()
         {
             for(int i = 0; i < SS.WallPositions.Count; i++)
@@ -119,6 +124,7 @@ namespace GS2
             {
                 Snake.CellCollisionEvent -= OnCellCollisionEvent;
                 Snake.FoodEatenEvent -= OnFoodEatenEvent;
+                Snake.FullGridEvent -= OnNoPlaceForFoodEvent;
             }
 
             this.Snake = new Snake(new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
@@ -127,7 +133,7 @@ namespace GS2
 
             Snake.CellCollisionEvent += OnCellCollisionEvent;
             Snake.FoodEatenEvent += OnFoodEatenEvent;
-
+            Snake.FullGridEvent += OnNoPlaceForFoodEvent;
         }
 
         private void FormularEntitiesResizing()
@@ -149,6 +155,7 @@ namespace GS2
             SS.Level = 0;
             SS.FoodsEaten = 0;
             SS.Moves = 0;
+            SS.Score = 0;
             SS.HeadPosition = new Point(5, 5);
             SS.GameOver = false;
             SS.ForbiddenDirection = "Down";
@@ -160,12 +167,18 @@ namespace GS2
             Button_Pause.Text = StartButtonText;
             Label_Speed.Text = "Speed: " + SS.CurrentSpeed + "ms";
             Label_Level.Text = "LEVEL: " + SS.Level;
+            Label_Score.Text = "Score: " + SS.Score;
 
         }
 
         private void OnFoodEatenEvent(object sender, EventArgs args)
         {
             SS.FoodsEaten++;
+            SS.Score += ScoreCounter();
+            Debug.WriteLine("Score: " + SS.Score);
+            Label_Score.Text = "Score: " + SS.Score;
+            //TODO - opravit
+
             if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
             {
                 Label_Level.Text = "LEVEL: " + ++SS.Level;
@@ -188,6 +201,7 @@ namespace GS2
             {
                 Snake.AddFood(false);
             }
+
         }
 
         private void OnCellCollisionEvent(object sender, GridCollisionArgs args)
@@ -197,10 +211,22 @@ namespace GS2
                 SetGameOver(args.Message);
                 this.Simulation = false; // After end of simulation its regular game
             }
-            else // regular
+            else // regular game
             {
-
                 SetGameOver(args.Message);
+            }
+        }
+
+        private void OnNoPlaceForFoodEvent(object sender, EventArgs args)
+        {
+            if (Simulation)
+            {
+                SetGameOver("No place for food. Simulation ended.");
+                this.Simulation = false; // After end of simulation its regular game
+            }
+            else
+            {
+                SetGameOver("No place for food.");
             }
         }
 
@@ -221,7 +247,6 @@ namespace GS2
             }
             else
                 throw new Exception("Failed to deserialize settings after ResetGame().");
-
         }
 
         private void SetGameOver(string Message = "Game Over")

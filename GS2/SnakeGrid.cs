@@ -56,16 +56,14 @@ namespace GS2
             for (int i = 0; i <= Rows; i++)
             {
                 Graphics.DrawLine(Pens.Black, 0, i * BlockSize, Columns * BlockSize, i * BlockSize);
-                //Graphics.DrawLine(Pens.Black, i*BlockSize, 0, i*BlockSize, BlockSize*Columns);
             }
             for (int j = 0; j <= Columns; j++)
             {
-                //Graphics.DrawLine(Pens.Black, 0, j * BlockSize, Rows * BlockSize, j * BlockSize);
                 Graphics.DrawLine(Pens.Black, j * BlockSize, 0, j * BlockSize, Rows * BlockSize);
             }
         }
 
-        // TODO - not sure if should be here (no use)
+        // TODO - not sure if should be here
         public virtual void AddFood(Point position, bool StartingPositionFood = false)
         {
             if (IsValidPosition(position) && Block[position.X, position.Y] == BlockTypes.EmptyBlock)
@@ -93,7 +91,6 @@ namespace GS2
             }
         }
 
-        // TODO - not sure if should be here (no use)
         public virtual void AddFood(bool StartingPositionFood = false)
         {
             if (IsThereEmptyCellInGrid())
@@ -103,19 +100,10 @@ namespace GS2
                 Block[p.X, p.Y] = BlockTypes.FoodBlock;
                 DrawBlock(p, BlockTypes.FoodBlock);
 
-                //Random random = new Random();
-                //int x = random.Next(0, Rows);
-                //int y = random.Next(0, Columns);
-                //while (Block[x, y] != BlockTypes.EmptyBlock)
-                //{
-                //    x = random.Next(0, Rows); //TODO - check if is out of bounds
-                //    y = random.Next(0, Columns);
-                //}
-                //Block[x, y] = BlockTypes.FoodBlock;
-                //DrawCell(x, y, BlockTypes.FoodBlock);
             }
             else
             {
+                
                 throw new Exception("There is no space to put Food!"); // TODO what to do
             }
         }
@@ -198,7 +186,6 @@ namespace GS2
         {
             SnakeBody = new List<Point> { startingPosition };
             SnakeBody.Add(new Point(startingPosition.X+1, startingPosition.Y));
-            SnakeBody.Add(new Point(startingPosition.X+2, startingPosition.Y));
 
             Movement = new Point(1, 0); // Start moving Right
             ForbiddenDirection = "Down"; // predetermined (static Snake Position at start)
@@ -211,6 +198,9 @@ namespace GS2
 
         public delegate void FoodEatenEventHandler(object sender, EventArgs args);
         public event FoodEatenEventHandler FoodEatenEvent;
+
+        public delegate void FullGridEventHandler(object sender, EventArgs args);
+        public event FullGridEventHandler FullGridEvent;
 
         public void Move()
         {
@@ -245,15 +235,11 @@ namespace GS2
             {
                 if (Block[newHeadPosition.X, newHeadPosition.Y] == BlockTypes.FoodBlock)
                 {
-                    DebugLog("Food eaten", newHeadPosition);
                     SnakeBody.Insert(0, newHeadPosition);
                     FoodEatenEvent?.Invoke(this, EventArgs.Empty);
-                    Debug.WriteLine("----------------------Food eaten");
                 }
                 else
                 {
-                    DebugLog("Move", newHeadPosition);
-                    Debug.WriteLine("----------------------Move");
                     SnakeBody.Insert(0, newHeadPosition);
                     Point tail = SnakeBody.Last();
                     SnakeBody.RemoveAt(SnakeBody.Count - 1);
@@ -274,7 +260,6 @@ namespace GS2
             Debug.WriteLine("Snake " + SnakeBody[0].ToString());
         }
 
-
         private void InvokeCollisionEvent(string message, BlockTypes BlockType)
         {
             GridCollisionArgs GridCollisionArgs = new GridCollisionArgs
@@ -285,6 +270,11 @@ namespace GS2
             CrossSnakeHead();
             //Debug_ListRecordValues();
             CellCollisionEvent?.Invoke(this, GridCollisionArgs);
+        }
+
+        private void InvokeNoPlaceForFoodEvent()
+        {
+            FullGridEvent?.Invoke(this, null);
         }
 
         public bool SetMovement(string direction)
@@ -365,12 +355,11 @@ namespace GS2
                     ThisTurn.GeneratedFoodPosition = new Point(x, y);
                     record.Turns[MoveCounter - 1] = ThisTurn;
                 }
-                
                 DrawBlock(new Point(x,y), BlockTypes.FoodBlock);
             }
             else
             {
-                throw new Exception("There is no space to put Food!"); // TODO what to do
+                InvokeNoPlaceForFoodEvent();
             }
         }
 
@@ -421,13 +410,13 @@ namespace GS2
 
         private void CrossSnakeHead()
         {
-            Graphics.DrawLine(Pens.Black, SnakeBody[0].X * BlockSize, SnakeBody[0].Y * BlockSize, 
-                (SnakeBody[0].X + 1) * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
-            Graphics.DrawLine(Pens.Black, (SnakeBody[0].X + 1) * BlockSize, SnakeBody[0].Y * BlockSize,
-                SnakeBody[0].X * BlockSize, (SnakeBody[0].Y + 1) * BlockSize);
+            Graphics.DrawLine(Pens.Black, SnakeBody[0].Y * BlockSize, SnakeBody[0].X * BlockSize, 
+                (SnakeBody[0].Y + 1) * BlockSize, (SnakeBody[0].X + 1) * BlockSize);
+            Graphics.DrawLine(Pens.Black, (SnakeBody[0].Y + 1) * BlockSize, SnakeBody[0].X * BlockSize,
+                SnakeBody[0].Y * BlockSize, (SnakeBody[0].X + 1) * BlockSize);
             
             Region.Add(new Region(
-                new Rectangle(SnakeBody[0].X * BlockSize, SnakeBody[0].Y * BlockSize, BlockSize, BlockSize)));
+                new Rectangle(SnakeBody[0].Y * BlockSize, SnakeBody[0].X * BlockSize, BlockSize, BlockSize)));
         }
 
         public string GetForbiddenMoveDirection()

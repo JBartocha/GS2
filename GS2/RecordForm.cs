@@ -15,6 +15,7 @@ namespace GS2
     {
         private GameRecord record; // TODO - to je tohle?
         private int selectedID;
+        private Dictionary<int,int> recordsIDfromSelectionBox = new Dictionary<int, int>();
 
         public int GetSelectedID()
         {
@@ -31,10 +32,11 @@ namespace GS2
             InitializeComponent();
             this.record = record;
             List<ListOfRecords> records = record.ListAllRecords();
-            //Debug.WriteLine("Pocet zaznamů: " + records.Count);
             for (int i = 0; i < records.Count; i++)
             {
-                ListBox_Records.Items.Add(records[i].ID + " - " + records[i].Date + " - Level: " + records[i].Level);
+                recordsIDfromSelectionBox.Add(i, Convert.ToInt32(records[i].ID));
+                ListBox_Records.Items.Add(records[i].ID + "-" + records[i].Date + "-Level: " + records[i].Level 
+                    + "-" + records[i].Score);
             }
         }
 
@@ -43,11 +45,7 @@ namespace GS2
             object? selectedItem = ListBox_Records.SelectedItem;
             if (selectedItem != null)
             {
-                string s = selectedItem.ToString();
-                int separator = s.IndexOf('-');
-                s = s.Substring(0, separator - 1);
-                int SelectedIDRecord = Convert.ToInt32(s);
-                SetSelectedID(SelectedIDRecord);
+                SetSelectedID(recordsIDfromSelectionBox[Convert.ToInt32(ListBox_Records.SelectedIndex)]);
             }
             else
             {

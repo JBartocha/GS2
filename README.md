@@ -76,9 +76,11 @@ WFA pro tento projekt není nejlepší hlavně kvůli vykreslování, které př
 
 ### TODO
 
+- Aplikace "hamiltonian cycle" pro Automatizaci hry.
 - Přidat nastavení možnosti přecházet s hadem z jednoho okraje na opačný (tento stav by se zároveň nepovažoval jako konec hry).
-- Ošetřit stav kdy je celá herní plocha zaplněná a není co kam přidat.
+- ~~Ošetřit stav kdy je celá herní plocha zaplněná a není co kam přidat.~~
 - Upravit vzhled hada tak, aby bylo možné kdykoliv poznat kudy trasoval cestu (něco jako přidat čáry na vykreslované body hada).
-- Opravit blikání při přidávání bloků v WallOptionsForm.
+- ~~Opravit blikání při přidávání bloků v WallOptionsForm.~~
 - Ve WallOptionsForm využít třídu "Grid".
-- Pro srandu přidat počítání bodů tak, aby to dávalo smysl. Počítání s použitím parabolických křivek pravděpodobně pro proměnné které ovlivňují rychlost, počáteční rychlost a konstantním počtu jídla na ploše.
+- ~~Pro srandu přidat počítání bodů tak, aby to dávalo smysl. Počítání s použitím parabolických křivek pravděpodobně pro proměnné které ovlivňují rychlost, počáteční rychlost a konstantním počtu jídla na ploše.~~
+- Osetreni chyby, ktera nastane kdyz se struktura .json souboru zmeni a je snaha nacist stary .json do pozmenene struktury
