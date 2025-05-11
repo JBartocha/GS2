@@ -103,7 +103,6 @@ namespace GS2
             }
             else
             {
-                
                 throw new Exception("There is no space to put Food!"); // TODO what to do
             }
         }
