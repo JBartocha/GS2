@@ -36,7 +36,14 @@ namespace GS2
             this.OriginalWallPositions = wallPositions;
 
             int ButtonWidth = Button_SaveAndExit.Width;
-            this.Size = new Size(Columns * BlockSize + 42, Rows * BlockSize + 70 + Button_SaveAndExit.Height);
+            if(Columns * BlockSize + 42 < ButtonWidth * 3 + 60)
+            {
+                this.Size = new Size(ButtonWidth * 3 + 60, Rows * BlockSize + 70 + Button_SaveAndExit.Height);
+            }
+            else
+            {
+                this.Size = new Size(Columns * BlockSize + 42, Rows * BlockSize + 70 + Button_SaveAndExit.Height);
+            }
             Panel_Main.Size = new Size(Columns * BlockSize + 1, Rows * BlockSize + 1);
             Button_SaveAndExit.Location = new Point(12, Rows * BlockSize + 20);
             Button_CancelAndExit.Location = new Point(18+ButtonWidth, Rows * BlockSize + 20);

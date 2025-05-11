@@ -50,7 +50,7 @@ namespace GS2
             InitializeGrid();
 
             AddWalls();
-            
+
             AddStartingFood();
 
             ResetFormVariables();
@@ -89,8 +89,8 @@ namespace GS2
 
             //current speed koefficient
             double CurrentSpeed = SS.CurrentSpeed / 1000.0;
-            CurrentSpeed = 1 / Math.Pow(CurrentSpeed,2);
-            
+            CurrentSpeed = 1 / Math.Pow(CurrentSpeed, 2);
+
             //Food Count koefficient
             double FoodMultiplier = (1.0 / (SS.FoodCount)) * Math.Pow(SS.FoodCount, 0.75);
 
@@ -106,7 +106,7 @@ namespace GS2
 
         private void AddWalls()
         {
-            for(int i = 0; i < SS.WallPositions.Count; i++)
+            for (int i = 0; i < SS.WallPositions.Count; i++)
             {
                 Point Wall = SS.WallPositions[i];
                 Snake.AddWall(Wall);
@@ -119,7 +119,7 @@ namespace GS2
             grap = Graphics.FromImage(surface);
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
-             
+
             if (Snake != null)
             {
                 Snake.CellCollisionEvent -= OnCellCollisionEvent;
@@ -140,9 +140,9 @@ namespace GS2
         {
             int Width = SS.Columns * SS.CellSize + 260;
             int Height = SS.Rows * SS.CellSize + 70;
-            if (Height < 500)
+            if (Height < 510)
             {
-                Height = 500;
+                Height = 510;
             }
 
             this.Size = new Size(Width, Height);
@@ -175,9 +175,7 @@ namespace GS2
         {
             SS.FoodsEaten++;
             SS.Score += ScoreCounter();
-            Debug.WriteLine("Score: " + SS.Score);
             Label_Score.Text = "Score: " + SS.Score;
-            //TODO - opravit
 
             if (SS.FoodsEaten % SS.LevelIncreaseInterval == 0)
             {
@@ -481,6 +479,31 @@ namespace GS2
                     Button_Pause.Text = "Resume";
                     SS.Pause = true;
                 }
+            }
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "Spuštìní Hamiltonianského cyklu nad aktuální møížkou? Složitost algoritmu pro výpoèet algoritmu je O(n!)" +
+                " - pøi více než 55 non-wall blocích trvá výpoèet velmi dlouho." +
+                "\nAlgoritmus provede výpoèet a zobrazí na møížce cestu." +
+                "\nProvést výpoèet?", // Message
+                "Spustit Výpoèet?",                 // Title
+                MessageBoxButtons.YesNo,            // Buttons
+                MessageBoxIcon.Question             // Icon
+            );
+            if (result == DialogResult.Yes)
+            {
+                this.Hide();
+                HamiltonianForm HF = new HamiltonianForm(SS);
+                HF.ShowDialog();
+                this.Show();
+            }
+            else
+            {
+                //do nothing
             }
         }
     }
