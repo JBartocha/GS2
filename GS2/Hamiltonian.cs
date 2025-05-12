@@ -26,6 +26,7 @@ namespace GS2
         }
 
         private List<Edge> Edges = new List<Edge>();
+        //private List<Edge> OrderedPath = new List<Edge>();
 
         // souradnice bunky, typ bunky
         public Hamiltonian(int Rows, int Columns, int BlockSize, Graphics graphics, List<Point> Walls) : base(Rows, Columns, BlockSize, graphics)
@@ -40,40 +41,62 @@ namespace GS2
             int[,] graph = new int[Edges.Count, Edges.Count];
             graph = GetVectorGraph();
             ListVectorGraph(graph);
-            Debug.WriteLine("Number of Edges: " + Edges.Count);
+            //Debug.WriteLine("Number of Edges: " + Edges.Count);
 
-
-            Debug.WriteLine("Hamiltonian: statovaci bod:" + Edges[0].number
-                + ", Position:" + Edges[0].Position.ToString());
-            //HamiltonianCycle.SetNodes(Edges.Count);
-            //HamiltonianCycle.SetGraph(graph,Edges.Count);
             HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(graph, Edges.Count);
             int[] ints = hamiltonianCycle.GetPath();
-            Debug.WriteLine("Pocet:" + ints.Length.ToString());
+
+            string textForBelow = "";
+            int numberCounter = 0;
             foreach (int i in ints)
             {
+                numberCounter++;
+                if(numberCounter % 15 == 0)
+                {
+                    textForBelow += "\n";
+                }
+                textForBelow += i.ToString() + "->";
                 Debug.WriteLine("Hamiltonian: " + i.ToString() + ", Position:" + Edges[i].Position.ToString());
-                //DrawBlock(Edges[i].Position, BlockTypes.HamiltonianBlock);
             }
+            textForBelow = textForBelow.Substring(0, textForBelow.Length - 2);
+
+
             DrawPath(ints);
+            Point textBelow = new Point(0, BlockSize * Rows + 5);
+            DrawText(textForBelow, textBelow);
         }
-        
+
+        private void DrawText(string text, Point position)
+        {
+            using (Font font = new Font("Arial", 10)) // Specify font and size
+            using (Brush brush = new SolidBrush(Color.Black)) // Specify text color
+            {
+                Graphics.DrawString(text, font, brush, position.X, position.Y);
+            }
+        }
+
         private void DrawPath(int[] path)
         {
             for (int i = 0; i < path.Length; i++)
             {
-                if (i != 0) 
+                if (i != 0)
                 {
-                    Point start = getMidPixelOfBlock(Edges[path[i-1]].Position);
+                    Point start = getMidPixelOfBlock(Edges[path[i - 1]].Position);
                     Point end = getMidPixelOfBlock(Edges[path[i]].Position);
                     DrawLine(start, end);
+
+                    Point block = Edges[path[i - 1]].Position;
+                    DrawText(path[i - 1].ToString(), new Point(block.Y * this.BlockSize, block.X * this.BlockSize));
                 }
             }
+            Point lastBlock = Edges[path[path.Length - 1]].Position;
+            DrawText(path[path.Length - 1].ToString(), new Point(lastBlock.Y * this.BlockSize, lastBlock.X * this.BlockSize));
+
         }
 
         private void DrawLine(Point start, Point end)
         {
-            Pen pen = new Pen(Color.BlueViolet);
+            Pen pen = new Pen(Color.BlueViolet, 3);
             Graphics.DrawLine(pen, start, end);
         }
 
@@ -191,7 +214,8 @@ namespace GS2
             }
             else
             {
-                throw new Exception("Hamiltonian cycle NOT EXIST!");
+                // TODO osetrit jinak než přes vyhození výjimky
+                throw new Exception("Hamiltonian DOES NOT EXIST");
             }
         }
 

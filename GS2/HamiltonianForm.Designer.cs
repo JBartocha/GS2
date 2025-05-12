@@ -46,7 +46,7 @@
             ClientSize = new Size(1190, 767);
             Controls.Add(Panel_Main);
             Name = "HamiltonianForm";
-            Text = "Form2";
+            Text = "Hamiltonian grid";
             ResumeLayout(false);
         }
 

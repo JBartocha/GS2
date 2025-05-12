@@ -30,6 +30,9 @@ namespace GS2
             hamiltonian = new Hamiltonian(SS.Rows, SS.Columns, SS.CellSize, grap, SS.WallPositions);
             settings = SS;
 
+            this.Size = new Size(SS.Columns * SS.CellSize + 40, SS.Rows * SS.CellSize + 40 + 100);
+
+
             Panel_Main.Invalidate();
         }
     }
