@@ -15,8 +15,7 @@ namespace GS2
         {
             public int number;
             public Point Position;
-            public int[] Neighbors = new int[4];
-            
+            public int[] Neighbors = new int[] { -1, -1, -1, -1 };
 
             public Edge(int number, Point position)
             {
@@ -41,17 +40,20 @@ namespace GS2
             int[,] graph = new int[Edges.Count, Edges.Count];
             graph = GetVectorGraph();
             ListVectorGraph(graph);
-            //Debug.WriteLine("Number of Edges: " + Edges.Count);
+            Debug.WriteLine("Number of Edges: " + Edges.Count);
 
-            HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(graph, Edges.Count);
+            //HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(graph, Edges.Count);
+            //int[] ints = hamiltonianCycle.GetPath();
+            HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(Edges.Count, graph);
             int[] ints = hamiltonianCycle.GetPath();
 
+            
             string textForBelow = "";
             int numberCounter = 0;
             foreach (int i in ints)
             {
                 numberCounter++;
-                if(numberCounter % 15 == 0)
+                if (numberCounter % 15 == 0)
                 {
                     textForBelow += "\n";
                 }
@@ -64,6 +66,7 @@ namespace GS2
             DrawPath(ints);
             Point textBelow = new Point(0, BlockSize * Rows + 5);
             DrawText(textForBelow, textBelow);
+            
         }
 
         private void DrawText(string text, Point position)
@@ -111,14 +114,14 @@ namespace GS2
         private void SetEdges(List<Point> Walls)
         {
             //Vytvoreni Edges, kde kazdy edge je bunkou, ktera neni zed a obsahuje pozici a prirazene cislo
-            int index = 1;
+            int index = 0;
             for (int i = 0; i < Rows; i++)
             {
                 for (int j = 0; j < Columns; j++)
                 {
                     if (Block[i, j] != BlockTypes.WallBlock)
                     {
-                        Edges.Add(new Edge(index++, new Point(i,j)));
+                        Edges.Add(new Edge(index++, new Point(i, j)));
                     }
                 }
             }
@@ -163,9 +166,9 @@ namespace GS2
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    if (Edges[i].Neighbors[j] != 0)
+                    if (Edges[i].Neighbors[j] != -1)
                     {
-                        graph[i, (Edges[i].Neighbors[j])-1] = 1;
+                        graph[i, (Edges[i].Neighbors[j])] = 1;
                     }
                 }
             }
@@ -174,7 +177,7 @@ namespace GS2
 
         public void ListVectorGraph(int[,] VGraph)
         {
-            for(int i = 0; i < Edges.Count; i++)
+            for (int i = 0; i < Edges.Count; i++)
             {
                 for (int j = 0; j < Edges.Count; j++)
                 {
@@ -183,116 +186,136 @@ namespace GS2
                 Debug.WriteLine("");
             }
         }
-        
+
     }
 
 
-    // Indexes have to start with number 1 (not zero)
     public class HamiltonianCycle
     {
-        private static int Nodes;
-        private static int[,] graph;
+        readonly int V = 5;
+        int[] path;
 
-        private static int[] path = new int[Nodes];
-        private static bool isPath = false;
-
-        public HamiltonianCycle(int[,] graph, int nodes)
+        public HamiltonianCycle(int v, int[,] graph)
         {
-            HamiltonianCycle.graph = graph;
-            HamiltonianCycle.Nodes = nodes;
+            V = v;
+            path = new int[V];
+            this.hamCycle(graph);
 
-            path = new int[Nodes];
-            isPath = hamiltonianCycle();
-            //DebugReadValues();
         }
 
         public int[] GetPath()
         {
-            if(isPath)
-            {
-                return path;
-            }
-            else
-            {
-                // TODO osetrit jinak než přes vyhození výjimky
-                throw new Exception("Hamiltonian DOES NOT EXIST");
-            }
+            return path;
         }
 
-        private void DebugReadValues()
+        /* A utility function to check 
+        if the vertex v can be added at 
+        index 'pos'in the Hamiltonian Cycle
+        constructed so far (stored in 'path[]') */
+        bool isSafe(int v, int[,] graph,
+                    int[] path, int pos)
         {
-            Debug.WriteLine("Hamiltonian Cycle: ");
-            for (int i = 0; i < Nodes; i++)
-            {
-                Debug.Write(path[i] + " ");
-            }
-            Debug.WriteLine("");
-            Debug.WriteLine("graph.lenght: " + graph.Length);
-        }
-
-        // method to display the Hamiltonian cycle
-        static void displayCycle()
-        {
-            Debug.WriteLine("Cycle Found: ");
-            /*
-            for (int i = 0; i < Nodes; i++)
-                Debug.WriteLine(path[i] + " ");
-            */
-        }
-
-        // method to check if adding vertex v to the path is valid
-        static bool isValid(int NODEv, int k)
-        {
-            // If there is no edge between path[k-1] and v
-            if (graph[path[k - 1], NODEv] == 0)
+            /* Check if this vertex is 
+            an adjacent vertex of the
+            previously added vertex. */
+            if (graph[path[pos - 1], v] == 0)
                 return false;
-            // Check if vertex v is already taken in the path
-            for (int i = 0; i < k; i++)
-                if (path[i] == NODEv)
+
+            /* Check if the vertex has already 
+            been included. This step can be
+            optimized by creating an array
+            of size V */
+            for (int i = 0; i < pos; i++)
+                if (path[i] == v)
                     return false;
+
             return true;
         }
-        // method to find the Hamiltonian cycle
-        static bool cycleFound(int k)
+
+        /* A recursive utility function
+        to solve hamiltonian cycle problem */
+        bool hamCycleUtil(int[,] graph, int[] path, int pos)
         {
-            // When all vertices are in the path
-            if (k == Nodes)
+            /* base case: If all vertices 
+            are included in Hamiltonian Cycle */
+            if (pos == V)
             {
-                // Check if there is an edge between the last and first vertex
-                if (graph[path[k - 1], path[0]] == 1)
+                // And if there is an edge from the last included
+                // vertex to the first vertex
+                if (graph[path[pos - 1], path[0]] == 1)
                     return true;
                 else
                     return false;
             }
-            // adding each vertex (except the starting point) to the path
-            for (int v = 1; v < Nodes; v++)
+
+            // Try different vertices as a next candidate in
+            // Hamiltonian Cycle. We don't try for 0 as we
+            // included 0 as starting point in hamCycle()
+            for (int v = 1; v < V; v++)
             {
-                if (isValid(v, k))
+                /* Check if this vertex can be 
+                added to Hamiltonian Cycle */
+                if (isSafe(v, graph, path, pos))
                 {
-                    path[k] = v;
-                    if (cycleFound(k + 1))
+                    path[pos] = v;
+
+                    /* recur to construct rest of the path */
+                    if (hamCycleUtil(graph, path, pos + 1) == true)
                         return true;
-                    // Remove v from the path
-                    path[k] = -1;
+
+                    /* If adding vertex v doesn't 
+                    lead to a solution, then remove it */
+                    path[pos] = -1;
                 }
             }
+
+            /* If no vertex can be added to Hamiltonian Cycle
+            constructed so far, then return false */
             return false;
         }
-        // method to find and display the Hamiltonian cycle
-        static bool hamiltonianCycle()
+
+        /* This function solves the Hamiltonian 
+        Cycle problem using Backtracking. It 
+        mainly uses hamCycleUtil() to solve the
+        problem. It returns false if there
+        is no Hamiltonian Cycle possible, 
+        otherwise return true and prints the path.
+        Please note that there may be more than 
+        one solutions, this function prints one 
+        of the feasible solutions. */
+        int hamCycle(int[,] graph)
         {
-            for (int i = 0; i < Nodes; i++)
+            path = new int[V];
+            for (int i = 0; i < V; i++)
                 path[i] = -1;
-            // Set the first vertex as 0
-            // the first vertex is always the starting point
+
+            /* Let us put vertex 0 as the first
+            vertex in the path. If there is a 
+            Hamiltonian Cycle, then the path can be
+            started from any point of the cycle 
+            as the graph is undirected */
             path[0] = 0;
-            if (!cycleFound(1))
+            if (hamCycleUtil(graph, path, 1) == false)
             {
-                Debug.WriteLine("Solution does not exist");
-                return false;
+                Debug.WriteLine("\nSolution does not exist");
+                return 0;
             }
-            displayCycle();
-            return true;
+
+            //printSolution(path);
+            return 1;
+        }
+
+        /* A utility function to print solution */
+        void printSolution(int[] path)
+        {
+            Debug.WriteLine("Solution Exists: Following" +
+                            " is one Hamiltonian Cycle");
+            for (int i = 0; i < V; i++)
+                Debug.Write(" " + path[i] + " ");
+
+            // Let us print the first vertex again
+            //  to show the complete cycle
+            Debug.WriteLine(" " + path[0] + " ");
         }
     }
 }

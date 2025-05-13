@@ -29,7 +29,8 @@ Sekce s nastavením "Options", která umožňuje nastavení:
 
 V sekci nastavení je "Nastav zdi" tlačítko, které umožňuje individuálně nastavit kde budou generované zdi. Pokud se v hlavním nastavovacím formuláři neuloží nastavení tak i nastavení v "Nastav Zdi" nebude uloženo.
 
-Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na mřížce která má více bloků než je 60 tak výpočet může trvat hodiny.
+Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na mřížce která má více bloků než je 50 tak výpočet může trvat hodiny. viz.:
+
 
 Hra také umožňuje po ukončení hry (prohrou) uložit do lokální MS SQL databáze uložit záznam hry, který může být pomocí tlačítka "Load Replay" a následného stlačení tlačítka "Start" přehrán od začátku do konce.
 
