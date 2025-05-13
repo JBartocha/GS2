@@ -29,10 +29,9 @@ Sekce s nastavením "Options", která umožňuje nastavení:
 
 V sekci nastavení je "Nastav zdi" tlačítko, které umožňuje individuálně nastavit kde budou generované zdi. Pokud se v hlavním nastavovacím formuláři neuloží nastavení tak i nastavení v "Nastav Zdi" nebude uloženo.
 
-Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na mřížce která má více bloků než je 50 tak výpočet může trvat hodiny. viz.:
+Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na mřížce která má více bloků než je 50 tak výpočet může trvat hodiny. viz.: (obsahuje 62 uzlů a okolo 210 spojů)
 
 ![Hamiltonian Example](images/hamiltonian-example.png)
-
 
 Hra také umožňuje po ukončení hry (prohrou) uložit do lokální MS SQL databáze uložit záznam hry, který může být pomocí tlačítka "Load Replay" a následného stlačení tlačítka "Start" přehrán od začátku do konce.
 
@@ -79,6 +78,8 @@ Zpracováno v `MSV 17.13.5` `.NET Framework 4.8.09032`
 
 Využití obojího .json a databáze je podle mě logicky nesmyslné ale chtěl jsem použít oba způsoby pro procvičení.
 WFA pro tento projekt není nejlepší hlavně kvůli vykreslování, které při překleslování způsobuje blikání. To se objevuje i přes to, že bylo výrazně zmírněno skrze regionální vykreslování jen v oblastech kde je tomu potřeba.
+
+V projektu byl použit algoritmus pro výpočet Hamiltonianského cyklu ze stránky [geeksforgeeks.org](https://www.geeksforgeeks.org/hamiltonian-cycle/).
 
 ### TODO
 
