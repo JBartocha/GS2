@@ -38,6 +38,11 @@ namespace GS2
 
             InitializeComponent();
 
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            Panel_Main.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance 
+                | System.Reflection.BindingFlags.NonPublic).SetValue(Panel_Main, true, null);
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+
             FormularEntitiesResizing();
 
             ResetGame();
