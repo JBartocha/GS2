@@ -15,13 +15,6 @@ namespace GS2
         public void AddFood(bool StartingPositionFood = false);
     }
 
-    public struct Cell
-    {
-        public int x;
-        public int y;
-        public BlockTypes blockType;
-    }
-
     public abstract class Grid : IGrid
     {
         protected int Rows;
@@ -93,13 +86,27 @@ namespace GS2
 
         public virtual void AddFood(bool StartingPositionFood = false)
         {
-            if (IsThereEmptyCellInGrid())
-            {
-                Point p = GetRandomEmptyCellPosition();
+            Point p = GetRandomEmptyCellPosition();
                 
-                Block[p.X, p.Y] = BlockTypes.FoodBlock;
-                DrawBlock(p, BlockTypes.FoodBlock);
+            Block[p.X, p.Y] = BlockTypes.FoodBlock;
+            DrawBlock(p, BlockTypes.FoodBlock);
+        }
 
+        protected Point GetRandomEmptyCellPosition()
+        {
+            if (IsThereEmptyCellInBlock())
+            {
+                List<Point> emptyCells = new List<Point>();
+                for (int x = 0; x < Rows; x++)
+                {
+                    for (int y = 0; y < Columns; ++y)
+                    {
+                        if (Block[x, y] == BlockTypes.EmptyBlock)
+                            emptyCells.Add(new Point(x, y));
+                    }
+                }
+                int randomIndex = new Random().Next(0, emptyCells.Count);
+                return emptyCells[randomIndex];
             }
             else
             {
@@ -107,22 +114,7 @@ namespace GS2
             }
         }
 
-        protected Point GetRandomEmptyCellPosition()
-        {
-            List<Point> emptyCells = new List<Point>();
-            for (int x = 0; x < Rows; x++)
-            {
-                for (int y = 0; y < Columns; ++y)
-                {
-                    if (Block[x, y] == BlockTypes.EmptyBlock)
-                        emptyCells.Add(new Point(x, y));
-                }
-            }
-            int randomIndex = new Random().Next(0, emptyCells.Count);
-            return emptyCells[randomIndex];
-        }
-
-        protected bool IsThereEmptyCellInGrid()
+        protected bool IsThereEmptyCellInBlock()
         {
             for (int x = 0; x < Rows; x++)
             {
@@ -179,12 +171,14 @@ namespace GS2
         private string ForbiddenDirection;
         private int MoveCounter = 0; // Everytime snake moves, this is incremented by 1
         private Record record = new Record();
-        
+
         public Snake(Point startingPosition, int Rows, int Columns, int blockSize, Graphics graphics)
             : base(Rows, Columns, blockSize, graphics)
         {
             SnakeBody = new List<Point> { startingPosition };
-            SnakeBody.Add(new Point(startingPosition.X+1, startingPosition.Y));
+            SnakeBody.Add(new Point(startingPosition.X + 1, startingPosition.Y));
+            //SnakeBody = new List<Point> { new Point(Rows / 2, Columns / 2) };
+            //SnakeBody.Add(new Point(Rows / 2 + 1, Columns / 2));
 
             Movement = new Point(1, 0); // Start moving Right
             ForbiddenDirection = "Down"; // predetermined (static Snake Position at start)
@@ -252,13 +246,6 @@ namespace GS2
             }
         }
 
-        private void DebugLog(String s, Point point)
-        {
-            Debug.WriteLine(s);
-            Debug.WriteLine("Point: " + point.ToString());
-            Debug.WriteLine("Snake " + SnakeBody[0].ToString());
-        }
-
         private void InvokeCollisionEvent(string message, BlockTypes BlockType)
         {
             GridCollisionArgs GridCollisionArgs = new GridCollisionArgs
@@ -269,11 +256,6 @@ namespace GS2
             CrossSnakeHead();
             //Debug_ListRecordValues();
             CellCollisionEvent?.Invoke(this, GridCollisionArgs);
-        }
-
-        private void InvokeNoPlaceForFoodEvent()
-        {
-            FullGridEvent?.Invoke(this, null);
         }
 
         public bool SetMovement(string direction)
@@ -332,7 +314,7 @@ namespace GS2
         
         public override void AddFood(bool StartingPositionFood = false)
         {
-            if (IsThereEmptyCellInGrid())
+            if (IsThereEmptyCellInBlock())
             {
                 Random random = new Random();
                 int x = random.Next(0, Rows);
@@ -358,7 +340,7 @@ namespace GS2
             }
             else
             {
-                InvokeNoPlaceForFoodEvent();
+                FullGridEvent?.Invoke(this, null);
             }
         }
 

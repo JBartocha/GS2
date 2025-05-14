@@ -83,10 +83,11 @@ V projektu byl použit algoritmus pro výpočet Hamiltonianského cyklu ze strá
 
 ### TODO
 
-- ~~Aplikace "hamiltonian cycle" pro Automatizaci hry.~~
+- Celé přepsat - příliš mnoho chyb(proč abstract grid, úvodní formulář by se měl rozdělit(udělat něco jako úvodní menu), rozdělení tříd v souborech, příliš velká vázanost mezi formuláři a třídami, Vlastní eventy způsobily problémy v práci třídami ve kterých jsou vyvolány - hlavně když se daná třída dědí)
+- ~~Aplikace "Hamiltonian cycle" pro Automatizaci hry.~~
 - Přidat možnost automatizace hry, kde pohyb hada bude řízen Hamiltoniánským cyklem.
-  - Optimalizovat hledání cesty tak, že had bude podle pořadi v Hamiltonského cyklu přeskakovat sekce které ho přiblíží k nejbližšímu jídlu(v každém kroku bude kontrolovat zda v okolí nemá bod který by byl v cyklu dále a zároveň nepřeskočil potravu)
-  - Ošetřit případ kdy hamiltoniánský cyklus neexistuje - aktuálně nastavene výjimka - pravděpodobně asi jen zobrazit mřížku bez řešení? 
+  - Optimalizovat hledání cesty tak, že had bude podle pořadí v Hamiltonského cyklu přeskakovat sekce které ho přiblíží k nejbližšímu jídlu(v každém kroku bude kontrolovat zda v okolí nemá bod který by byl v cyklu dále a zároveň nepřeskočil potravu)
+  - Ošetřit případ kdy Hamiltoniánský cyklus neexistuje - aktuálně nastavená výjimka - pravděpodobně asi jen zobrazit mřížku bez řešení? 
 - Přidat nastavení možnosti přecházet s hadem z jednoho okraje na opačný (tento stav by se zároveň nepovažoval jako konec hry).
 - ~~Ošetřit stav kdy je celá herní plocha zaplněná a není co kam přidat.~~
 - Upravit vzhled hada tak, aby bylo možné kdykoliv poznat kudy trasoval cestu (něco jako přidat čáry na vykreslované body hada).
