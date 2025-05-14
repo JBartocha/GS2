@@ -80,14 +80,14 @@ namespace GS2
 
         private int ScoreCounter()
         {
-            //starting speed koefficient
+            //Starting speed koefficient
             double StartingSpeed = SS.TickInMilliseconds / 1000.0;
             StartingSpeed = 1.2 / Math.Pow(StartingSpeed, 2);
 
-            //zrychlovací koefficient
+            //Speed-up koefficient
             double SpeedIncrease = 0.1 / SS.DifficultyIncrease;
 
-            //current speed koefficient
+            //Current speed koefficient
             double CurrentSpeed = SS.CurrentSpeed / 1000.0;
             CurrentSpeed = 1 / Math.Pow(CurrentSpeed, 2);
 
@@ -305,6 +305,8 @@ namespace GS2
 
         private void SetMovementForSnake(string direction)
         {
+            //Debug.WriteLine("Forbidden direction: " + SS.ForbiddenDirection);   
+            //Debug.WriteLine("SetMovementForSnake: " + direction);
             if (SS.ForbiddenDirection != direction)
             {
                 if (Snake.SetMovement(direction))
@@ -418,11 +420,12 @@ namespace GS2
 
                 Point Cursor = new Point(e.Location.X, e.Location.Y);
 
-                int deltaX = Cursor.X - ((SS.HeadPosition.X) * SS.CellSize + (SS.CellSize / 2));
-                int deltaY = Cursor.Y - ((SS.HeadPosition.Y) * SS.CellSize + (SS.CellSize / 2));
-                if (Math.Abs(deltaX) > Math.Abs(deltaY))
+                int DeltaWidth = Cursor.X - ((SS.HeadPosition.Y) * SS.CellSize + (SS.CellSize / 2));
+                int DeltaHeight = Cursor.Y - ((SS.HeadPosition.X) * SS.CellSize + (SS.CellSize / 2));
+
+                if(Math.Abs(DeltaWidth) > Math.Abs(DeltaHeight))
                 {
-                    if (deltaX > 0)
+                    if (DeltaWidth > 0)
                     {
                         SetMovementForSnake("Right");
                     }
@@ -433,7 +436,7 @@ namespace GS2
                 }
                 else
                 {
-                    if (deltaY > 0)
+                    if (DeltaHeight > 0)
                     {
                         SetMovementForSnake("Down");
                     }
