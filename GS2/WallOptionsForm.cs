@@ -1,20 +1,24 @@
-﻿using System.Diagnostics;
+﻿using System.Data.Common;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace GS2
 {
     public partial class WallOptionsForm : Form
     {
-        BlockTypes[,] Blocks;
-        Point[] ForbiddenWallPositions;
-        private Graphics Grap;
-        private Bitmap surface;
-        private int Rows;
-        private int Columns;
-        private int BlockSize;
-        List<Point> WallPositions = new List<Point>();
-        List<Point> OriginalWallPositions = new List<Point>();
-
+        private BlockTypes[,] _Blocks;
+        private Point[] _ForbiddenWallPositions;
+        private Graphics _Grap;
+        private Bitmap _surface;
+        private int _Rows;
+        private int _Columns;
+        private int _BlockSize;
+        private List<Point> _WallPositions = new List<Point>();
+        private List<Point> _OriginalWallPositions = new List<Point>();
+        private bool _Multiselect = false;
+        private Point? _MultiselectStart;
+        private Point? _MultiselectEnd;
+  
         private Dictionary<BlockTypes, SolidBrush> brushes = new Dictionary<BlockTypes, SolidBrush>
         {
             { BlockTypes.EmptyBlock, new SolidBrush(Color.LightGray) },
@@ -24,93 +28,94 @@ namespace GS2
             { BlockTypes.SnakeHead, new SolidBrush(Color.Red) }
         };
 
-        public WallOptionsForm(int rows, int columns, int blockSize, 
+        public WallOptionsForm(int rows, int columns, int blockSize,
             Point[] ForbiddenWallPositions, List<Point> wallPositions)
         {
             InitializeComponent();
 
             #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Panel_Main.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance 
+            Panel_Main.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance
                 | System.Reflection.BindingFlags.NonPublic).SetValue(Panel_Main, true, null);
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
 
-            this.BlockSize = blockSize;
-            this.Rows = rows;
-            this.Columns = columns;
-            this.WallPositions = wallPositions;
-            this.OriginalWallPositions = wallPositions;
+            this._BlockSize = blockSize;
+            this._Rows = rows;
+            this._Columns = columns;
+            this._WallPositions = wallPositions;
+            this._OriginalWallPositions = new List<Point>(wallPositions);
 
             int ButtonWidth = Button_SaveAndExit.Width;
-            if(Columns * BlockSize + 42 < ButtonWidth * 3 + 60)
+            if (_Columns * _BlockSize + 42 < ButtonWidth * 3 + 60)
             {
-                this.Size = new Size(ButtonWidth * 3 + 60, Rows * BlockSize + 70 + Button_SaveAndExit.Height);
+                this.Size = new Size(ButtonWidth * 3 + 60, _Rows * _BlockSize + 70 + Button_SaveAndExit.Height);
             }
             else
             {
-                this.Size = new Size(Columns * BlockSize + 42, Rows * BlockSize + 70 + Button_SaveAndExit.Height);
+                this.Size = new Size(_Columns * _BlockSize + 42, _Rows * _BlockSize + 70 + Button_SaveAndExit.Height);
             }
-            Panel_Main.Size = new Size(Columns * BlockSize + 1, Rows * BlockSize + 1);
-            Button_SaveAndExit.Location = new Point(12, Rows * BlockSize + 20);
-            Button_CancelAndExit.Location = new Point(18+ButtonWidth, Rows * BlockSize + 20);
-            Button_Reset.Location = new Point(24+2*ButtonWidth, Rows * BlockSize + 20);
-            
-            surface = new Bitmap(Panel_Main.Width, Panel_Main.Height);
-            Grap = Graphics.FromImage(surface);
-            Panel_Main.BackgroundImage = surface;
+            Panel_Main.Size = new Size(_Columns * _BlockSize + 1, _Rows * _BlockSize + 1);
+            Button_SaveAndExit.Location = new Point(12, _Rows * _BlockSize + 20);
+            Button_CancelAndExit.Location = new Point(18 + ButtonWidth, _Rows * _BlockSize + 20);
+            Button_Reset.Location = new Point(24 + 2 * ButtonWidth, _Rows * _BlockSize + 20);
+
+            _surface = new Bitmap(Panel_Main.Width, Panel_Main.Height);
+            _Grap = Graphics.FromImage(_surface);
+            Panel_Main.BackgroundImage = _surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
 
-            Blocks = new BlockTypes[rows, columns];
+            _Blocks = new BlockTypes[rows, columns];
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    if (WallPositions.Contains(new Point(i, j)))
+                    if (_WallPositions.Contains(new Point(i, j)))
                     {
-                        Blocks[i, j] = BlockTypes.WallBlock;
+                        _Blocks[i, j] = BlockTypes.WallBlock;
                         DrawBlock(new Point(i, j), BlockTypes.WallBlock);
                     }
                     else
                     {
-                        Blocks[i, j] = BlockTypes.EmptyBlock;
+                        _Blocks[i, j] = BlockTypes.EmptyBlock;
                         DrawBlock(new Point(i, j), BlockTypes.EmptyBlock);
                     }
                 }
             }
 
-            this.ForbiddenWallPositions = ForbiddenWallPositions;
+            this._ForbiddenWallPositions = ForbiddenWallPositions;
 
-            for (int i = 0; i <= Rows; i++)
+            for (int i = 0; i <= _Rows; i++)
             {
-                Grap.DrawLine(Pens.Black, new Point(0, i * BlockSize), new Point(Columns * BlockSize, i * BlockSize));
+                _Grap.DrawLine(Pens.Black, new Point(0, i * _BlockSize), new Point(_Columns * _BlockSize, i * _BlockSize));
             }
-            for (int j = 0; j <= Columns; j++)
+            for (int j = 0; j <= _Columns; j++)
             {
-                Grap.DrawLine(Pens.Black, new Point(j * BlockSize, 0), new Point(j * BlockSize, Rows * BlockSize));
+                _Grap.DrawLine(Pens.Black, new Point(j * _BlockSize, 0), new Point(j * _BlockSize, _Rows * _BlockSize));
             }
             for (int i = 0; i < ForbiddenWallPositions.Length; i++)
             {
-                Grap.FillRectangle(Brushes.DarkRed, ForbiddenWallPositions[i].Y * BlockSize+1,
-                    ForbiddenWallPositions[i].X * BlockSize+1, BlockSize-1, BlockSize-1);
+                _Grap.FillRectangle(Brushes.DarkRed, ForbiddenWallPositions[i].Y * _BlockSize + 1,
+                    ForbiddenWallPositions[i].X * _BlockSize + 1, _BlockSize - 1, _BlockSize - 1);
             }
             DrawBlocks();
         }
 
         private void DrawBlock(Point point, BlockTypes blockType)
         {
-            Grap.FillRectangle(brushes[blockType], point.Y * BlockSize + 1,
-                    point.X * BlockSize + 1, BlockSize - 1, BlockSize - 1);
+            _Grap.FillRectangle(brushes[blockType], point.Y * _BlockSize + 1,
+                    point.X * _BlockSize + 1, _BlockSize - 1, _BlockSize - 1);
         }
 
         private void Button_Reset_Click(object sender, EventArgs e)
         {
-            WallPositions.Clear();
+            _WallPositions.Clear();
             Panel_Main.Invalidate();
         }
 
         private void Buttton_CancelAndExit_Click(object sender, EventArgs e)
         {
-            WallPositions.Clear();
+            _WallPositions.Clear();
+            _WallPositions.AddRange(_OriginalWallPositions);
             this.Close();
         }
 
@@ -121,61 +126,150 @@ namespace GS2
 
         private void DrawBlocks()
         {
-            for (int i = 0; i < Rows; i++)
+            for (int i = 0; i < _Rows; i++)
             {
-                for (int j = 0; j < Columns; j++)
+                for (int j = 0; j < _Columns; j++)
                 {
-                    if (Blocks[i, j] == BlockTypes.WallBlock)
+                    if (_Blocks[i, j] == BlockTypes.WallBlock)
                     {
                         DrawBlock(new Point(i, j), BlockTypes.WallBlock);
-                        //Grap.FillRectangle(brushes[BlockTypes.WallBlock], j * BlockSize + 1,
-                        //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                     }
-                    if (Blocks[i, j] == BlockTypes.EmptyBlock)
+                    if (_Blocks[i, j] == BlockTypes.EmptyBlock)
                     {
                         DrawBlock(new Point(i, j), BlockTypes.EmptyBlock);
-                        //Grap.FillRectangle(brushes[BlockTypes.EmptyBlock], j * BlockSize + 1,
-                        //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                     }
-                    for (int k = 0; k < ForbiddenWallPositions.Length; k++)
+                    for (int k = 0; k < _ForbiddenWallPositions.Length; k++)
                     {
-                        if (i == ForbiddenWallPositions[k].X && j == ForbiddenWallPositions[k].Y)
+                        if (i == _ForbiddenWallPositions[k].X && j == _ForbiddenWallPositions[k].Y)
                         {
                             DrawBlock(new Point(i, j), BlockTypes.SnakeBody);
-                            //Grap.FillRectangle(Brushes.DarkRed, j * BlockSize + 1,
-                            //    i * BlockSize + 1, BlockSize - 1, BlockSize - 1);
                         }
                     }
                 }
             }
         }
 
-        private void Panel_Main_MouseClick(object sender, MouseEventArgs e)
+        private void Panel_Main_MouseDown(object sender, MouseEventArgs e)
         {
+            _Multiselect = true;
+            _MultiselectStart = new Point(e.X, e.Y);
+        }
 
-            int column = e.X / BlockSize;
-            int row = e.Y / BlockSize;
-            Point BlockPosition = new Point(row, column);
-
-            if (ForbiddenWallPositions.Contains(BlockPosition))
+        private void Panel_Main_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_Multiselect)
             {
-                return;
+                _MultiselectEnd = new Point(e.X, e.Y);
             }
-            else if (Blocks[row, column] == BlockTypes.EmptyBlock)
+            Panel_Main.Invalidate();
+        }
+
+        private void Panel_Main_MouseUp(object sender, MouseEventArgs e)
+        {
+            ReverseBlocks();
+            _Multiselect = false;
+            _MultiselectStart = null;
+            _MultiselectEnd = null;
+        }
+
+        private Point CheckBounds(Point point)
+        {
+            int maxX = (_Columns-1) * _BlockSize;
+            int maxY = (_Rows-1) * _BlockSize;
+            if (point.X < 0)
             {
-                Blocks[row, column] = BlockTypes.WallBlock;
-                WallPositions.Add(BlockPosition);
+                point.X = 0;
+            }
+            else if (point.X > maxX)
+            {
+                point.X = maxX;
+            }
+            if (point.Y < 0)
+            {
+                point.Y = 0;
+            }
+            else if (point.Y > maxY)
+            {
+                point.Y = maxY;
+            }
+            return point;
+        }
+
+        private void ReverseBlocks()
+        {
+            if (_MultiselectEnd != null)
+            {
+                Point start = _MultiselectStart.Value;
+                Point end = _MultiselectEnd.Value;
+                start = CheckBounds(start);
+                end = CheckBounds(end);
+                Point pom = new Point(Math.Min(start.X, end.X) / _BlockSize, Math.Min(start.Y, end.Y) / _BlockSize);
+                end = new Point(Math.Max(start.X, end.X) / _BlockSize, Math.Max(start.Y, end.Y) / _BlockSize);
+                start = pom;
+
+                
+                for (int column = start.X; column <= end.X; column++)
+                {
+                    for (int row = start.Y; row <= end.Y; row++)
+                    {
+                        Point BlockPosition = new Point(row, column);
+                        if (_ForbiddenWallPositions.Contains(BlockPosition))
+                        {
+                            continue;
+                        }
+                        else if (_Blocks[row, column] == BlockTypes.EmptyBlock)
+                        {
+                            _Blocks[row, column] = BlockTypes.WallBlock;
+                            _WallPositions.Add(BlockPosition);
+                            DrawBlock(BlockPosition, BlockTypes.WallBlock);
+                        }
+                        else
+                        {
+                            _WallPositions.Remove(BlockPosition);
+                            _Blocks[row, column] = BlockTypes.EmptyBlock;
+                            DrawBlock(BlockPosition, BlockTypes.EmptyBlock);
+                        }
+                    }
+                }
             }
             else
             {
-                WallPositions.Remove(BlockPosition);
-                Blocks[row, column] = BlockTypes.EmptyBlock;
-            }
+                Point SinglePoint = new Point(_MultiselectStart.Value.Y / _BlockSize, _MultiselectStart.Value.X / _BlockSize);
 
-            Region region = new Region(new Rectangle(column * BlockSize + 1,
-                    row * BlockSize + 1, BlockSize-1,BlockSize-1));
-            Grap.FillRegion(brushes[Blocks[row, column]], region);
-            Panel_Main.Invalidate(region);
+                if (_ForbiddenWallPositions.Contains(SinglePoint))
+                {
+                    return;
+                }
+                else if (_Blocks[SinglePoint.X, SinglePoint.Y] == BlockTypes.EmptyBlock)
+                {
+                    _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.WallBlock;
+                    _WallPositions.Add(SinglePoint);
+                    DrawBlock(SinglePoint, BlockTypes.WallBlock);
+                }
+                else
+                {
+                    _WallPositions.Remove(SinglePoint);
+                    _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.EmptyBlock;
+                    DrawBlock(SinglePoint, BlockTypes.EmptyBlock);
+                }
+            }
+        }
+
+        private void Panel_Main_Paint(object sender, PaintEventArgs e)
+        {
+            if(_MultiselectStart != null && _MultiselectEnd != null)
+            {
+                Point StartPosition = _MultiselectStart.Value;
+                Point EndPosition = _MultiselectEnd.Value;
+                int minX = Math.Min(StartPosition.X, EndPosition.X);
+                int minY = Math.Min(StartPosition.Y, EndPosition.Y);
+
+                if (_Multiselect)
+                {
+                    e.Graphics.DrawRectangle(Pens.Black, minX, minY,
+                        Math.Abs(EndPosition.X - StartPosition.X), Math.Abs(EndPosition.Y - StartPosition.Y));
+                }
+            }
         }
     }
 }

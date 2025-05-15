@@ -43,8 +43,6 @@ namespace GS2
                 | System.Reflection.BindingFlags.NonPublic).SetValue(Panel_Main, true, null);
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            FormularEntitiesResizing();
-
             ResetGame();
         }
 
@@ -250,7 +248,7 @@ namespace GS2
                 SS = deserializedSettings;
             }
             else
-                throw new Exception("Failed to deserialize settings after ResetGame().");
+                throw new Exception("Failed to deserialize settings.");
         }
 
         private void SetGameOver(string Message = "Game Over")
@@ -311,8 +309,6 @@ namespace GS2
 
         private void SetMovementForSnake(string direction)
         {
-            //Debug.WriteLine("Forbidden direction: " + SS.ForbiddenDirection);   
-            //Debug.WriteLine("SetMovementForSnake: " + direction);
             if (SS.ForbiddenDirection != direction)
             {
                 if (Snake.SetMovement(direction))

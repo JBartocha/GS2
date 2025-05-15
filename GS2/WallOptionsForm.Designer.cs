@@ -41,7 +41,10 @@
             Panel_Main.Name = "Panel_Main";
             Panel_Main.Size = new Size(727, 487);
             Panel_Main.TabIndex = 0;
-            Panel_Main.MouseClick += Panel_Main_MouseClick;
+            Panel_Main.Paint += Panel_Main_Paint;
+            Panel_Main.MouseDown += Panel_Main_MouseDown;
+            Panel_Main.MouseMove += Panel_Main_MouseMove;
+            Panel_Main.MouseUp += Panel_Main_MouseUp;
             // 
             // Button_Reset
             // 
@@ -81,6 +84,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(751, 586);
+            ControlBox = false;
             Controls.Add(Button_SaveAndExit);
             Controls.Add(Button_CancelAndExit);
             Controls.Add(Button_Reset);
