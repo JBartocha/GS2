@@ -96,6 +96,7 @@ V projektu byl použit algoritmus pro výpočet Hamiltonianského cyklu ze strá
 - ~~Ošetřit stav kdy je celá herní plocha zaplněná a není co kam přidat.~~
 - ~~Umožnit rychlejší vytváření zdí ve WallOptionsForm (kliknutí a táhnutí pro označení více bloků třeba).~~
 - Upravit vzhled hada tak, aby bylo možné kdykoliv poznat kudy trasoval cestu (něco jako přidat čáry na vykreslované body hada).
+- Do WallOptionsForm přidat algoritmus který znemožní vytváření zdí, tak aby zamezil nedostupným bodům nebo bodům ze kterých není možné "odejít".
 - ~~Opravit blikání při přidávání bloků v WallOptionsForm.~~
 - Ve WallOptionsForm využít třídu "Grid".
 - ~~Pro srandu přidat počítání bodů tak, aby to dávalo smysl. Počítání s použitím parabolických křivek pravděpodobně pro proměnné které ovlivňují rychlost, počáteční rychlost a konstantním počtu jídla na ploše.~~

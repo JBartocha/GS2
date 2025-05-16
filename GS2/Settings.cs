@@ -30,7 +30,7 @@ namespace GS2
         public int CurrentSpeed { get; set; } = 0;
         public int Score { get; set; } = 0;
 
-        public override string ToString()
+        public string SerializeToJson()
         {
             string jsonString = JsonSerializer.Serialize(this);
             return jsonString;

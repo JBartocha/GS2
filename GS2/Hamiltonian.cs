@@ -24,8 +24,7 @@ namespace GS2
             }
         }
 
-        private List<Edge> Edges = new List<Edge>();
-        //private List<Edge> OrderedPath = new List<Edge>();
+        private List<Edge> _Edges = new List<Edge>();
 
         // souradnice bunky, typ bunky
         public Hamiltonian(int Rows, int Columns, int BlockSize, Graphics graphics, List<Point> Walls) : base(Rows, Columns, BlockSize, graphics)
@@ -33,18 +32,18 @@ namespace GS2
             for (int i = 0; i < Walls.Count; i++)
             {
                 DrawBlock(Walls[i], BlockTypes.WallBlock);
-                Block[Walls[i].X, Walls[i].Y] = BlockTypes.WallBlock;
+                _Block[Walls[i].X, Walls[i].Y] = BlockTypes.WallBlock;
             }
 
             SetEdges(Walls);
-            int[,] graph = new int[Edges.Count, Edges.Count];
+            int[,] graph = new int[_Edges.Count, _Edges.Count];
             graph = GetVectorGraph();
             ListVectorGraph(graph);
-            Debug.WriteLine("Number of Edges: " + Edges.Count);
+            Debug.WriteLine("Number of Edges: " + _Edges.Count);
 
             //HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(graph, Edges.Count);
             //int[] ints = hamiltonianCycle.GetPath();
-            HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(Edges.Count, graph);
+            HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(_Edges.Count, graph);
             int[] ints = hamiltonianCycle.GetPath();
 
             
@@ -58,7 +57,7 @@ namespace GS2
                     textForBelow += "\n";
                 }
                 textForBelow += i.ToString() + "->";
-                Debug.WriteLine("Hamiltonian: " + i.ToString() + ", Position:" + Edges[i].Position.ToString());
+                Debug.WriteLine("Hamiltonian: " + i.ToString() + ", Position:" + _Edges[i].Position.ToString());
             }
             textForBelow = textForBelow.Substring(0, textForBelow.Length - 2);
 
@@ -74,7 +73,7 @@ namespace GS2
             using (Font font = new Font("Arial", 10)) // Specify font and size
             using (Brush brush = new SolidBrush(Color.Black)) // Specify text color
             {
-                Graphics.DrawString(text, font, brush, position.X, position.Y);
+                _Graphics.DrawString(text, font, brush, position.X, position.Y);
             }
         }
 
@@ -84,30 +83,30 @@ namespace GS2
             {
                 if (i != 0)
                 {
-                    Point start = getMidPixelOfBlock(Edges[path[i - 1]].Position);
-                    Point end = getMidPixelOfBlock(Edges[path[i]].Position);
+                    Point start = getMidPixelOfBlock(_Edges[path[i - 1]].Position);
+                    Point end = getMidPixelOfBlock(_Edges[path[i]].Position);
                     DrawLine(start, end);
 
-                    Point block = Edges[path[i - 1]].Position;
-                    DrawText(path[i - 1].ToString(), new Point(block.Y * this.BlockSize, block.X * this.BlockSize));
+                    Point block = _Edges[path[i - 1]].Position;
+                    DrawText(path[i - 1].ToString(), new Point(block.Y * this._BlockSize, block.X * this._BlockSize));
                 }
             }
-            Point lastBlock = Edges[path[path.Length - 1]].Position;
-            DrawText(path[path.Length - 1].ToString(), new Point(lastBlock.Y * this.BlockSize, lastBlock.X * this.BlockSize));
+            Point lastBlock = _Edges[path[path.Length - 1]].Position;
+            DrawText(path[path.Length - 1].ToString(), new Point(lastBlock.Y * this._BlockSize, lastBlock.X * this._BlockSize));
 
         }
 
         private void DrawLine(Point start, Point end)
         {
             Pen pen = new Pen(Color.BlueViolet, 3);
-            Graphics.DrawLine(pen, start, end);
+            _Graphics.DrawLine(pen, start, end);
         }
 
         private Point getMidPixelOfBlock(Point position)
         {
             Point p = new Point();
-            p.X = (position.Y * BlockSize) + (BlockSize / 2);
-            p.Y = (position.X * BlockSize) + (BlockSize / 2);
+            p.X = (position.Y * _BlockSize) + (_BlockSize / 2);
+            p.Y = (position.X * _BlockSize) + (_BlockSize / 2);
             return p;
         }
 
@@ -115,60 +114,60 @@ namespace GS2
         {
             //Vytvoreni Edges, kde kazdy edge je bunkou, ktera neni zed a obsahuje pozici a prirazene cislo
             int index = 0;
-            for (int i = 0; i < Rows; i++)
+            for (int i = 0; i < _Rows; i++)
             {
-                for (int j = 0; j < Columns; j++)
+                for (int j = 0; j < _Columns; j++)
                 {
-                    if (Block[i, j] != BlockTypes.WallBlock)
+                    if (_Block[i, j] != BlockTypes.WallBlock)
                     {
-                        Edges.Add(new Edge(index++, new Point(i, j)));
+                        _Edges.Add(new Edge(index++, new Point(i, j)));
                     }
                 }
             }
 
             // priradeni sousedu
-            for (int i = 0; i < Edges.Count; i++)
+            for (int i = 0; i < _Edges.Count; i++)
             {
-                int x = Edges[i].Position.X;
-                int y = Edges[i].Position.Y;
-                if (x > 0 && Block[x - 1, y] != BlockTypes.WallBlock)
-                    Edges[i].Neighbors[0] = GetEdgeNumber(x - 1, y);
-                if (x < Rows - 1 && Block[x + 1, y] != BlockTypes.WallBlock)
-                    Edges[i].Neighbors[1] = GetEdgeNumber(x + 1, y);
-                if (y > 0 && Block[x, y - 1] != BlockTypes.WallBlock)
-                    Edges[i].Neighbors[2] = GetEdgeNumber(x, y - 1);
-                if (y < Columns - 1 && Block[x, y + 1] != BlockTypes.WallBlock)
-                    Edges[i].Neighbors[3] = GetEdgeNumber(x, y + 1);
+                int x = _Edges[i].Position.X;
+                int y = _Edges[i].Position.Y;
+                if (x > 0 && _Block[x - 1, y] != BlockTypes.WallBlock)
+                    _Edges[i].Neighbors[0] = GetEdgeNumber(x - 1, y);
+                if (x < _Rows - 1 && _Block[x + 1, y] != BlockTypes.WallBlock)
+                    _Edges[i].Neighbors[1] = GetEdgeNumber(x + 1, y);
+                if (y > 0 && _Block[x, y - 1] != BlockTypes.WallBlock)
+                    _Edges[i].Neighbors[2] = GetEdgeNumber(x, y - 1);
+                if (y < _Columns - 1 && _Block[x, y + 1] != BlockTypes.WallBlock)
+                    _Edges[i].Neighbors[3] = GetEdgeNumber(x, y + 1);
             }
         }
 
         private int GetEdgeNumber(int x, int y)
         {
-            for (int i = 0; i < Edges.Count; i++)
+            for (int i = 0; i < _Edges.Count; i++)
             {
-                if (Edges[i].Position.X == x && Edges[i].Position.Y == y)
-                    return Edges[i].number;
+                if (_Edges[i].Position.X == x && _Edges[i].Position.Y == y)
+                    return _Edges[i].number;
             }
             return -1;
         }
 
         public int[,] GetVectorGraph()
         {
-            int[,] graph = new int[Edges.Count, Edges.Count];
-            for (int i = 0; i < Edges.Count; i++)
+            int[,] graph = new int[_Edges.Count, _Edges.Count];
+            for (int i = 0; i < _Edges.Count; i++)
             {
-                for (int j = 0; j < Edges.Count; j++)
+                for (int j = 0; j < _Edges.Count; j++)
                 {
                     graph[i, j] = 0;
                 }
             }
-            for (int i = 0; i < Edges.Count; i++)
+            for (int i = 0; i < _Edges.Count; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    if (Edges[i].Neighbors[j] != -1)
+                    if (_Edges[i].Neighbors[j] != -1)
                     {
-                        graph[i, (Edges[i].Neighbors[j])] = 1;
+                        graph[i, (_Edges[i].Neighbors[j])] = 1;
                     }
                 }
             }
@@ -177,9 +176,9 @@ namespace GS2
 
         public void ListVectorGraph(int[,] VGraph)
         {
-            for (int i = 0; i < Edges.Count; i++)
+            for (int i = 0; i < _Edges.Count; i++)
             {
-                for (int j = 0; j < Edges.Count; j++)
+                for (int j = 0; j < _Edges.Count; j++)
                 {
                     Debug.Write(VGraph[i, j] + " ");
                 }

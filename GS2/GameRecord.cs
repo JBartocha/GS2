@@ -81,11 +81,11 @@ namespace GS2
 
     public class GameRecord : IGameRecord
     {
-        private int CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
-        private Record RC = new Record();
+        private int _CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
+        private Record _RC = new Record();
 
         //private const string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security=True";
-        private string connectionString = "";
+        private string _connectionString = "";
 
         public GameRecord()
         {
@@ -102,8 +102,8 @@ namespace GS2
                 AttachDBFilename = @DBfilename,
                 IntegratedSecurity = true
             };
-            connectionString = builder.ConnectionString;
-            Debug.WriteLine(connectionString);
+            _connectionString = builder.ConnectionString;
+            Debug.WriteLine(_connectionString);
         }
 
         public List<ListOfRecords> ListAllRecords()
@@ -111,7 +111,7 @@ namespace GS2
             try
             {
                 // Updated to use Microsoft.Data.SqlClient.SqlConnection  
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 List<ListOfRecords> PomList = new List<ListOfRecords>();
@@ -158,7 +158,7 @@ namespace GS2
                 List<Point> StartingFoodPositions = new List<Point>(); // Initialize the list to avoid null reference
 
                 // Updated to use Microsoft.Data.SqlClient.SqlConnection  
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 string query = "SELECT Settings, FO.PosX, FO.PosY " +
@@ -177,7 +177,7 @@ namespace GS2
                 {
                     if (first)
                     {
-                        RC.Settings = reader["Settings"].ToString();
+                        _RC.Settings = reader["Settings"].ToString();
                         first = false;
                     }
                     int posX = Convert.ToInt32(reader["PosX"]);
@@ -200,7 +200,7 @@ namespace GS2
             try
             {
                 List<TurnRecord> Turns = new List<TurnRecord>();
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 string query = "SELECT MoveNumber, Direction, PosX, PosY FROM GameNumbers " +
@@ -256,15 +256,15 @@ namespace GS2
             {
                 throw new Exception("Failed to load starting food positions.");
             }
-            RC.StartingFoodPositions = StartFoPos;
+            _RC.StartingFoodPositions = StartFoPos;
             Turns = LoadGameRecord_SnakeMoves(ID);
             if (Turns == null)
             {
                 throw new Exception("Failed to load turns.");
             }
-            RC.Turns = Turns;
+            _RC.Turns = Turns;
             Record record = new Record();
-            record.Settings = RC.Settings;
+            record.Settings = _RC.Settings;
             record.StartingFoodPositions = StartFoPos;
             record.Turns = Turns;
             
@@ -274,9 +274,9 @@ namespace GS2
         private int CalculateReachedLevel(Settings S)
         {
             int FoodEaten = 0;
-            for (int i = 0; i < RC.Turns.Count; i++)
+            for (int i = 0; i < _RC.Turns.Count; i++)
             {
-                if (RC.Turns[i].GeneratedFoodPosition.HasValue)
+                if (_RC.Turns[i].GeneratedFoodPosition.HasValue)
                     FoodEaten++;
             }
             return FoodEaten / S.LevelIncreaseInterval;
@@ -285,13 +285,13 @@ namespace GS2
         public void SaveGameRecord(Settings S, Record record)
         {
             int LastGameNumbersID = 0; // Initialize LastGameNumbersID to 0
-            RC = record;
+            _RC = record;
             int Level = CalculateReachedLevel(S);
 
             try
             {
                 // Using Microsoft.Data.SqlClient.SqlConnection
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 string query = "INSERT INTO GameNumbers (Date, Settings, Level, Score) VALUES (@TimeNow, @JsonSettings, @Level, @Score); SELECT SCOPE_IDENTITY();";
@@ -302,7 +302,7 @@ namespace GS2
 
                 // Add parameter to prevent SQL injection
                 command.Parameters.AddWithValue("@TimeNow", CurrentTime);
-                command.Parameters.AddWithValue("@JsonSettings", S.ToString());
+                command.Parameters.AddWithValue("@JsonSettings", S.SerializeToJson());
                 command.Parameters.AddWithValue("@Level", Level);
                 command.Parameters.AddWithValue("@Score", S.Score);
 
@@ -316,24 +316,24 @@ namespace GS2
             }
 
             //Insert starting Settings and Food Position
-            for (int i = 0; i < RC.StartingFoodPositions.Count; i++)
+            for (int i = 0; i < _RC.StartingFoodPositions.Count; i++)
             {
-                int FoodID = InsertFoodIntoDB(RC.StartingFoodPositions[i]);
+                int FoodID = InsertFoodIntoDB(_RC.StartingFoodPositions[i]);
                 InsertFoodSettingsIntoDB(LastGameNumbersID, FoodID);
             }
 
             //Insert moves and food added in turns
-            for (int i = 0; i < RC.Turns.Count; i++)
+            for (int i = 0; i < _RC.Turns.Count; i++)
             {
-                if (RC.Turns[i].GeneratedFoodPosition.HasValue)
+                if (_RC.Turns[i].GeneratedFoodPosition.HasValue)
                 {
-                    Point FoodPos = (Point)RC.Turns[i].GeneratedFoodPosition;
+                    Point FoodPos = (Point)_RC.Turns[i].GeneratedFoodPosition;
                     int CurrentFoodID = InsertFoodIntoDB(FoodPos);
-                    InsertSnakeMoveIntoDB(LastGameNumbersID, RC.Turns[i].MoveDirection, RC.Turns[i].TurnNumber, CurrentFoodID);
+                    InsertSnakeMoveIntoDB(LastGameNumbersID, _RC.Turns[i].MoveDirection, _RC.Turns[i].TurnNumber, CurrentFoodID);
                 }
                 else
                 {
-                    InsertSnakeMoveIntoDB(LastGameNumbersID, RC.Turns[i].MoveDirection, RC.Turns[i].TurnNumber, 0);
+                    InsertSnakeMoveIntoDB(LastGameNumbersID, _RC.Turns[i].MoveDirection, _RC.Turns[i].TurnNumber, 0);
                 }
 
             }
@@ -344,7 +344,7 @@ namespace GS2
         {
             try
             {
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 string query = "INSERT INTO Food (PosX, PosY) VALUES (@PX, @PY); SELECT SCOPE_IDENTITY();";
@@ -387,7 +387,7 @@ namespace GS2
         {
             try
             {
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 // Replace "YourTable" and "ColumnName" with your actual table and column names
@@ -421,7 +421,7 @@ namespace GS2
         {
             try
             {
-                using var connection = new SqlConnection(connectionString);
+                using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
                 // Replace "YourTable" and "ColumnName" with your actual table and column names
@@ -447,7 +447,7 @@ namespace GS2
 
         public Settings GetJsonSettings()
         {
-            Settings deserializedSettings = JsonSerializer.Deserialize<Settings>(RC.Settings);
+            Settings deserializedSettings = JsonSerializer.Deserialize<Settings>(_RC.Settings);
             if (deserializedSettings != null)
             {
                 return deserializedSettings;

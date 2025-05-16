@@ -17,8 +17,8 @@ namespace GS2
 {
     public partial class OptionsForm : Form
     {
-        private Settings SS;
-        private Point OriginalSize;
+        private Settings _SS;
+        private Point _OriginalSize;
         public OptionsForm()
         {
 
@@ -40,7 +40,7 @@ namespace GS2
             TextBoxColumns.Text = TrackBarColumns.Value.ToString();
             TextBoxCellSize.Text = TrackBarCellSize.Value.ToString();
 
-            OriginalSize = new Point(TrackBarRows.Value, TrackBarColumns.Value);
+            _OriginalSize = new Point(TrackBarRows.Value, TrackBarColumns.Value);
         }
 
         private void LoadJsonSettings()
@@ -49,28 +49,28 @@ namespace GS2
             if (fileInfo.Exists)
             {
                 string json = File.ReadAllText(Settings.JsonSaveFileName);
-                SS = JsonSerializer.Deserialize<Settings>(json);
-                if (SS == null)
+                _SS = JsonSerializer.Deserialize<Settings>(json);
+                if (_SS == null)
                     throw new Exception("Failed to deserialize settings.");
             }
             else
             {
-                SS = new Settings();
+                _SS = new Settings();
             }
 
 
-            string FoodCount = SS.FoodCount.ToString();
+            string FoodCount = _SS.FoodCount.ToString();
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
-            string FoodInterval = SS.LevelIncreaseInterval.ToString();
+            string FoodInterval = _SS.LevelIncreaseInterval.ToString();
             ListBoxFoodInterval.SelectedIndex = ListBoxFoodInterval.Items.IndexOf(FoodInterval);
-            string SpeedPercent = (Convert.ToInt32(SS.DifficultyIncrease * 100)).ToString();
+            string SpeedPercent = (Convert.ToInt32(_SS.DifficultyIncrease * 100)).ToString();
             ListBoxSpeedPercent.SelectedIndex = ListBoxSpeedPercent.Items.IndexOf(SpeedPercent);
 
-            TextBoxInitialSpeed.SelectedText = SS.TickInMilliseconds.ToString();
-            TextBoxInitialSpeed.Text = SS.TickInMilliseconds.ToString();
-            TrackBarRows.Value = SS.Rows;
-            TrackBarColumns.Value = SS.Columns;
-            TrackBarCellSize.Value = SS.CellSize;
+            TextBoxInitialSpeed.SelectedText = _SS.TickInMilliseconds.ToString();
+            TextBoxInitialSpeed.Text = _SS.TickInMilliseconds.ToString();
+            TrackBarRows.Value = _SS.Rows;
+            TrackBarColumns.Value = _SS.Columns;
+            TrackBarCellSize.Value = _SS.CellSize;
         }
 
         private void Button_EXIT_Click(object sender, EventArgs e)
@@ -110,35 +110,35 @@ namespace GS2
                 return;
             }
 
-            SS.CellSize = TrackBarCellSize.Value;
-            SS.FoodCount = int.Parse(ListBoxFoodCount.SelectedItem.ToString());
-            SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
-            SS.LevelIncreaseInterval = int.Parse(ListBoxFoodInterval.SelectedItem.ToString());
-            SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
-            SS.Rows = TrackBarRows.Value;
-            SS.Columns = TrackBarColumns.Value;
-            SS.CellSize = TrackBarCellSize.Value;
+            _SS.CellSize = TrackBarCellSize.Value;
+            _SS.FoodCount = int.Parse(ListBoxFoodCount.SelectedItem.ToString());
+            _SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
+            _SS.LevelIncreaseInterval = int.Parse(ListBoxFoodInterval.SelectedItem.ToString());
+            _SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
+            _SS.Rows = TrackBarRows.Value;
+            _SS.Columns = TrackBarColumns.Value;
+            _SS.CellSize = TrackBarCellSize.Value;
 
-            if(OriginalSize.X != TrackBarRows.Value || OriginalSize.Y != TrackBarColumns.Value)
+            if(_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
             {
-                SS.WallPositions.Clear();
+                _SS.WallPositions.Clear();
             }
 
-            string json = JsonSerializer.Serialize(SS);
+            string json = JsonSerializer.Serialize(_SS);
             File.WriteAllText(Settings.JsonSaveFileName, json);
             this.Close();
         }
 
         private void CheckBox_MouseControl_CheckedChanged(object sender, EventArgs e)
         {
-            if (CheckBox_MouseControl.Checked == true) SS.UseMousePositionToMove = true;
+            if (CheckBox_MouseControl.Checked == true) _SS.UseMousePositionToMove = true;
             if (CheckBox_MouseControl.Checked == false)
             {
-                SS.UseMousePositionToMove = false;
+                _SS.UseMousePositionToMove = false;
                 if (CheckBox_KeyboardControl.Checked == false)
                 {
                     CheckBox_KeyboardControl.Checked = true;
-                    SS.UseMousePositionToMove = true;
+                    _SS.UseMousePositionToMove = true;
                 }
             }
 
@@ -146,14 +146,14 @@ namespace GS2
 
         private void CheckBox_KeyboardControl_CheckedChanged(object sender, EventArgs e)
         {
-            if (CheckBox_KeyboardControl.Checked == true) SS.UseMousePositionToMove = true;
+            if (CheckBox_KeyboardControl.Checked == true) _SS.UseMousePositionToMove = true;
             if (CheckBox_KeyboardControl.Checked == false)
             {
-                SS.UseMousePositionToMove = false;
+                _SS.UseMousePositionToMove = false;
                 if (CheckBox_MouseControl.Checked == false)
                 {
                     CheckBox_MouseControl.Checked = true;
-                    SS.UseMousePositionToMove = true;
+                    _SS.UseMousePositionToMove = true;
                 }
             }
         }
@@ -168,12 +168,12 @@ namespace GS2
 
             Point[] forbiddenPoints = new Point[]
             {
-                new Point(SS.SnakeStartingHeadPosition.X, SS.SnakeStartingHeadPosition.Y),
-                new Point(SS.SnakeStartingHeadPosition.X+1, SS.SnakeStartingHeadPosition.Y),
+                new Point(_SS.SnakeStartingHeadPosition.X, _SS.SnakeStartingHeadPosition.Y),
+                new Point(_SS.SnakeStartingHeadPosition.X+1, _SS.SnakeStartingHeadPosition.Y),
             };
 
             WallOptionsForm optionsForm = new WallOptionsForm(rows, columns, cellSize,
-                forbiddenPoints, SS.WallPositions);
+                forbiddenPoints, _SS.WallPositions);
             optionsForm.ShowDialog();
             
 

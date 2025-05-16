@@ -108,6 +108,11 @@ namespace GS2
 
         private void Button_Reset_Click(object sender, EventArgs e)
         {
+            foreach(Point wallPosition in _WallPositions)
+            {
+                _Blocks[wallPosition.X, wallPosition.Y] = BlockTypes.EmptyBlock;
+                DrawBlock(wallPosition, BlockTypes.EmptyBlock);
+            }
             _WallPositions.Clear();
             Panel_Main.Invalidate();
         }

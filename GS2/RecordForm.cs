@@ -13,28 +13,28 @@ namespace GS2
 {
     public partial class RecordForm : Form
     {
-        private GameRecord record; // TODO - to je tohle?
-        private int selectedID;
-        private Dictionary<int,int> recordsIDfromSelectionBox = new Dictionary<int, int>();
+        private GameRecord _record; // TODO - to je tohle?
+        private int _selectedID;
+        private Dictionary<int,int> _RecordsIDfromSelectionBox = new Dictionary<int, int>();
 
         public int GetSelectedID()
         {
-            return selectedID;
+            return _selectedID;
         }
 
         public void SetSelectedID(int value)
         {
-            selectedID = value;
+            _selectedID = value;
         }
 
         public RecordForm(GameRecord record)
         {
             InitializeComponent();
-            this.record = record;
+            this._record = record;
             List<ListOfRecords> records = record.ListAllRecords();
             for (int i = 0; i < records.Count; i++)
             {
-                recordsIDfromSelectionBox.Add(i, Convert.ToInt32(records[i].ID));
+                _RecordsIDfromSelectionBox.Add(i, Convert.ToInt32(records[i].ID));
                 ListBox_Records.Items.Add(records[i].ID + "-" + records[i].Date + "-Level: " + records[i].Level 
                     + "-" + records[i].Score);
             }
@@ -45,7 +45,7 @@ namespace GS2
             object? selectedItem = ListBox_Records.SelectedItem;
             if (selectedItem != null)
             {
-                SetSelectedID(recordsIDfromSelectionBox[Convert.ToInt32(ListBox_Records.SelectedIndex)]);
+                SetSelectedID(_RecordsIDfromSelectionBox[Convert.ToInt32(ListBox_Records.SelectedIndex)]);
             }
             else
             {
