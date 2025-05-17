@@ -15,6 +15,28 @@ namespace GS2
         public void AddFood(bool StartingPositionFood = false);
     }
 
+    public enum BlockTypes
+    {
+        EmptyBlock,
+        WallBlock,
+        FoodBlock,
+        SnakeBody,
+        SnakeHead,
+        OutOfBoundsBlock
+    }
+
+    public static class BlockBrushes    
+    {
+        public static readonly Dictionary<BlockTypes, SolidBrush> brushes = new Dictionary<BlockTypes, SolidBrush>
+        {
+            { BlockTypes.EmptyBlock, new SolidBrush(Color.LightGray) },
+            { BlockTypes.WallBlock, new SolidBrush(Color.Gray) },
+            { BlockTypes.FoodBlock, new SolidBrush(Color.Green) },
+            { BlockTypes.SnakeBody, new SolidBrush(Color.DarkRed) },
+            { BlockTypes.SnakeHead, new SolidBrush(Color.Red) }
+        };
+    }
+
     public abstract class Grid : IGrid
     {
         protected int _Rows;
@@ -166,7 +188,7 @@ namespace GS2
     {
         private List<Point> _SnakeBody; //0==Head...Other==body
         private Point _Movement;
-        private string _MovementDirection;
+        private string _MovementDirection = "Right";
 
         private string _ForbiddenDirection;
         private int _MoveCounter = 0; // Everytime snake moves, this is incremented by 1
@@ -186,14 +208,14 @@ namespace GS2
         }
 
         public delegate void BlockCollisionEventHandler(object sender, GridCollisionArgs args);
-        public event BlockCollisionEventHandler CellCollisionEvent;
+        public event BlockCollisionEventHandler? CellCollisionEvent;
         //public event EventHandler<GridCollisionArgs> CellCollisionEvent;
 
         public delegate void FoodEatenEventHandler(object sender, EventArgs args);
-        public event FoodEatenEventHandler FoodEatenEvent;
+        public event FoodEatenEventHandler? FoodEatenEvent;
 
         public delegate void FullGridEventHandler(object sender, EventArgs args);
-        public event FullGridEventHandler FullGridEvent;
+        public event FullGridEventHandler? FullGridEvent;
 
         public void Move()
         {
@@ -340,7 +362,7 @@ namespace GS2
             }
             else
             {
-                FullGridEvent?.Invoke(this, null);
+                FullGridEvent?.Invoke(this, EventArgs.Empty);
             }
         }
 

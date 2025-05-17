@@ -7,15 +7,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GS2
 {
-    public enum BlockTypes
-    {
-        EmptyBlock,
-        WallBlock,
-        FoodBlock,
-        SnakeBody,
-        SnakeHead,
-        OutOfBoundsBlock
-    }
+
 
 
     public partial class Main_Form : Form
@@ -58,7 +50,7 @@ namespace GS2
 
             ResetFormVariables();
 
-            TurnPeriodicTimer();
+            Task<bool> task = TurnPeriodicTimer();
         }
 
         private void AddStartingFood()
@@ -68,7 +60,10 @@ namespace GS2
                 for (int i = 0; i < _SS.FoodCount; i++)
                 {
                     Point Food = _Record.StartingFoodPositions[i];
-                    _Snake.AddFood(Food, true);
+                    if(_Snake != null)
+                        _Snake.AddFood(Food, true);
+                    else
+                        throw new Exception("Snake is null when adding food during simulation.");
                 }
             }
             else
@@ -76,7 +71,10 @@ namespace GS2
                 _GameRecord = new GameRecord();
                 for (int i = 0; i < _SS.FoodCount; i++)
                 {
-                    _Snake.AddFood(true);
+                    if(_Snake != null)
+                        _Snake.AddFood(true);
+                    else
+                        throw new Exception("Snake is null when adding food during simulation.");
                 }
             }
         }
@@ -112,7 +110,10 @@ namespace GS2
             for (int i = 0; i < _SS.WallPositions.Count; i++)
             {
                 Point Wall = _SS.WallPositions[i];
-                _Snake.AddWall(Wall);
+                if(_Snake != null)
+                    _Snake.AddWall(Wall);
+                else
+                    throw new Exception("Snake is null when adding wall.");
             }
         }
 
@@ -178,6 +179,7 @@ namespace GS2
         private void OnFoodEatenEvent(object sender, EventArgs args)
         {
             _SS.FoodsEaten++;
+            Label_Food_Eaten.Text = "Points: " + _SS.FoodsEaten;
             _SS.Score += ScoreCounter();
             Label_Score.Text = "Score: " + _SS.Score;
 
@@ -189,19 +191,22 @@ namespace GS2
             if (_Simulation)
             {
                 Point FoodPos;
-                if (_Record.Turns[_SS.Moves].GeneratedFoodPosition.HasValue)
+                if (_Record.Turns[_SS.Moves].GeneratedFoodPosition.HasValue && _Snake != null)
                 {
-                    FoodPos = _Record.Turns[_SS.Moves].GeneratedFoodPosition.Value;
+                    FoodPos = _Record.Turns[_SS.Moves].GeneratedFoodPosition!.Value;
                     _Snake.AddFood(FoodPos, true);
                 }
                 else
                 {
-                    throw new Exception("Food position is null during simulation when expected Value.");
+                    throw new Exception("Food position or Snake class is null during simulation when expected Value.");
                 }
             }
             else
             {
-                _Snake.AddFood(false);
+                if(_Snake != null)
+                    _Snake.AddFood(false);
+                else
+                    throw new Exception("Snake is null when adding food.");
             }
 
         }
@@ -259,7 +264,7 @@ namespace GS2
                 bool Save = SelectionMessageBox(Message + AdditionalMessage, "Game Over");
                 if (Save)
                 {
-                    Record rec = _Snake.GetGameRecord();
+                    Record rec = _Snake!.GetGameRecord();
                     _GameRecord.SaveGameRecord(_SS, rec); // SAVE RECORD TO DATABASE
                 }
             }
@@ -267,7 +272,7 @@ namespace GS2
             {
                 MessageBox.Show(Message);
             }
-            _Timer.Dispose();
+            _Timer!.Dispose();
             Button_Pause.Text = _StartButtonText;
             _SS.Pause = true;
             Panel_Main.Invalidate();
@@ -311,7 +316,7 @@ namespace GS2
         {
             if (_SS.ForbiddenDirection != direction)
             {
-                if (_Snake.SetMovement(direction))
+                if (_Snake!.SetMovement(direction))
                     Label_Movement_Direction.Text = direction;
             }
         }
@@ -330,9 +335,9 @@ namespace GS2
                 {
                     if (_Simulation)
                     {
-                        _Snake.SetMovement(_Record.Turns[_SS.Moves].MoveDirection);
+                        _Snake!.SetMovement(_Record.Turns[_SS.Moves].MoveDirection);
                     }
-                    _Snake.Move();
+                    _Snake!.Move();
                     if (!_SS.GameOver)
                     {
                         Label_Moves.Text = "Moves: " + ++_SS.Moves; // TODO (duplicita?)

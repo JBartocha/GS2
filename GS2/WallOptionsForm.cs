@@ -18,32 +18,20 @@ namespace GS2
         private bool _Multiselect = false;
         private Point? _MultiselectStart;
         private Point? _MultiselectEnd;
-  
-        private Dictionary<BlockTypes, SolidBrush> brushes = new Dictionary<BlockTypes, SolidBrush>
-        {
-            { BlockTypes.EmptyBlock, new SolidBrush(Color.LightGray) },
-            { BlockTypes.WallBlock, new SolidBrush(Color.Gray) },
-            { BlockTypes.FoodBlock, new SolidBrush(Color.Green) },
-            { BlockTypes.SnakeBody, new SolidBrush(Color.DarkRed) },
-            { BlockTypes.SnakeHead, new SolidBrush(Color.Red) }
-        };
 
-        public WallOptionsForm(int rows, int columns, int blockSize,
-            Point[] ForbiddenWallPositions, List<Point> wallPositions)
+        public WallOptionsForm(Settings SS, Point[] ForbiddenWallPositions)
         {
             InitializeComponent();
-
             #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Panel_Main.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance
                 | System.Reflection.BindingFlags.NonPublic).SetValue(Panel_Main, true, null);
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-
-            this._BlockSize = blockSize;
-            this._Rows = rows;
-            this._Columns = columns;
-            this._WallPositions = wallPositions;
-            this._OriginalWallPositions = new List<Point>(wallPositions);
+            
+            this._BlockSize = SS.CellSize;
+            this._Rows = SS.Rows;
+            this._Columns = SS.Columns;
+            this._WallPositions = SS.WallPositions;
+            this._OriginalWallPositions = new List<Point>(SS.WallPositions);
 
             int ButtonWidth = Button_SaveAndExit.Width;
             if (_Columns * _BlockSize + 42 < ButtonWidth * 3 + 60)
@@ -64,10 +52,10 @@ namespace GS2
             Panel_Main.BackgroundImage = _surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
 
-            _Blocks = new BlockTypes[rows, columns];
-            for (int i = 0; i < rows; i++)
+            _Blocks = new BlockTypes[SS.Rows, SS.Columns];
+            for (int i = 0; i < SS.Rows; i++)
             {
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < SS.Columns; j++)
                 {
                     if (_WallPositions.Contains(new Point(i, j)))
                     {
@@ -94,7 +82,7 @@ namespace GS2
             }
             for (int i = 0; i < ForbiddenWallPositions.Length; i++)
             {
-                _Grap.FillRectangle(Brushes.DarkRed, ForbiddenWallPositions[i].Y * _BlockSize + 1,
+                _Grap.FillRectangle(BlockBrushes.brushes[BlockTypes.SnakeBody], ForbiddenWallPositions[i].Y * _BlockSize + 1,
                     ForbiddenWallPositions[i].X * _BlockSize + 1, _BlockSize - 1, _BlockSize - 1);
             }
             DrawBlocks();
@@ -102,7 +90,7 @@ namespace GS2
 
         private void DrawBlock(Point point, BlockTypes blockType)
         {
-            _Grap.FillRectangle(brushes[blockType], point.Y * _BlockSize + 1,
+            _Grap.FillRectangle(BlockBrushes.brushes[blockType], point.Y * _BlockSize + 1,
                     point.X * _BlockSize + 1, _BlockSize - 1, _BlockSize - 1);
         }
 
@@ -202,7 +190,7 @@ namespace GS2
 
         private void ReverseBlocks()
         {
-            if (_MultiselectEnd != null)
+            if (_MultiselectEnd != null && _MultiselectStart != null) //_MultiselectStart can never be null
             {
                 Point start = _MultiselectStart.Value;
                 Point end = _MultiselectEnd.Value;
@@ -239,23 +227,30 @@ namespace GS2
             }
             else
             {
-                Point SinglePoint = new Point(_MultiselectStart.Value.Y / _BlockSize, _MultiselectStart.Value.X / _BlockSize);
+                if(_MultiselectStart != null)
+                {
+                    Point SinglePoint = new Point(_MultiselectStart.Value.Y / _BlockSize, _MultiselectStart.Value.X / _BlockSize);
 
-                if (_ForbiddenWallPositions.Contains(SinglePoint))
-                {
-                    return;
-                }
-                else if (_Blocks[SinglePoint.X, SinglePoint.Y] == BlockTypes.EmptyBlock)
-                {
-                    _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.WallBlock;
-                    _WallPositions.Add(SinglePoint);
-                    DrawBlock(SinglePoint, BlockTypes.WallBlock);
+                    if (_ForbiddenWallPositions.Contains(SinglePoint))
+                    {
+                        return;
+                    }
+                    else if (_Blocks[SinglePoint.X, SinglePoint.Y] == BlockTypes.EmptyBlock)
+                    {
+                        _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.WallBlock;
+                        _WallPositions.Add(SinglePoint);
+                        DrawBlock(SinglePoint, BlockTypes.WallBlock);
+                    }
+                    else
+                    {
+                        _WallPositions.Remove(SinglePoint);
+                        _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.EmptyBlock;
+                        DrawBlock(SinglePoint, BlockTypes.EmptyBlock);
+                    }
                 }
                 else
                 {
-                    _WallPositions.Remove(SinglePoint);
-                    _Blocks[SinglePoint.X, SinglePoint.Y] = BlockTypes.EmptyBlock;
-                    DrawBlock(SinglePoint, BlockTypes.EmptyBlock);
+                    throw new NullReferenceException("MultiselectStart is null in WallOptionsForm");
                 }
             }
         }

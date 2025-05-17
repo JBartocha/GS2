@@ -34,7 +34,7 @@ namespace GS2
                 ListBoxFoodCount.Items.Add(i.ToString());
             }
 
-            LoadJsonSettings();
+            _SS = LoadJsonSettings();
 
             TextBoxRows.Text = TrackBarRows.Value.ToString();
             TextBoxColumns.Text = TrackBarColumns.Value.ToString();
@@ -43,34 +43,36 @@ namespace GS2
             _OriginalSize = new Point(TrackBarRows.Value, TrackBarColumns.Value);
         }
 
-        private void LoadJsonSettings()
+        private Settings LoadJsonSettings()
         {
+            Settings settings;
             System.IO.FileSystemInfo fileInfo = new System.IO.FileInfo(Settings.JsonSaveFileName);
             if (fileInfo.Exists)
             {
-                string json = File.ReadAllText(Settings.JsonSaveFileName);
-                _SS = JsonSerializer.Deserialize<Settings>(json);
-                if (_SS == null)
-                    throw new Exception("Failed to deserialize settings.");
+                string json = File.ReadAllText(Settings.JsonSaveFileName)
+                    ?? throw new Exception("failed to read from file in OptionsForm.");
+                settings = JsonSerializer.Deserialize<Settings>(json)
+                    ?? throw new Exception("failed to deserialize in OptionsForm.");
             }
             else
             {
-                _SS = new Settings();
+                settings = new Settings();
             }
 
-
-            string FoodCount = _SS.FoodCount.ToString();
+            string FoodCount = settings.FoodCount.ToString();
             ListBoxFoodCount.SelectedIndex = ListBoxFoodCount.Items.IndexOf(FoodCount);
-            string FoodInterval = _SS.LevelIncreaseInterval.ToString();
+            string FoodInterval = settings.LevelIncreaseInterval.ToString();
             ListBoxFoodInterval.SelectedIndex = ListBoxFoodInterval.Items.IndexOf(FoodInterval);
-            string SpeedPercent = (Convert.ToInt32(_SS.DifficultyIncrease * 100)).ToString();
+            string SpeedPercent = (Convert.ToInt32(settings.DifficultyIncrease * 100)).ToString();
             ListBoxSpeedPercent.SelectedIndex = ListBoxSpeedPercent.Items.IndexOf(SpeedPercent);
 
-            TextBoxInitialSpeed.SelectedText = _SS.TickInMilliseconds.ToString();
-            TextBoxInitialSpeed.Text = _SS.TickInMilliseconds.ToString();
-            TrackBarRows.Value = _SS.Rows;
-            TrackBarColumns.Value = _SS.Columns;
-            TrackBarCellSize.Value = _SS.CellSize;
+            TextBoxInitialSpeed.SelectedText = settings.TickInMilliseconds.ToString();
+            TextBoxInitialSpeed.Text = settings.TickInMilliseconds.ToString();
+            TrackBarRows.Value = settings.Rows;
+            TrackBarColumns.Value = settings.Columns;
+            TrackBarCellSize.Value = settings.CellSize;
+
+            return settings;
         }
 
         private void Button_EXIT_Click(object sender, EventArgs e)
@@ -111,10 +113,10 @@ namespace GS2
             }
 
             _SS.CellSize = TrackBarCellSize.Value;
-            _SS.FoodCount = int.Parse(ListBoxFoodCount.SelectedItem.ToString());
-            _SS.DifficultyIncrease = int.Parse(ListBoxSpeedPercent.SelectedItem.ToString()) / 100f;
-            _SS.LevelIncreaseInterval = int.Parse(ListBoxFoodInterval.SelectedItem.ToString());
-            _SS.TickInMilliseconds = int.Parse(TextBoxInitialSpeed.Text);
+            _SS.FoodCount = Convert.ToInt32(ListBoxFoodCount.SelectedItem!.ToString());
+            _SS.DifficultyIncrease = Convert.ToSingle(ListBoxSpeedPercent.SelectedItem!.ToString()) / 100f;
+            _SS.LevelIncreaseInterval = Convert.ToInt32(ListBoxFoodInterval.SelectedItem!.ToString());
+            _SS.TickInMilliseconds = Convert.ToInt32(TextBoxInitialSpeed.Text);
             _SS.Rows = TrackBarRows.Value;
             _SS.Columns = TrackBarColumns.Value;
             _SS.CellSize = TrackBarCellSize.Value;
@@ -162,21 +164,25 @@ namespace GS2
         private void Button_Walls_Option_Click(object sender, EventArgs e)
         {
             this.Hide();
-            int rows = TrackBarRows.Value;
-            int columns = TrackBarColumns.Value;
-            int cellSize = TrackBarCellSize.Value;
+            _SS.Rows = TrackBarRows.Value;
+            _SS.Columns = TrackBarColumns.Value;
+            _SS.CellSize = TrackBarCellSize.Value;
+            
+            if (_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
+            {
+                _SS.WallPositions.Clear();
+            }
 
             Point[] forbiddenPoints = new Point[]
             {
                 new Point(_SS.SnakeStartingHeadPosition.X, _SS.SnakeStartingHeadPosition.Y),
                 new Point(_SS.SnakeStartingHeadPosition.X+1, _SS.SnakeStartingHeadPosition.Y),
             };
-
-            WallOptionsForm optionsForm = new WallOptionsForm(rows, columns, cellSize,
-                forbiddenPoints, _SS.WallPositions);
+            WallOptionsForm optionsForm = new WallOptionsForm(_SS, forbiddenPoints);
+            //WallOptionsForm optionsForm = new WallOptionsForm(_SS.Rows, _SS.Columns, _SS.CellSize,
+            //    forbiddenPoints, _SS.WallPositions);- 
             optionsForm.ShowDialog();
             
-
             this.Show();
         }
     }

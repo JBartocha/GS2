@@ -81,7 +81,7 @@ namespace GS2
 
     public class GameRecord : IGameRecord
     {
-        private int _CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
+        //private int _CurrentTurnNumber = 0; //•A turn is a single move made by the snake in the game.
         private Record _RC = new Record();
 
         //private const string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Janba\\source\\repos\\GS2\\GS2\\SnakeDB.mdf;Integrated Security=True";
@@ -92,7 +92,8 @@ namespace GS2
             string DBfilename = Environment.CurrentDirectory;
             for (int i = 0; i < 3; i++)
             {
-                DBfilename = Directory.GetParent(DBfilename).ToString();
+                DBfilename = Directory.GetParent(DBfilename)?.ToString() ?? 
+                    throw new InvalidOperationException("Parent directory is null(GameRecords).");
             }
             DBfilename += "\\SnakeDB.mdf";
 
@@ -122,17 +123,18 @@ namespace GS2
 
                 while (reader.Read())
                 {
-                    string ID = reader["GameNumbers_ID"].ToString();
-                    string Date = reader["Date"].ToString();
+                    //string ID = reader["GameNumbers_ID"].ToString();
+                    string ID = Convert.ToString(reader.GetInt32(reader.GetOrdinal("GameNumbers_ID")));
+                    string Date = Convert.ToString(reader.GetDateTime(reader.GetOrdinal("Date")));
                     
-                    string LevelString = reader["Level"].ToString();
+                    string LevelString = Convert.ToString(reader.GetInt32(reader.GetOrdinal("Level")));
                     int Level = 0;
                     if (int.TryParse(LevelString, out int level))
                     {
                         Level = level; // Assign to the int property
                     }
                     
-                    string ScoreString = reader["Score"].ToString();
+                    string ScoreString = Convert.ToString(reader.GetInt32(reader.GetOrdinal("Score")));
                     int Score = 0;
                     if (int.TryParse(ScoreString, out int score))
                     {
@@ -177,7 +179,7 @@ namespace GS2
                 {
                     if (first)
                     {
-                        _RC.Settings = reader["Settings"].ToString();
+                        _RC.Settings = reader.GetString(reader.GetOrdinal("Settings"));
                         first = false;
                     }
                     int posX = Convert.ToInt32(reader["PosX"]);
@@ -217,7 +219,7 @@ namespace GS2
                 {
                     TurnRecord turnRecord = new TurnRecord();
                     int Movenumber = Convert.ToInt32(reader["MoveNumber"]);
-                    string Direction = reader["Direction"].ToString();
+                    string Direction = reader.GetString(reader.GetOrdinal("Direction"));
 
                     //Debug.WriteLine(reader["FoodFromMoves.PosX"]);
                     if (reader["PosX"] != DBNull.Value && reader["PosY"] != DBNull.Value)
@@ -327,7 +329,7 @@ namespace GS2
             {
                 if (_RC.Turns[i].GeneratedFoodPosition.HasValue)
                 {
-                    Point FoodPos = (Point)_RC.Turns[i].GeneratedFoodPosition;
+                    Point FoodPos = (Point)_RC.Turns[i].GeneratedFoodPosition!;
                     int CurrentFoodID = InsertFoodIntoDB(FoodPos);
                     InsertSnakeMoveIntoDB(LastGameNumbersID, _RC.Turns[i].MoveDirection, _RC.Turns[i].TurnNumber, CurrentFoodID);
                 }
@@ -447,15 +449,9 @@ namespace GS2
 
         public Settings GetJsonSettings()
         {
-            Settings deserializedSettings = JsonSerializer.Deserialize<Settings>(_RC.Settings);
-            if (deserializedSettings != null)
-            {
-                return deserializedSettings;
-            }
-            else
-            {
-                throw new Exception("Failed to deserialize settings.");
-            }
+            Settings deserializedSettings = JsonSerializer.Deserialize<Settings>(_RC.Settings) ?? 
+                throw new NullReferenceException("Failed to Deserialze Json Settings from Record");
+            return deserializedSettings;
         }
     }
 }
