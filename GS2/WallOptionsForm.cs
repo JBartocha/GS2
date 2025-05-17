@@ -27,7 +27,7 @@ namespace GS2
                 | System.Reflection.BindingFlags.NonPublic).SetValue(Panel_Main, true, null);
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
             
-            this._BlockSize = SS.CellSize;
+            this._BlockSize = SS.BlockSize;
             this._Rows = SS.Rows;
             this._Columns = SS.Columns;
             this._WallPositions = SS.WallPositions;

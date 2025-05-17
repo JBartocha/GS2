@@ -132,7 +132,7 @@ namespace GS2
             }
 
             this._Snake = new Snake(new Point(_SS.SnakeStartingHeadPosition.X, _SS.SnakeStartingHeadPosition.Y),
-                _SS.Rows, _SS.Columns, _SS.CellSize, _grap);
+                _SS.Rows, _SS.Columns, _SS.BlockSize, _grap);
             _Snake.SetMovement("Right");
 
             _Snake.CellCollisionEvent += OnCellCollisionEvent;
@@ -142,15 +142,15 @@ namespace GS2
 
         private void FormularEntitiesResizing()
         {
-            int Width = _SS.Columns * _SS.CellSize + 260;
-            int Height = _SS.Rows * _SS.CellSize + 70;
+            int Width = _SS.Columns * _SS.BlockSize + 260;
+            int Height = _SS.Rows * _SS.BlockSize + 70;
             if (Height < 510)
             {
                 Height = 510;
             }
 
             this.Size = new Size(Width, Height);
-            Panel_Main.Size = new Size(_SS.Columns * _SS.CellSize + 1, _SS.Rows * _SS.CellSize + 1);
+            Panel_Main.Size = new Size(_SS.Columns * _SS.BlockSize + 1, _SS.Rows * _SS.BlockSize + 1);
             Panel_Right.Location = new Point(Panel_Main.Width + 40, Panel_Main.Location.Y);
             Panel_Main.BackColor = Color.LightGray;
         }
@@ -295,14 +295,14 @@ namespace GS2
 
         private void IncreaseSpeed()
         {
-            if (_SS.CurrentSpeed > 100)
+            if (_SS.CurrentSpeed > 150)
             {
                 _SS.CurrentSpeed -= (int)(_SS.CurrentSpeed * _SS.DifficultyIncrease);
                 Label_Speed.Text = "Speed: " + _SS.CurrentSpeed + "ms";
             }
             else
             {
-                _SS.CurrentSpeed = 100;
+                _SS.CurrentSpeed = 150;
             }
         }
 
@@ -427,8 +427,8 @@ namespace GS2
 
                 Point Cursor = new Point(e.Location.X, e.Location.Y);
 
-                int DeltaWidth = Cursor.X - ((_SS.HeadPosition.Y) * _SS.CellSize + (_SS.CellSize / 2));
-                int DeltaHeight = Cursor.Y - ((_SS.HeadPosition.X) * _SS.CellSize + (_SS.CellSize / 2));
+                int DeltaWidth = Cursor.X - ((_SS.HeadPosition.Y) * _SS.BlockSize + (_SS.BlockSize / 2));
+                int DeltaHeight = Cursor.Y - ((_SS.HeadPosition.X) * _SS.BlockSize + (_SS.BlockSize / 2));
 
                 if(Math.Abs(DeltaWidth) > Math.Abs(DeltaHeight))
                 {

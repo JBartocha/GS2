@@ -70,7 +70,7 @@ namespace GS2
             TextBoxInitialSpeed.Text = settings.TickInMilliseconds.ToString();
             TrackBarRows.Value = settings.Rows;
             TrackBarColumns.Value = settings.Columns;
-            TrackBarCellSize.Value = settings.CellSize;
+            TrackBarCellSize.Value = settings.BlockSize;
 
             return settings;
         }
@@ -112,14 +112,14 @@ namespace GS2
                 return;
             }
 
-            _SS.CellSize = TrackBarCellSize.Value;
+            _SS.BlockSize = TrackBarCellSize.Value;
             _SS.FoodCount = Convert.ToInt32(ListBoxFoodCount.SelectedItem!.ToString());
             _SS.DifficultyIncrease = Convert.ToSingle(ListBoxSpeedPercent.SelectedItem!.ToString()) / 100f;
             _SS.LevelIncreaseInterval = Convert.ToInt32(ListBoxFoodInterval.SelectedItem!.ToString());
             _SS.TickInMilliseconds = Convert.ToInt32(TextBoxInitialSpeed.Text);
             _SS.Rows = TrackBarRows.Value;
             _SS.Columns = TrackBarColumns.Value;
-            _SS.CellSize = TrackBarCellSize.Value;
+            _SS.BlockSize = TrackBarCellSize.Value;
 
             if(_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
             {
@@ -166,7 +166,7 @@ namespace GS2
             this.Hide();
             _SS.Rows = TrackBarRows.Value;
             _SS.Columns = TrackBarColumns.Value;
-            _SS.CellSize = TrackBarCellSize.Value;
+            _SS.BlockSize = TrackBarCellSize.Value;
             
             if (_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
             {

@@ -87,9 +87,8 @@ V projektu byl použit algoritmus pro výpočet Hamiltonianského cyklu ze strá
 
 ### TODO
 
-- Celé přepsat - příliš mnoho chyb(proč abstract grid, úvodní formulář by se měl rozdělit(udělat něco jako úvodní menu), rozdělení tříd v souborech, příliš velká vázanost mezi formuláři a třídami, Vlastní eventy způsobily problémy v práci třídami ve kterých jsou vyvolány - hlavně když se daná třída dědí)
 - ~~Aplikace "Hamiltonian cycle" pro Automatizaci hry.~~
-- Přidat možnost automatizace hry, kde pohyb hada bude řízen Hamiltoniánským cyklem.
+- Přidat možnost automatizace hry, kde pohyb hada bude řízena Hamiltoniánským cyklem(pravděpodobně vytvořit novou třídu která bude dědit z Grid).
   - Optimalizovat hledání cesty tak, že had bude podle pořadí v Hamiltonského cyklu přeskakovat sekce které ho přiblíží k nejbližšímu jídlu(v každém kroku bude kontrolovat zda v okolí nemá bod který by byl v cyklu dále a zároveň nepřeskočil potravu)
   - Ošetřit případ kdy Hamiltoniánský cyklus neexistuje - aktuálně nastavená výjimka - pravděpodobně asi jen zobrazit mřížku bez řešení? 
 - Přidat nastavení možnosti přecházet s hadem z jednoho okraje na opačný (tento stav by se zároveň nepovažoval jako konec hry).
@@ -99,5 +98,7 @@ V projektu byl použit algoritmus pro výpočet Hamiltonianského cyklu ze strá
 - Do WallOptionsForm přidat algoritmus který znemožní vytváření zdí, tak aby zamezil nedostupným bodům nebo bodům ze kterých není možné "odejít".
 - ~~Opravit blikání při přidávání bloků v WallOptionsForm.~~
 - Ve WallOptionsForm využít třídu "Grid".
+- Upravit ukládání záznamu (záznam se ukládá teď do třídy Record) rozhraním, které se implementuje do třídy had. 
 - ~~Pro srandu přidat počítání bodů tak, aby to dávalo smysl. Počítání s použitím parabolických křivek pravděpodobně pro proměnné které ovlivňují rychlost, počáteční rychlost a konstantním počtu jídla na ploše.~~
 - Ošetření chyby, která nastane když se struktura JSON souboru změní je snaha načíst stary JSON do pozměněné struktury
+- Přepsat? - příliš mnoho chyb(úvodní formulář by se měl rozdělit(udělat něco jako úvodní menu), příliš velká vázanost mezi formuláři a třídami, Vlastní eventy způsobily problémy v práci třídami ve kterých jsou vyvolány - hlavně když se daná třída dědí)
