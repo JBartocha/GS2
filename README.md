@@ -33,7 +33,7 @@ Sekce s nastavením "Options", která umožňuje nastavení:
 V sekci nastavení je "Nastav zdi" tlačítko, které umožňuje nastavit, kde budou generované zdi. Nastavení bloků zdí lze pomocí kliknutí myší na daný blok pro změnu jednoho bloku, nebo kliknutím a táhnutím pro změnu ve více blocích. 
 Pokud se v hlavním nastavovacím formuláři neuloží nastavení (pomocí tlačítka "Ulož") tak i nastavení v "Nastav Zdi" nebude uloženo.
 
-Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na mřížce která má více bloků než je 50 tak výpočet může trvat hodiny. viz.: (obsahuje 62 uzlů a okolo 210 spojů)
+Přidání Hamiltoninaského cyklu přes tlačítko "Hamiltonian". Pomocí tohoto algoritmu vytvoří a zobrazí cestu nad aktuální mřížkou, která zobrazí cestu která projde přes každý blok, který není zeď právě jednou a vrátí se na původní místo. Složitost algoritmu je O(n!) a pokud se bude spouštět na **mřížce která má více bloků než je 50** tak výpočet **může trvat hodiny (O(n!))**. viz.: (obsahuje 62 uzlů a okolo 210 spojů)
 
 ![Hamiltonian Example](images/hamiltonian-example.png)
 

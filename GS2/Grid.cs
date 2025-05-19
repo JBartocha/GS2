@@ -2,14 +2,6 @@
 
 namespace GS2
 {
-
-    interface IGrid
-    {
-        public void AddFood(Point position, bool StartingPositionFood = false);
-        public void AddWall(Point position);
-        public void AddFood(bool StartingPositionFood = false);
-    }
-
     public enum BlockTypes
     {
         EmptyBlock,
@@ -32,7 +24,7 @@ namespace GS2
         };
     }
 
-    public class Grid : IGrid
+    public class Grid
     {
         protected int _Rows;
         protected int _Columns;

@@ -121,11 +121,6 @@ namespace GS2
             _SS.Columns = TrackBarColumns.Value;
             _SS.BlockSize = TrackBarCellSize.Value;
 
-            if(_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
-            {
-                _SS.WallPositions.Clear();
-            }
-
             string json = JsonSerializer.Serialize(_SS);
             File.WriteAllText(Settings.JsonSaveFileName, json);
             this.Close();
@@ -167,7 +162,7 @@ namespace GS2
             _SS.Rows = TrackBarRows.Value;
             _SS.Columns = TrackBarColumns.Value;
             _SS.BlockSize = TrackBarCellSize.Value;
-            
+
             if (_OriginalSize.X != TrackBarRows.Value || _OriginalSize.Y != TrackBarColumns.Value)
             {
                 _SS.WallPositions.Clear();
@@ -182,7 +177,6 @@ namespace GS2
             //WallOptionsForm optionsForm = new WallOptionsForm(_SS.Rows, _SS.Columns, _SS.CellSize,
             //    forbiddenPoints, _SS.WallPositions);- 
             optionsForm.ShowDialog();
-            
             this.Show();
         }
     }

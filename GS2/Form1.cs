@@ -375,7 +375,7 @@ namespace GS2
 
         private void Panel_Main_Paint(object sender, PaintEventArgs e)
         {
-            // So lonely
+            
         }
 
         private void Restart_Click(object sender, EventArgs e)
@@ -386,10 +386,12 @@ namespace GS2
         private void Button_Options_Click(object sender, EventArgs e)
         {
             this.Hide();
+        
             OptionsForm optionsForm = new OptionsForm();
             optionsForm.ShowDialog();
             LoadSettingsFromFile();
             ResetGame();
+    
             this.Show();
         }
 
@@ -499,10 +501,10 @@ namespace GS2
                 "Spuštìní Hamiltonianského cyklu nad aktuální møížkou? Složitost algoritmu pro výpoèet algoritmu je O(n!)" +
                 " - pøi více než 55 non-wall blocích trvá výpoèet velmi dlouho." +
                 "\nAlgoritmus provede výpoèet a zobrazí na møížce cestu." +
-                "\nProvést výpoèet?", // Message
-                "Spustit Výpoèet?",                 // Title
-                MessageBoxButtons.YesNo,            // Buttons
-                MessageBoxIcon.Question             // Icon
+                "\nProvést výpoèet?", 
+                "Spustit Výpoèet?",                 
+                MessageBoxButtons.YesNo,            
+                MessageBoxIcon.Question             
             );
             if (result == DialogResult.Yes)
             {

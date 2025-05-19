@@ -27,7 +27,8 @@ namespace GS2
             Panel_Main.BackgroundImage = surface;
             Panel_Main.BackgroundImageLayout = ImageLayout.None;
 
-            hamiltonian = new Hamiltonian(SS.Rows, SS.Columns, SS.BlockSize, grap, SS.WallPositions);
+            //hamiltonian = new Hamiltonian(SS.Rows, SS.Columns, SS.BlockSize, grap, SS.WallPositions);
+            hamiltonian = new Hamiltonian(SS, grap);
             settings = SS;
 
             this.Size = new Size(SS.Columns * SS.BlockSize + 40, SS.Rows * SS.BlockSize + 40 + 100);

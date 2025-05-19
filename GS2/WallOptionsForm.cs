@@ -10,11 +10,13 @@ namespace GS2
         private Point[] _ForbiddenWallPositions;
         private Graphics _Grap;
         private Bitmap _surface;
-        private int _Rows;
-        private int _Columns;
-        private int _BlockSize;
+        private readonly int _Rows;
+        private readonly int _Columns;
+        private readonly int _BlockSize;
+       
         private List<Point> _WallPositions = new List<Point>();
-        private List<Point> _OriginalWallPositions = new List<Point>();
+        private readonly List<Point> _OriginalWallPositions = new List<Point>();
+
         private bool _Multiselect = false;
         private Point? _MultiselectStart;
         private Point? _MultiselectEnd;

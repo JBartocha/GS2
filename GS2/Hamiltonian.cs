@@ -26,6 +26,46 @@ namespace GS2
 
         private List<Edge> _Edges = new List<Edge>();
 
+        public Hamiltonian(Settings settings, Graphics graphics) : 
+            base(settings.Rows, settings.Columns, settings.BlockSize, graphics)
+        {
+            for (int i = 0; i < settings.WallPositions.Count; i++)
+            {
+                DrawBlock(settings.WallPositions[i], BlockTypes.WallBlock);
+                _Block[settings.WallPositions[i].X, settings.WallPositions[i].Y] = BlockTypes.WallBlock;
+            }
+
+            SetEdges(settings.WallPositions);
+            int[,] graph = new int[_Edges.Count, _Edges.Count];
+            graph = GetVectorGraph();
+            ListVectorGraph(graph);
+            Debug.WriteLine("Number of Edges: " + _Edges.Count);
+
+            HamiltonianCycle hamiltonianCycle = new HamiltonianCycle(_Edges.Count, graph);
+            int[] ints = hamiltonianCycle.GetPath();
+
+
+            string textForBelow = "";
+            int numberCounter = 0;
+            foreach (int i in ints)
+            {
+                numberCounter++;
+                if (numberCounter % 15 == 0)
+                {
+                    textForBelow += "\n";
+                }
+                textForBelow += i.ToString() + "->";
+                Debug.WriteLine("Hamiltonian: " + i.ToString() + ", Position:" + _Edges[i].Position.ToString());
+            }
+            textForBelow = textForBelow.Substring(0, textForBelow.Length - 2);
+
+
+            DrawPath(ints);
+            Point textBelow = new Point(0, settings.BlockSize * settings.Rows + 5);
+            DrawText(textForBelow, textBelow);
+        }
+
+        /*
         // souradnice bunky, typ bunky
         public Hamiltonian(int Rows, int Columns, int BlockSize, Graphics graphics, List<Point> Walls) : base(Rows, Columns, BlockSize, graphics)
         {
@@ -67,6 +107,7 @@ namespace GS2
             DrawText(textForBelow, textBelow);
             
         }
+        */
 
         private void DrawText(string text, Point position)
         {
